@@ -17,7 +17,6 @@ vtkTracking3D.cxx
 QinStyle.cxx
 vtkTrackingSlice.cxx
 vtkTrackingRegistration.cxx
-vtkTrackingMarkCapture.cxx
 )
 
 set(
@@ -26,8 +25,8 @@ vtkTracking3D.h
 QinStyle.h
 vtkTrackingSlice.h
 vtkTrackingRegistration.h
-TrackerBase.h
 vtkTrackingMarkCapture.h
+vtkTrackingMarkCapture.hxx
 )
 
 add_subdirectory(API)

@@ -51,7 +51,7 @@ void vtkTrackingMarkCapture<TrackerType>::GetNextMarker()
 	{
 		std::cout << "Not Tracking" << std::endl;
 		return;
-	}
+	} 
 
 	auto tool_trans = m_Tracker->GetTransform(m_ToolIndex);
 	auto refer_trans = m_Tracker->GetTransform(m_ReferIndex);

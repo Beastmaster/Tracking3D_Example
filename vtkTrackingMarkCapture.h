@@ -1,11 +1,18 @@
 /*
 Author: QIN Shuo
 Organization: RC-MIC (CUHK)
-Date: 2016/01/07
+Date: 2016/01/08
 
 Description:
+	Get markers 
 
-
+Note:
+	Please be noted that, save your file regularly is a very
+	good manner. Git must be a powerful tool. Every commit 
+	you make may save large amount of time. My vs crashed 
+	this file onece to be a pile of useless code.
+	
+	And, be careful with template
 */
 
 
@@ -21,7 +28,7 @@ Description:
 #include "vtkObjectFactory.h"
 
 #include <vector>
-
+#include <iostream>
 
 
 template<typename TrackerType>
@@ -34,31 +41,20 @@ public:
 	~vtkTrackingMarkCapture();
 
 	void SetTracker(TrackerType* in) { m_Tracker = in; };
-	void GetNextMarker(){};
+	void SetToolIndex(int);
+	void SetReferIndex(int);
 
+	void GetNextMarker();
 private:
 	TrackerType* m_Tracker;
+
+	int m_ToolIndex;
+	int m_ReferIndex;
 
 	std::vector<QIN_Transform_Type*> m_ToolMarkers;
 	std::vector<QIN_Transform_Type*> m_ReferMarkers;
 
 };
-
-template<typename TrackerType>
-vtkStandardNewMacro(vtkTrackingMarkCapture<TrackerType>)
-
-template<typename TrackerType>
-vtkTrackingMarkCapture<TrackerType>::vtkTrackingMarkCapture()
-{
-}
-template<typename TrackerType>
-vtkTrackingMarkCapture<TrackerType>::~vtkTrackingMarkCapture()
-{
-}
-
-
-
-
 
 
 

@@ -4,7 +4,8 @@ Organization: RC-MIC (CUHK)
 Date: 2016/01/07
 
 Description:
-
+	Main file is in .h file
+	This file is a trick
 
 */
 

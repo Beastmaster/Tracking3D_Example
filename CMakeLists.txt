@@ -32,9 +32,12 @@ vtkTrackingMarkCapture.hxx
 add_subdirectory(API)
 include_directories(API)
 
+add_subdirectory(atclib)
+include_directories(atclib)
+
 add_executable(${PRJ} ${SRC} ${HEAD})
 
 target_link_libraries(${PRJ} ${VTK_LIBRARIES})
 target_link_libraries(${PRJ} Polaris_Vicra_lib)
-
+target_link_libraries(${PRJ} ATC3DG_lib)
 

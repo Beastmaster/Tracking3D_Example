@@ -75,11 +75,15 @@ vtkTrackingMarkCapture<TrackerType>::~vtkTrackingMarkCapture()
 	for (auto it = m_ToolMarkers.begin(); it != m_ToolMarkers.end(); ++it)
 	{
 		delete *it;
+		*it = NULL;
 	}
+	m_ToolMarkers.clear();
 	for (auto it = m_ReferMarkers.begin(); it != m_ReferMarkers.end(); ++it)
 	{
 		delete *it;
+		*it = NULL;
 	}
+	m_ReferMarkers.clear();
 }
 
 

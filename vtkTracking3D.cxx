@@ -37,6 +37,7 @@ vtkTracking3D::vtkTracking3D()
 vtkTracking3D::~vtkTracking3D()
 {
 	delete m_tracker; //There is error if I use static_cast
+	m_tracker = NULL;
 }
 
 // Please be noted that:

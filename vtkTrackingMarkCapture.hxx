@@ -41,7 +41,8 @@ vtkTrackingMarkCapture<TrackerType>::~vtkTrackingMarkCapture()
 
 
 /*
-
+Description:
+	
 */
 template<typename TrackerType>
 void vtkTrackingMarkCapture<TrackerType>::GetNextMarker()
@@ -52,9 +53,17 @@ void vtkTrackingMarkCapture<TrackerType>::GetNextMarker()
 		return;
 	}
 
-
+	auto tool_trans = m_Tracker->GetTransform(m_ToolIndex);
+	auto refer_trans = m_Tracker->GetTransform(m_ReferIndex);
 	
+	QIN_Transform_Type* tem_tool = new QIN_Transform_Type;
+	QIN_Transform_Type* tem_refer = new QIN_Transform_Type;
 
+	memcpy(tem_tool,tool_trans,sizeof(QIN_Transform_Type));
+	memcpy(tem_refer, refer_trans, sizeof(QIN_Transform_Type));
+
+	m_ToolMarkers.push_back(tem_tool);
+	m_ReferMarkers.push_back(tem_refer);
 }
 
 

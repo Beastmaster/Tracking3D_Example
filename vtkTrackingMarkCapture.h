@@ -53,7 +53,8 @@ private:
 
 	std::vector<QIN_Transform_Type*> m_ToolMarkers;
 	std::vector<QIN_Transform_Type*> m_ReferMarkers;
-
+	
+	
 };
 
 

@@ -146,23 +146,32 @@ void TestRegistration()
 
 void TestTrackingMarkFunction()
 {
-	/*
+	
 	auto track = vtkSmartPointer<vtkTracking3D>::New();
 	
-	//auto mark = vtkSmartPointer< vtkTrackingMarkCapture<vtkTracking3D> >::New();
+	auto mark = vtkSmartPointer< vtkTrackingMarkCapture<vtkTracking3D> >::New();
 	
+	mark->SetTracker(track);
+	mark->SetToolIndex(1);
+	mark->SetReferIndex(2);
+
 	track->InstallPipeline();
 	track->m_tracker->ConfigureTracker();
 	Sleep(20);
 	track->m_tracker->StartTracking();
 	Sleep(20);
-	*/
+	
+	while (getchar()!='q')
+	{
+		mark->GetNextMarker();
+	}
+
 }
 
 
 int main(int argc, char** argv)
 {
-
+	TestTrackingMarkFunction();
 
 	return 0;
 }

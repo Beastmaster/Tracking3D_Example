@@ -30,6 +30,7 @@ vtkTracking3D::vtkTracking3D()
 	m_InteractorStyle = vtkSmartPointer < vtkInteractorStyleImage > ::New();
 	m_InteractCallBack = vtkSmartPointer<vtkCallbackCommand> ::New();
 	m_TimerCallBack = vtkSmartPointer<vtkCallbackCommand>::New();
+	m_MouseCallback = vtkSmartPointer<vtkCallbackCommand>::New();
 
 	m_tracker = new TrackerType;
 
@@ -138,8 +139,12 @@ vtkActor* vtkTracking3D::GetActorPointer(vtkPropCollection* collection, int inde
 	else
 		return NULL;
 }
+/*
+Description:
+	Set the opacity of a specified actor
+	index count from 0
+*/
 
-// index start from 0
 int vtkTracking3D :: SetOpacity(int index, float opacity) 
 {
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems()>=index)
@@ -151,6 +156,21 @@ int vtkTracking3D :: SetOpacity(int index, float opacity)
 	else
 		return 1;
 }
+/*
+Description:
+	Set the outline of a specified actor
+Input:
+	index: index of the actor
+	en:    enablitiy of outline
+		true:  enable
+		false: disable
+*/
+int vtkTracking3D::SetEnableOutline(int index, bool en)
+{
+	return 0;
+}
+
+
 int vtkTracking3D::SetColor(int index, double r, double g, double b)
 {
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() >= index)
@@ -230,6 +250,11 @@ void vtkTracking3D::SetWindow(vtkSmartPointer<vtkRenderWindow> win)
 	m_RenderWindow = win;
 }
 
+vtkRenderer* vtkTracking3D::GetDefaultRenderer()
+{
+	return m_CurrentRenderer;
+}
+
 vtkSmartPointer<vtkRenderWindow> vtkTracking3D::GetRenderWindow()
 {
 	return m_RenderWindow;
@@ -260,8 +285,11 @@ int vtkTracking3D::InstallPipeline()
 	m_InteractCallBack->SetCallback(KeypressCallbackFunction);
 	m_TimerCallBack->SetClientData(this);
 	m_TimerCallBack->SetCallback(TimerCallbackFunction);
+	m_MouseCallback->SetClientData(this);
+	m_MouseCallback->SetCallback(MouseclickCallbackFunction);
 	m_Interactor->AddObserver(vtkCommand::KeyPressEvent, m_InteractCallBack);
 	m_Interactor->AddObserver(vtkCommand::TimerEvent, m_TimerCallBack);
+	m_Interactor->AddObserver(vtkCommand::LeftButtonPressEvent, m_MouseCallback);
 	//
 	m_Transform = vtkSmartPointer<vtkTransform>::New();
 	m_Transform->PostMultiply(); //this is the key line
@@ -319,6 +347,31 @@ void KeypressCallbackFunction(vtkObject* caller,long unsigned int eventId,void* 
 		tracking->SetOpacity(1,0.3);
 	}
 	tracking->GetRenderWindow()->Render();
+}
+
+/*
+Description:
+	This function contain some key technologies
+	Show more attentions
+*/
+static void MouseclickCallbackFunction(
+	vtkObject* caller,
+	long unsigned int eventId,
+	void* clientData,
+	void* callData
+	)
+{
+	vtkSmartPointer<vtkTracking3D> tracking = static_cast<vtkTracking3D*> (clientData);
+
+	// Get the screen/window pixel coordinate
+	int* clickPos = tracking->GetInteractor()->GetEventPosition();
+
+	// Pick from this location
+	vtkSmartPointer<vtkPropPicker> picker = vtkSmartPointer<vtkPropPicker>::New();
+	picker->Pick(clickPos[0], clickPos[1],0, tracking->GetDefaultRenderer());
+
+	double* pos = picker->GetPickPosition();
+	std::cout << "Position is: " << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
 }
 
 

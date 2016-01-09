@@ -19,8 +19,21 @@
 #include "vtkConeSource.h"
 #include "vtkCylinderSource.h"
 
+//private head files
 #include "vtkTrackingRegistration.h"
 #include "vtkTrackingMarkCapture.h"
+
+//test head files
+#include "vtkOutlineFilter.h"
+#include "vtkLookupTable.h"
+#include "vtkImageDataGeometryFilter.h"
+#include "vtkDICOMImageReader.h"
+#include "vtkMarchingCubes.h"
+#include "vtkStripper.h"
+#include "vtkDataSetMapper.h"
+#include "vtkCoordinate.h"
+#include "vtkImagePlaneWidget.h"
+#include "vtkImageData.h"
 /*
 Test Function for tracking device
 */
@@ -76,6 +89,54 @@ void TestTrackingDevice()
 	track->GetRenderWindow()->Render();
 	track->GetInteractor()->Start();
 
+}
+
+void TestMousePick()
+{
+	/*
+	vtkSmartPointer<vtkSphereSource> sphere =
+		vtkSmartPointer<vtkSphereSource>::New();
+	sphere->SetCenter(0, 0, 0);
+	sphere->SetRadius(50);
+	sphere->Update();
+	vtkSmartPointer<vtkConeSource> cone =
+		vtkSmartPointer<vtkConeSource>::New();
+	cone->SetHeight(80);
+	cone->SetRadius(50);
+	cone->Update();
+	vtkSmartPointer<vtkCylinderSource> cylinder =
+		vtkSmartPointer<vtkCylinderSource>::New();
+	cylinder->SetHeight(80);
+	cylinder->SetRadius(60);
+	cylinder->Update();*/
+
+	vtkSmartPointer<vtkSTLReader> reader = vtkSmartPointer<vtkSTLReader>::New();
+	reader->SetFileName("E:/QinShuoTShape.stl");
+	reader->Update();
+
+	//create outline source
+	auto outline = vtkSmartPointer<vtkOutlineFilter>::New();
+	outline->SetInputData(reader->GetOutput());
+	outline->Update();
+
+	auto track = vtkSmartPointer<vtkTracking3D>::New();
+
+	track->AddPolySource(reader->GetOutput());
+	track->AddPolySource(outline->GetOutput());
+	//track->AddPolySource(sphere->GetOutput());
+	//track->AddPolySource(cone->GetOutput());
+	//track->AddPolySource(cylinder->GetOutput());
+
+	//auto win1 = vtkSmartPointer<vtkRenderWindow>::New();
+	//track->SetWindow(win1);
+	auto interactorx = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+	auto style = vtkSmartPointer<vtkInteractorStyleTrackballCamera >::New();
+	track->SetInteractorStyle(style);
+	track->SetInteractor(interactorx);
+	track->InstallPipeline();
+
+	track->GetRenderWindow()->Render();
+	track->GetInteractor()->Start();
 }
 
 void TestRegistration()
@@ -166,10 +227,125 @@ void TestTrackingMarkFunction()
 	track->StopTracking();
 }
 
+void TestOrthogonalPlane()
+{
+	auto reader = vtkSmartPointer<vtkDICOMImageReader>::New();
+	reader->SetDirectoryName("E:/test/ct_spine");
+	reader->Update();
+
+	auto boneExtractor = vtkMarchingCubes::New();
+	boneExtractor->SetInputConnection(reader->GetOutputPort());
+	boneExtractor->SetValue(0, 1000);
+	boneExtractor->Update();
+	vtkStripper *boneStripper = vtkStripper::New();
+	boneStripper->SetInputData(boneExtractor->GetOutput());
+	boneExtractor->Update();
+	vtkPolyDataMapper *boneMapper = vtkPolyDataMapper::New();
+	boneMapper->SetInputData(boneStripper->GetOutput());
+	boneMapper->ScalarVisibilityOff();
+	vtkActor *bone = vtkActor::New();
+	bone->SetMapper(boneMapper);
+	bone->GetProperty()->SetDiffuseColor(1, 1, .9412);
+
+
+	auto bwLut = vtkSmartPointer<vtkLookupTable> ::New();
+	bwLut->SetTableRange(0, 2000);
+	bwLut->SetSaturationRange(0, 0);
+	bwLut->SetHueRange(0, 0);
+	bwLut->SetValueRange(0, 1);
+	bwLut->Build(); //effective built
+
+	auto hueLut = vtkSmartPointer<vtkLookupTable>::New();
+	hueLut->SetTableRange(0, 2000);
+	hueLut->SetHueRange(0, 1);
+	hueLut->SetSaturationRange(1, 1);
+	hueLut->SetValueRange(1, 1);
+	hueLut->Build(); //effective built
+
+	auto satLut = vtkSmartPointer<vtkLookupTable>::New();
+	satLut->SetTableRange(0, 2000);
+	satLut->SetHueRange(.6, .6);
+	satLut->SetSaturationRange(0, 1);
+	satLut->SetValueRange(1, 1);
+	satLut->Build(); //effective built
+
+
+	// sagittal
+	auto saggitalSection =
+		vtkSmartPointer<vtkImageDataGeometryFilter>::New();
+	saggitalSection->SetExtent(32, 32, 0, 63, 0, 93);
+	saggitalSection->SetInputConnection(reader->GetOutputPort());
+	vtkPolyDataMapper *saggitalMapper = vtkPolyDataMapper::New();
+	saggitalMapper->SetInputData(saggitalSection->GetOutput());
+	saggitalMapper->ScalarVisibilityOn();
+	saggitalMapper->SetScalarRange(0, 2000);
+	saggitalMapper->SetLookupTable(bwLut);
+	vtkActor *sagittal = vtkActor::New();
+	sagittal->SetMapper(saggitalMapper);
+
+	// axial
+	auto axialSection =
+		vtkSmartPointer<vtkImageDataGeometryFilter>::New();
+	axialSection->SetExtent(0, 63, 0, 63, 46, 46);
+	axialSection->SetInputData(reader->GetOutput());
+	vtkPolyDataMapper *axialMapper = vtkPolyDataMapper::New();
+	axialMapper->SetInputData(axialSection->GetOutput());
+	axialMapper->ScalarVisibilityOn();
+	axialMapper->SetScalarRange(0, 2000);
+	axialMapper->SetLookupTable(hueLut);
+	vtkActor *axial = vtkActor::New();
+	axial->SetMapper(axialMapper);
+
+	// coronal
+	auto coronalSection =
+		vtkSmartPointer<vtkImageDataGeometryFilter>::New();
+	coronalSection->SetExtent(0, 63, 32, 32, 0, 92);
+	coronalSection->SetInputConnection(reader->GetOutputPort());
+	vtkPolyDataMapper *coronalMapper =
+		vtkPolyDataMapper::New();
+	coronalMapper->SetInputData(coronalSection->GetOutput());
+	coronalMapper->ScalarVisibilityOn();
+	coronalMapper->SetScalarRange(0, 2000);
+	coronalMapper->SetLookupTable(satLut);
+	vtkActor *coronal = vtkActor::New();
+	coronal->SetMapper(coronalMapper);
+
+
+	auto coor = vtkSmartPointer<vtkCoordinate>::New();
+	coor->SetCoordinateSystemToNormalizedDisplay();
+
+
+	auto mapper = vtkSmartPointer<vtkDataSetMapper>::New();
+	mapper->SetInputData(boneExtractor->GetOutput());
+	auto b_actor = vtkSmartPointer<vtkActor>::New();
+	b_actor->SetMapper(mapper);
+
+
+	auto renderer = vtkSmartPointer<vtkRenderer>::New();
+	renderer->SetBackground(0.1, 0.1, 0.1);
+	//renderer->AddActor(b_actor);
+	//renderer->AddActor(sagittal);
+	//renderer->AddActor(axial);
+	renderer->AddActor(coronal);
+
+	auto rewin = vtkSmartPointer<vtkRenderWindow>::New();
+	auto intact = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+	intact->SetRenderWindow(rewin);
+	rewin->AddRenderer(renderer);
+
+	//auto planeWidget = vtkSmartPointer<vtkImagePlaneWidget>::New();
+	//planeWidget->SetInteractor(intact);
+	//planeWidget->SetOrigin(0, 1, 0);
+	//planeWidget->UpdatePlacement();
+	
+	rewin->Render();
+	//planeWidget->On();
+	intact->Start();
+}
 
 int main(int argc, char** argv)
 {
-	TestTrackingMarkFunction();
+	TestOrthogonalPlane();
 
 	return 0;
 }

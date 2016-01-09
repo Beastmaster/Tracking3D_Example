@@ -14,18 +14,20 @@ Description:
 #include "vtkSmartPointer.h"
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
-#include <vtkProperty.h>
+#include "vtkProperty.h""
 #include "vtkActor.h"
+#include "vtkActorCollection.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkMapper.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkActorCollection.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkCallbackCommand.h"
+#include "vtkPropPicker.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkOutlineFilter.h"
 
 #include <vtkTransform.h>
 #include <vtkPropAssembly.h>
@@ -86,6 +88,7 @@ public:
 	// Add Functions
 	int AddObject( vtkSmartPointer< vtkActor > );
 	int AddPolySource(vtkSmartPointer<vtkPolyData>);
+	int AddOrthogonalPlanes(){ return 0; };    // to be continued
 	int ConnectObjectTracker(int,int);
 	int DisConnectObjectTracker(int);
 
@@ -95,6 +98,7 @@ public:
 
 	// Set Functions
 	int SetOpacity(int index , float opacity);
+	int SetEnableOutline(int index,bool en);
 	int SetColor(int index, double r, double g, double b);
 	int SetColor(int index, double* rgb);
 	int SetTransform(int index, QIN_Transform_Type* in);
@@ -105,6 +109,7 @@ public:
 
 	// Get Functions
 	static vtkActor* GetActorPointer(vtkPropCollection*, int);
+	vtkRenderer* GetDefaultRenderer();
 	vtkSmartPointer<vtkRenderWindow> GetRenderWindow();
 	vtkSmartPointer<vtkRenderWindowInteractor> GetInteractor();
 
@@ -138,6 +143,7 @@ private:
 	// callback command
 	vtkSmartPointer<vtkCallbackCommand> m_InteractCallBack;
 	vtkSmartPointer<vtkCallbackCommand> m_TimerCallBack;
+	vtkSmartPointer<vtkCallbackCommand> m_MouseCallback;
 	// interactor
 	vtkSmartPointer<vtkRenderWindowInteractor> m_Interactor;
 	// interactor style
@@ -156,6 +162,14 @@ static void KeypressCallbackFunction(
 	void* clientData,
 	void* callData
 	);
+
+static void MouseclickCallbackFunction(
+	vtkObject* caller,
+	long unsigned int eventId,
+	void* clientData,
+	void* callData
+	);
+
 
 static void TimerCallbackFunction(
 	vtkObject* caller,

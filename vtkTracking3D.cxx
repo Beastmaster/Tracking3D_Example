@@ -371,7 +371,9 @@ static void MouseclickCallbackFunction(
 	picker->Pick(clickPos[0], clickPos[1],0, tracking->GetDefaultRenderer());
 
 	double* pos = picker->GetPickPosition();
+
 	std::cout << "Position is: " << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
+
 }
 
 

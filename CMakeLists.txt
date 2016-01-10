@@ -9,6 +9,14 @@ project(${PRJ})
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
+find_package(Qt5Widgets REQUIRED)
+
+set( UI_FILES
+mainWindow.ui
+)
+set( QT_WRAP
+mainWindow.h
+)
 
 set(
 SRC
@@ -17,6 +25,7 @@ vtkTracking3D.cxx
 QinStyle.cxx
 vtkTrackingSlice.cxx
 vtkTrackingRegistration.cxx
+mainWindow.cpp
 )
 
 set(
@@ -35,7 +44,9 @@ include_directories(API)
 add_subdirectory(atclib)
 include_directories(atclib)
 
-add_executable(${PRJ} ${SRC} ${HEAD})
+qt5_wrap_ui(UISrcs ${UI_FILES})
+add_executable(${PRJ} ${SRC} ${HEAD} ${UISrcs} ${QT_WRAP})
+qt5_use_modules(${PRJ} Core Gui)
 
 target_link_libraries(${PRJ} ${VTK_LIBRARIES})
 target_link_libraries(${PRJ} Polaris_Vicra_lib)

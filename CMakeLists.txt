@@ -14,9 +14,12 @@ find_package(Qt5Widgets REQUIRED)
 set( UI_FILES
 mainWindow.ui
 )
-set( QT_WRAP
+set( QT_HEAD
 mainWindow.h
 )
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+
 
 set(
 SRC
@@ -45,7 +48,8 @@ add_subdirectory(atclib)
 include_directories(atclib)
 
 qt5_wrap_ui(UISrcs ${UI_FILES})
-add_executable(${PRJ} ${SRC} ${HEAD} ${UISrcs} ${QT_WRAP})
+qt5_wrap_cpp(MOCSrcs ${QT_HEAD})
+add_executable(${PRJ} ${SRC} ${HEAD} ${UISrcs} ${QT_HEAD} ${MOCSrcs})
 qt5_use_modules(${PRJ} Core Gui)
 
 target_link_libraries(${PRJ} ${VTK_LIBRARIES})

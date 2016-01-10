@@ -37,7 +37,7 @@ Description:
 
 #include <vector>
 #include "PolarisVicraConfiguration.h"
-
+#include "ATC3DGConfiguration.h"
 
 //----------  define user event id here  ---------//
 #define QIN_MOVE_EVENT "new data"
@@ -119,7 +119,8 @@ public:
 
 	//tracking device confuration
 	//PloarisVicraConfiguration* m_tracker;
-	typedef  PloarisVicraConfiguration TrackerType;
+	//typedef  PloarisVicraConfiguration TrackerType;
+	typedef  ATC3DGConfiguration TrackerType;
 	TrackerType* m_tracker;
 	std::map<int, int> m_Obj_Tool_Map;   //map: link index of actor and trackingTool
 protected:

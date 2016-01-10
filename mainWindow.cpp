@@ -10,9 +10,9 @@ Date: 2016/1/10
 #include "mainWindow.h"
 
 
-mainWindow:: mainWindow(QWidget *parent = 0)
+MainWindow::MainWindow(QWidget *parent)
 {}
-mainWindow:: ~mainWindow()
+MainWindow:: ~MainWindow()
 {}
 
 

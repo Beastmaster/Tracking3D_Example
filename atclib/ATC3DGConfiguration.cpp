@@ -208,6 +208,14 @@ Description:
 */
 int ATC3DGConfiguration::SystemSetup()
 {
+	BOOL metric = true;
+	m_ErrorCode = SetSystemParameter(METRIC, &(metric), sizeof(metric)); //Get SystemInformation
+	if (m_ErrorCode != BIRD_ERROR_SUCCESS)
+	{
+		ErrorHandler();
+		return 1;
+	}
+
 	m_ErrorCode = GetBIRDSystemConfiguration(&(m_SystemConfig)); //Get SystemInformation
 	if (m_ErrorCode != BIRD_ERROR_SUCCESS)
 	{

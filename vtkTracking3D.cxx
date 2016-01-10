@@ -200,7 +200,7 @@ int vtkTracking3D::SetColor(int index, double* rgb)
 int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 {
 
-	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() >= index)
+	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
 	{
 		// construct transform
 		m_Transform->Translate(trans->x, trans->y, trans->z);
@@ -398,7 +398,7 @@ void TimerCallbackFunction(
 		if (temp != NULL)
 		{
 			//memcpy(&trans, temp, sizeof(QIN_Transform_Type));
-			tracking->SetTransform(it->second, temp);
+			tracking->SetTransform(it->first, temp);
 			std::cout <<it->first<<":"<< temp->x<< " " << temp->y<< " " << temp->z<< std::endl;
 		}
 		else

@@ -44,31 +44,30 @@ void TestTrackingDevice()
 	sphere->SetCenter(0, 0, 0);
 	sphere->SetRadius(50);
 	sphere->Update();
-	vtkSmartPointer<vtkConeSource> cone =
-		vtkSmartPointer<vtkConeSource>::New();
-	cone->SetHeight(80);
-	cone->SetRadius(50);
-	cone->Update();
-	vtkSmartPointer<vtkCylinderSource> cylinder =
-		vtkSmartPointer<vtkCylinderSource>::New();
-	cylinder->SetHeight(80);
-	cylinder->SetRadius(60);
-	cylinder->Update();
 
-	vtkSmartPointer<vtkSTLReader> reader = vtkSmartPointer<vtkSTLReader>::New();
-	reader->SetFileName("E:/QinShuoTShape.stl");
+	//vtkSmartPointer<vtkSTLReader> reader = vtkSmartPointer<vtkSTLReader>::New();
+	//reader->SetFileName("E:/QinShuoTShape.stl");
+	//reader->Update();
+	vtkSmartPointer<vtkDICOMImageReader> reader = vtkSmartPointer<vtkDICOMImageReader>::New();
+	reader->SetDirectoryName("E:/test/with_BB");
 	reader->Update();
+	double ori[3];
+	reader->GetOutput()->GetOrigin(ori);
+	double space[3];
+	reader->GetOutput()->GetSpacing(space);
+
+	auto boneExtractor = vtkSmartPointer<vtkMarchingCubes>::New();
+	boneExtractor->SetInputData(reader->GetOutput());
+	boneExtractor->SetValue(0, 500);
+	boneExtractor->Update();
 
 
 	auto track = vtkSmartPointer<vtkTracking3D>::New();
 
 
+	track->AddPolySource(boneExtractor->GetOutput());
 	track->AddPolySource(sphere->GetOutput());
-	track->AddPolySource(cone->GetOutput());
-	track->AddPolySource(cylinder->GetOutput());
 
-	//auto win1 = vtkSmartPointer<vtkRenderWindow>::New();
-	//track->SetWindow(win1);
 	auto interactorx = vtkSmartPointer<vtkRenderWindowInteractor>::New();
 	auto style = vtkSmartPointer<vtkInteractorStyleTrackballCamera >::New();
 	track->SetInteractorStyle(style);
@@ -76,18 +75,16 @@ void TestTrackingDevice()
 	track->InstallPipeline();
 
 	track->m_tracker->ConfigureTracker();
+	track->ConnectObjectTracker(1, 0);
 	Sleep(20);
 
 	track->m_tracker->StartTracking();
+	track->StartTracking();
 
 	Sleep(20);
 
-	track->ConnectObjectTracker(0, 0);
-	track->ConnectObjectTracker(1, 1);
-	track->ConnectObjectTracker(2, 2);
-
 	track->GetRenderWindow()->Render();
-	track->GetInteractor()->Start();
+	interactorx->Start();
 
 }
 
@@ -299,8 +296,8 @@ void TestOrthogonalPlane()
 
 int main(int argc, char** argv)
 {
-	TestMousePick();
-
+	//TestMousePick();
+	TestTrackingDevice();
 	//TestOrthogonalPlane();
 	return 0;
 }

@@ -32,22 +32,22 @@ Date: 2016/1/10
 
 
 namespace Ui {
-	class mainWindow;
+	class MainWindow;
 }
 
 
 
-class mainWindow: public QMainWindow
+class MainWindow: public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	explicit mainWindow(QWidget *parent = 0);
-	~mainWindow();
+	explicit MainWindow(QWidget *parent = 0);
+	~MainWindow();
 
 
 
-}
+};
 
 
 

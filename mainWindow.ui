@@ -6,157 +6,121 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>820</width>
-    <height>636</height>
+    <width>1035</width>
+    <height>674</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="horizontalLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>521</width>
-      <height>441</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
+     <widget class="QWidget" name="horizontalWidget" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QVTKWidget" name="axialWidget"/>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QVTKWidget" name="axialWidget"/>
+         </item>
+         <item>
+          <widget class="QVTKWidget" name="sagittalWidget"/>
+         </item>
+        </layout>
        </item>
        <item>
-        <widget class="QVTKWidget" name="sagittalWidget"/>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QVTKWidget" name="coronalWidget"/>
-       </item>
-       <item>
-        <widget class="QVTKWidget" name="threeDWidget"/>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QVTKWidget" name="coronalWidget"/>
+         </item>
+         <item>
+          <widget class="QVTKWidget" name="threeDWidget"/>
+         </item>
+        </layout>
        </item>
       </layout>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QPushButton" name="load_Image_Btn">
-    <property name="geometry">
-     <rect>
-      <x>560</x>
-      <y>70</y>
-      <width>112</width>
-      <height>34</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Load Image</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="load_Atlas_Btn">
-    <property name="geometry">
-     <rect>
-      <x>690</x>
-      <y>80</y>
-      <width>112</width>
-      <height>34</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Load Atlas</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="sel_Tracker_Btn">
-    <property name="geometry">
-     <rect>
-      <x>620</x>
-      <y>140</y>
-      <width>151</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Select Tracker</string>
-    </property>
-   </widget>
-   <widget class="QWidget" name="horizontalLayoutWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>570</x>
-      <y>500</y>
-      <width>231</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Opacity</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSlider" name="opacity_Slider">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QPushButton" name="config_Tracker_Btn">
-    <property name="geometry">
-     <rect>
-      <x>620</x>
-      <y>210</y>
-      <width>161</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Configure Tracker</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="start_Tracking_Btn">
-    <property name="geometry">
-     <rect>
-      <x>610</x>
-      <y>290</y>
-      <width>181</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Start Tracking</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="stop_Tracking_Btn">
-    <property name="geometry">
-     <rect>
-      <x>610</x>
-      <y>370</y>
-      <width>171</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Stop Tracking</string>
-    </property>
-   </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="verticalWidget" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QPushButton" name="config_Tracker_Btn">
+         <property name="text">
+          <string>Configure Tracker</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="start_Tracking_Btn">
+         <property name="text">
+          <string>Start Tracking</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="sel_Tracker_Btn">
+         <property name="text">
+          <string>Select Tracker</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="load_Atlas_Btn">
+         <property name="text">
+          <string>Load Atlas</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="stop_Tracking_Btn">
+         <property name="text">
+          <string>Stop Tracking</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="load_Image_Btn">
+         <property name="text">
+          <string>Load Image</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Opacity</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="opacity_Slider">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>820</width>
+     <width>1035</width>
      <height>30</height>
     </rect>
    </property>

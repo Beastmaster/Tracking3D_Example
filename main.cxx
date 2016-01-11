@@ -1,3 +1,16 @@
+/*
+Author: QIN Shuo
+Organization: RC-MIC (CUHK)
+Date:
+
+Description:
+	Main test file
+*/
+
+#include "mainWindow.h"
+#include <QApplication>
+#include <QMainWindow>
+
 
 #include "vtkTracking3D.h"
 #include "QinStyle.h"
@@ -34,6 +47,7 @@
 #include "vtkCoordinate.h"
 #include "vtkImagePlaneWidget.h"
 #include "vtkImageData.h"
+#include "vtkLineSource.h"
 /*
 Test Function for tracking device
 */
@@ -42,6 +56,22 @@ void TestTrackingDevice()
 	auto sphere = vtkSmartPointer<vtkSTLReader>::New();
 	sphere->SetFileName("E:/test/QinShuoTShape.stl");
 	sphere->Update();
+
+	auto line_x = vtkSmartPointer<vtkLineSource>::New();
+	line_x->SetPoint1(0,0,0);
+	line_x->SetPoint1(50,0,0);
+	line_x->Update();
+
+	auto line_y = vtkSmartPointer<vtkLineSource>::New();
+	line_y->SetPoint1(0, 0, 0);
+	line_y->SetPoint1(0, 50, 0);
+	line_y->Update();
+
+	auto line_z = vtkSmartPointer<vtkLineSource>::New();
+	line_z->SetPoint1(0, 0, 0);
+	line_z->SetPoint1(0, 0, 50);
+	line_z->Update();
+
 
 	//vtkSmartPointer<vtkSTLReader> reader = vtkSmartPointer<vtkSTLReader>::New();
 	//reader->SetFileName("E:/QinShuoTShape.stl");
@@ -62,7 +92,9 @@ void TestTrackingDevice()
 
 	auto track = vtkSmartPointer<vtkTracking3D>::New();
 
-
+	track->AddPolySource(line_x->GetOutput());
+	track->AddPolySource(line_y->GetOutput());
+	track->AddPolySource(line_z->GetOutput());
 	track->AddPolySource(boneExtractor->GetOutput());
 	track->AddPolySource(sphere->GetOutput());
 
@@ -96,7 +128,7 @@ void TestTrackingDevice()
 	track->InstallPipeline();
 
 	track->m_tracker->ConfigureTracker();
-	track->ConnectObjectTracker(1, 0);
+	track->ConnectObjectTracker(4, 0);
 	Sleep(20);
 
 	track->m_tracker->StartTracking();
@@ -383,10 +415,19 @@ int main(int argc, char** argv)
 {
 
 	//TestMousePick();
-	TestTrackingDevice();
+	//TestTrackingDevice();
 	//TestOrthogonalPlane();
 	//TestTrackingMarkFunction();
 	//TestRegistration();
+
+	QApplication Reg_main_app(argc, argv);
+
+	MainWindow main_window;
+
+	main_window.show();
+
+	return Reg_main_app.exec();
+
 	return 0;
 }
 

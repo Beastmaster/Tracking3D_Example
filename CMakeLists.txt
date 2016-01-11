@@ -16,6 +16,7 @@ mainWindow.ui
 )
 set( QT_HEAD
 mainWindow.h
+ResliceView.h
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
@@ -29,6 +30,7 @@ QinStyle.cxx
 vtkTrackingSlice.cxx
 vtkTrackingRegistration.cxx
 mainWindow.cpp
+ResliceView.cpp
 )
 
 set(
@@ -39,6 +41,7 @@ vtkTrackingSlice.h
 vtkTrackingRegistration.h
 vtkTrackingMarkCapture.h
 vtkTrackingMarkCapture.hxx
+ImageManagement.h
 )
 
 add_subdirectory(API)

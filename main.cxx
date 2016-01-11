@@ -48,13 +48,17 @@ Description:
 #include "vtkImagePlaneWidget.h"
 #include "vtkImageData.h"
 #include "vtkLineSource.h"
+#include "vtkNIFTIImageReader.h"
+#include "vtkImageMapper.h"
+#include "vtkImageActor.h"
 /*
 Test Function for tracking device
 */
 void TestTrackingDevice()
 {
-	auto sphere = vtkSmartPointer<vtkSTLReader>::New();
-	sphere->SetFileName("E:/test/QinShuoTShape.stl");
+	auto sphere = vtkSmartPointer<vtkNIFTIImageReader>::New();
+	//sphere->SetFileName("E:/test/QinShuoTShape.stl");
+	sphere->SetFileName("E:/test/atlas.nii");
 	sphere->Update();
 
 	auto line_x = vtkSmartPointer<vtkLineSource>::New();
@@ -95,8 +99,8 @@ void TestTrackingDevice()
 	track->AddPolySource(line_x->GetOutput());
 	track->AddPolySource(line_y->GetOutput());
 	track->AddPolySource(line_z->GetOutput());
-	track->AddPolySource(boneExtractor->GetOutput());
-	track->AddPolySource(sphere->GetOutput());
+
+	//track->AddPolySource(sphere->GetOutput());
 
 	auto tra = vtkSmartPointer<vtkMatrix4x4>::New();
 	tra->SetElement(0, 0, 0.491933);
@@ -127,7 +131,9 @@ void TestTrackingDevice()
 	track->SetInteractor(interactorx);
 	track->InstallPipeline();
 
-	track->m_tracker->ConfigureTracker();
+	track->AddPolySource(boneExtractor->GetOutput());
+
+	//track->m_tracker->ConfigureTracker();
 	track->ConnectObjectTracker(4, 0);
 	Sleep(20);
 
@@ -411,6 +417,54 @@ void TestOrthogonalPlane()
 	interact->Start();
 }
 
+
+void TestView()
+{
+	auto reader = vtkSmartPointer<vtkNIFTIImageReader>::New();
+	reader->SetFileName("E:/test/a1.nii");
+	reader->Update();
+	auto reslice = vtkSmartPointer<vtkImageReslice>::New();
+	reslice->SetInputData(reader->GetOutput());
+	double axialX[3] = { -1, 0, 0 };
+	double axialY[3] = { 0, -1, 0 };
+	double axialZ[3] = { 0, 0, -1 };
+	reslice->SetResliceAxesDirectionCosines(axialX, axialY, axialZ);
+	reslice->SetResliceAxesOrigin(20, 30, 40);
+	reslice->SetInterpolationModeToLinear();
+	reslice->Update();
+
+
+	vtkSmartPointer<vtkWindowLevelLookupTable> windowLevelLookupTable =
+		vtkSmartPointer<vtkWindowLevelLookupTable>::New();
+	float window = 1000;
+	float level = 500;
+	int nColours = 30;
+	windowLevelLookupTable->SetWindow(window);
+	windowLevelLookupTable->SetLevel(level);
+	windowLevelLookupTable->SetNumberOfTableValues(nColours);
+
+	auto actor = vtkSmartPointer<vtkImageActor >::New();
+	auto mapper = vtkImageMapToWindowLevelColors::New();
+	mapper->SetWindow(window);
+	mapper->SetLevel(level);
+	mapper->SetInputData(reslice->GetOutput());
+
+	actor->SetInputData(mapper->GetOutput());
+
+	auto renderer = vtkSmartPointer<vtkRenderer>::New();
+	auto win = vtkSmartPointer<vtkRenderWindow>::New();
+	win->AddRenderer(renderer);
+
+	auto intact = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+	intact->SetRenderWindow(win);
+
+	win->Render();
+	intact->Start();
+
+
+
+}
+
 int main(int argc, char** argv)
 {
 
@@ -419,6 +473,7 @@ int main(int argc, char** argv)
 	//TestOrthogonalPlane();
 	//TestTrackingMarkFunction();
 	//TestRegistration();
+
 
 	QApplication Reg_main_app(argc, argv);
 

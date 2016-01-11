@@ -14,7 +14,7 @@ Description:
 #include "vtkSmartPointer.h"
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
-#include "vtkProperty.h""
+#include "vtkProperty.h"
 #include "vtkActor.h"
 #include "vtkActorCollection.h"
 #include "vtkRenderer.h"
@@ -117,6 +117,8 @@ public:
 	vtkRenderer* GetDefaultRenderer();
 	vtkSmartPointer<vtkRenderWindow> GetRenderWindow();
 	vtkSmartPointer<vtkRenderWindowInteractor> GetInteractor();
+	void EnablePick();
+	void DisablePick();
 
 	// install pipeline
 	int InstallPipeline();

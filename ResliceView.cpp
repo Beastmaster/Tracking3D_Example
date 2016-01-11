@@ -1,103 +1,11 @@
+/*
+Author: QIN Shuo
+Organization: RC-MIC (CUHK)
+Date: 2016/1/11
+
+*/
+
 #include "ResliceView.h"
-
-
-class vtkSliderCallback : public vtkCommand
-{
-public:
-	static vtkSliderCallback *New() 
-	{
-		return new vtkSliderCallback;
-	}
-	virtual void Execute(vtkObject *caller, unsigned long, void*)
-	{
-		vtkSliderWidget *sliderWidget = 
-			reinterpret_cast<vtkSliderWidget*>(caller);
-		//this->SphereSource->SetPhiResolution(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
-		//this->SphereSource->SetThetaResolution(static_cast<vtkSliderRepresentatio *>(sliderWidget->GetRepresentation())->GetValue());
-
-		vtkSmartPointer<vtkRenderWindowInteractor> iren = 
-			vtkSmartPointer<vtkRenderWindowInteractor>::New();
-		iren = vtkRenderWindowInteractor::SafeDownCast(caller);
-
-		//std::cout<<"direct  "<<this->direction<<"  call mouse scroll  "<<this->slice_n<<std::endl;
-		if (this->reslice_view == NULL)
-		{
-			return;
-		}
-		switch(reslice_view->direction)
-		{
-		case 'a':
-			{
-				reslice_view->slice_n = 
-					static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue();
-				if (reslice_view->slice_n>reslice_view->extent_m[5])
-				{
-					reslice_view->slice_n = reslice_view->extent_m[4];
-				}
-				else if (reslice_view->slice_n<reslice_view->extent_m[4])
-				{
-					reslice_view->slice_n = reslice_view->extent_m[5];
-				}
-				reslice_view->center[2] = reslice_view->origin[2]+reslice_view->spacing[2]*reslice_view->slice_n;
-				//center[2] = spacing[2]*this->slice_n;
-				break;
-			}
-		case 'c':
-			{
-				reslice_view->slice_n = 
-					static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue();;
-				if (reslice_view->slice_n>this->reslice_view->extent_m[3])
-				{
-					reslice_view->slice_n = reslice_view->extent_m[2];
-				}
-				else if (reslice_view->slice_n<reslice_view->extent_m[2])
-				{
-					reslice_view->slice_n = reslice_view->extent_m[3];
-				}
-				reslice_view->center[1] = reslice_view->origin[1]+reslice_view->spacing[1]*reslice_view->slice_n;
-				//center[1] = spacing[1]*this->slice_n;
-				break;
-			}
-		case 's':
-			{
-				reslice_view->slice_n = 
-					static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue();
-				if (reslice_view->slice_n>reslice_view->extent_m[1])
-				{
-					reslice_view->slice_n = reslice_view->extent_m[0];
-				}
-				else if (reslice_view->slice_n<reslice_view->extent_m[0])
-				{
-					reslice_view->slice_n = reslice_view->extent_m[1];
-				}
-				reslice_view->center[0] = reslice_view->origin[0]+reslice_view->spacing[0]*reslice_view->slice_n;
-				//center[0] = spacing[0]*this->slice_n;
-				break;
-			}
-		default:
-			{
-				reslice_view->slice_n = 
-					static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue();
-				if (reslice_view->slice_n>reslice_view->extent_m[1])
-				{
-					reslice_view->slice_n = reslice_view->extent_m[0];
-				}
-				else if (reslice_view->slice_n<reslice_view->extent_m[0])
-				{
-					reslice_view->slice_n = reslice_view->extent_m[1];
-				}
-				reslice_view->center[0] = reslice_view->origin[0]+reslice_view->spacing[0]*reslice_view->slice_n;
-				//center[0] = spacing[0]*this->slice_n;
-				break;
-			}
-		}
-		reslice_view->RenderView();
-	}
-	//vtkSliderCallback():SphereSource(0) {}
-	//vtkSphereSource *SphereSource;
-	vtkSliderCallback(): reslice_view(0) {reslice_view = NULL;}
-	reslice_view_base* reslice_view ;
-};
 
 
 reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)
@@ -195,18 +103,17 @@ void reslice_view_base::Set_View_Img(vtkSmartPointer<vtkImageData> img)
 	//std::cout<<"dimension is :"<<dimensions[0]<<dimensions[1]<<dimensions[2]<<std::endl;
 	this->calculate_img_center(img_to_view);
 	
-
 	//get vtkimagedata range
-	double valuesRange[2];
-	vtkDataArray* scalar_pointer = this->img_to_view->GetPointData()->GetScalars();
-	scalar_pointer->GetRange(valuesRange,-1);
+	//min = vtkImageData->GetOutput()->GetScalarRange()[0] and max = GetScalarRange()[1].
+	double* valuesRange;
+	valuesRange = img_to_view->GetScalarRange();
+	//vtkDataArray* scalar_pointer = this->img_to_view->GetPointData()->GetScalars();
+	//scalar_pointer->GetRange(valuesRange,-1);
 	std::cout<<"range is "<<valuesRange[0]<<"|"<<valuesRange[1]<<std::endl;
 	//set window level
 	this->WindowLevel1->SetWindow(valuesRange[1]-valuesRange[0]);
-	this->WindowLevel1->SetLevel((valuesRange[1]+valuesRange[0])*2/5);
+	this->WindowLevel1->SetLevel((valuesRange[1]+valuesRange[0])*1/2);
 
-
-	SetUpSlider(this->view_window->GetInteractor());
 }
 
 void reslice_view_base::Set_Mask_Img(vtkSmartPointer<vtkImageData> img)
@@ -270,10 +177,16 @@ void reslice_view_base::RenderView()
 	this->reslice->SetResliceAxesDirectionCosines(this->view_dirX,this->view_dirY,this->view_dirZ);
 	this->reslice->SetResliceAxesOrigin(center);
 	this->reslice->SetInterpolationModeToLinear();
+	this->reslice->Update();
 #if VTK_MAJOR_VERSION <= 5
 	this->WindowLevel1->SetInput(this->reslice->GetOutput());
 #else
+	//Attention  !!!!
+	//Attention  !!!!
+	//Attention  !!!!
+	// You must Update here!!!
 	this->WindowLevel1->SetInputData(this->reslice->GetOutput());
+	this->WindowLevel1->Update();
 #endif
 	if (this->img_to_mask != NULL)
 	{
@@ -308,7 +221,7 @@ void reslice_view_base::RenderView()
 #endif
 	}
 
-	//this->new_render->ResetCamera();
+	this->new_render->ResetCamera();
 	this->view_window->Render();
 }
 
@@ -592,78 +505,6 @@ double* reslice_view_base::calculate_img_center(vtkSmartPointer<vtkImageData> im
 	}
 
 	return center;
-}
-
-void reslice_view_base::SetUpSlider(vtkRenderWindowInteractor* renderWindowInteractor)
-{
-	vtkSmartPointer<vtkSliderRepresentation2D> sliderRep =
-		vtkSmartPointer<vtkSliderRepresentation2D>::New();
-	
-	//switch(this->direction)
-	//{
-	//case 'a':
-	//	{
-	//		sliderRep->SetMinimumValue(this->extent_m[4]);
-	//		sliderRep->SetMaximumValue(this->extent_m[5]);
-	//		break;
-	//	}
-	//case 'c':
-	//	{
-	//		sliderRep->SetMinimumValue(this->extent_m[2]);
-	//		sliderRep->SetMaximumValue(this->extent_m[3]);
-	//		break;
-	//	}
-	//case 's':
-	//	{
-	//		sliderRep->SetMinimumValue(this->extent_m[0]);
-	//		sliderRep->SetMaximumValue(this->extent_m[1]);
-	//		break;
-	//	}
-	//default:
-	//	{
-	//		sliderRep->SetMinimumValue(this->extent_m[2]);
-	//		sliderRep->SetMaximumValue(this->extent_m[3]);
-	//		break;
-	//	}
-	//}
-	sliderRep->SetMinimumValue(3);
-	sliderRep->SetMaximumValue(20);
-	sliderRep->SetValue(5);
-	sliderRep->SetTitleText("Display Slice");
-
-	// Set color properties:
-	// Change the color of the knob that slides
-	sliderRep->GetSliderProperty()->SetColor(1,0,0);//red
-	// Change the color of the text indicating what the slider controls
-	sliderRep->GetTitleProperty()->SetColor(1,0,0);//red
-	// Change the color of the text displaying the value
-	sliderRep->GetLabelProperty()->SetColor(1,0,0);//red
-	// Change the color of the knob when the mouse is held on it
-	sliderRep->GetSelectedProperty()->SetColor(0,1,0);//green
-	// Change the color of the bar
-	sliderRep->GetTubeProperty()->SetColor(1,1,0);//yellow
-	// Change the color of the ends of the bar
-	sliderRep->GetCapProperty()->SetColor(1,1,0);//yellow
-
-	sliderRep->GetPoint1Coordinate()->SetCoordinateSystemToView();
-	sliderRep->GetPoint1Coordinate()->SetValue(0 ,0);
-	sliderRep->GetPoint2Coordinate()->SetCoordinateSystemToView();
-	sliderRep->GetPoint2Coordinate()->SetValue(0, 100);
-	sliderRep->SetSliderLength(1);
-	sliderRep->SetEndCapLength(0.5);
-
-	vtkSmartPointer<vtkSliderWidget> sliderWidget =
-		vtkSmartPointer<vtkSliderWidget>::New();
-	sliderWidget->SetInteractor(renderWindowInteractor);
-	sliderWidget->SetRepresentation(sliderRep);
-	sliderWidget->SetAnimationModeToAnimate();
-	sliderWidget->EnabledOn();
-
-	vtkSmartPointer<vtkSliderCallback> callback =
-		vtkSmartPointer<vtkSliderCallback>::New();
-	//add function here
-	callback->reslice_view = this;
-	sliderWidget->AddObserver(vtkCommand::InteractionEvent,callback);
 }
 
 

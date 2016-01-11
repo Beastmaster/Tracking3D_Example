@@ -21,14 +21,16 @@ Date: 2016/1/10
 #include <QFileDialog>
 #include <QWheelEvent>
 
-
+#include "vtkNIFTIImageReader.h"
 
 //qt + vtk include
 #include "QVTKWidget.h"
 //qt + vtk connect signal and slot
 #include "vtkCommand.h"
 #include "vtkEventQtSlotConnect.h"
+#include "vtkMarchingCubes.h"
 
+#include "ResliceView.h"
 #include "vtkTracking3D.h"
 
 namespace Ui {
@@ -59,6 +61,21 @@ public slots:
 
 private:
 	Ui::MainWindow *ui;
+
+	std::string m_ImageFileName;
+	std::string m_AtlasFileName;
+	std::string m_ToolModel;
+
+	vtkSmartPointer<vtkImageData> m_Image;
+	vtkSmartPointer<vtkPolyData> m_ImageModel;
+	vtkSmartPointer<vtkImageData> m_Atlas;
+	vtkSmartPointer<vtkPolyData>  m_Tool;
+
+	reslice_view_base* m_Sagittal_View;
+	reslice_view_base* m_Axial_View;
+	reslice_view_base* m_Coronal_View;
+	vtkSmartPointer<vtkTracking3D>  m_3d_View;
+
 };
 
 

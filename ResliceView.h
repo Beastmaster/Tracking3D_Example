@@ -1,3 +1,12 @@
+/*
+Author: QIN Shuo
+Organization: RC-MIC (CUHK)
+Date: 2016/1/11
+
+*/
+
+
+
 #ifndef  __RESLICEVIEW_H_
 #define  __RESLICEVIEW_H_
 
@@ -44,13 +53,12 @@
 #include <vtkInteractorStyleTrackballCamera.h>
 
 class reslice_interactor_style;
-class vtkSliderCallback;
+//class vtkSliderCallback;
 
 
 class reslice_view_base : QObject
 {
 	Q_OBJECT
-	friend class vtkSliderCallback;
 public:
 	explicit reslice_view_base(QWidget *parent = 0);
 	reslice_view_base(vtkRenderWindow*,char);
@@ -113,8 +121,6 @@ private:
 	vtkSmartPointer<vtkEventQtSlotConnect> m_Connections_mouse_forward;
 	vtkSmartPointer<vtkEventQtSlotConnect> m_Connections_mouse_lft_click;
 
-	//vtk slider
-	void SetUpSlider(vtkRenderWindowInteractor*);
 };
 
 

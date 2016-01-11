@@ -19,6 +19,7 @@ vtkTracking3D::vtkTracking3D()
 {
 	m_interval = 100;
 	m_CurrentRenderer = vtkSmartPointer<vtkRenderer>::New();
+	m_CurrentRenderer->SetBackground(0,1,0);
 	m_RendererCollection = vtkSmartPointer<vtkRendererCollection>::New();
 	m_RenderWindow = vtkSmartPointer< vtkRenderWindow >::New();
 	m_ActorCollection = vtkSmartPointer < vtkActorCollection >::New();
@@ -326,7 +327,7 @@ int vtkTracking3D::InstallPipeline()
 {
 	m_RenderWindow->AddRenderer(m_CurrentRenderer);
 	m_RenderWindow->SetInteractor(m_Interactor);
-	m_Interactor->SetInteractorStyle(m_InteractorStyle);
+	//m_Interactor->SetInteractorStyle(m_InteractorStyle);
 	m_Interactor->Initialize();  //this line is very important to start timer
 
 	//register callbacks
@@ -338,16 +339,35 @@ int vtkTracking3D::InstallPipeline()
 	m_MouseCallback->SetCallback(MouseclickCallbackFunction);
 	m_Interactor->AddObserver(vtkCommand::KeyPressEvent, m_InteractCallBack);
 	m_Interactor->AddObserver(vtkCommand::TimerEvent, m_TimerCallBack);
-	m_Interactor->AddObserver(vtkCommand::LeftButtonPressEvent, m_MouseCallback);
-
 
 	m_CurrentRenderer->ResetCamera();
 
 	return 1;
 }
+/*
+Description: 
+	This function refresh the view
+*/
 void vtkTracking3D::RefreshView()
 {
+	m_CurrentRenderer->ResetCamera();
 	m_RenderWindow->Render();
+}
+
+/*
+Description:
+	These 2 function are used to enable mouse picker to get
+	the coordinate of the point in 3d view.
+	Default is disabled.
+
+*/
+void vtkTracking3D::EnablePick()
+{
+	m_Interactor->AddObserver(vtkCommand::LeftButtonPressEvent, m_MouseCallback);
+}
+void vtkTracking3D::DisablePick()
+{
+	m_Interactor->RemoveObserver(m_MouseCallback);
 }
 
 /*

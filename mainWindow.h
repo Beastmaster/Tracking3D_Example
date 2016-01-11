@@ -20,6 +20,7 @@ Date: 2016/1/10
 #include <QApplication>
 #include <QFileDialog>
 #include <QWheelEvent>
+#include <QMessageBox>
 
 #include "vtkNIFTIImageReader.h"
 
@@ -52,9 +53,12 @@ public:
 public slots:
 	void on_Load_Image();
 	void on_Load_Atlas();
+	void on_Del_Atlas();
 	void on_Sel_Tracker();
 	void on_Config_Tracker();
-
+	void on_Sel_Markers();
+	void on_Cap_Btn();
+	void on_CapDone_Btn();
 	void on_StartTracking();
 	void on_StopTracking();
 	void on_OpacityMove(int);

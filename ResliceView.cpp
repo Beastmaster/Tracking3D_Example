@@ -218,6 +218,7 @@ void reslice_view_base::RenderView()
 		this->WindowLevel2->SetInput(this->mask_reslice->GetOutput());
 #else
 		this->WindowLevel2->SetInputData(this->mask_reslice->GetOutput());
+		this->WindowLevel2->Update();
 #endif
 	}
 

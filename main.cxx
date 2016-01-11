@@ -156,6 +156,68 @@ void TestMousePick()
 
 	track->GetRenderWindow()->Render();
 	track->GetInteractor()->Start();
+
+	auto xx1 = track->GetMarkerList();
+
+	auto tracker = new ATC3DGConfiguration;
+
+	tracker->ConfigureTracker();
+	tracker->StartTracking();
+
+
+	auto mark = vtkSmartPointer< vtkTrackingMarkCapture<ATC3DGConfiguration> >::New();
+	
+	mark->SetTracker(tracker);
+	mark->SetToolIndex(0);
+	//mark->SetReferIndex(2);
+
+	//tracker->ConfigureTracker();
+	//tracker->StartTracking();
+
+	char a;
+	std::cout << "start picking ... " << std::endl;
+	a = getchar();
+	while (a != 'q')
+	{
+		mark->GetNextMarker();
+		std::cout << "done" << std::endl;
+		a = getchar();
+	}
+
+	tracker->StopTracking();
+
+	auto xx2 = mark->GetMarkerList();
+
+	//registration
+	auto reg1 = vtkSmartPointer <vtkTrackingICPRegistration > ::New();
+	auto src_points = vtkSmartPointer<vtkPoints>::New();
+	auto dst_points = vtkSmartPointer<vtkPoints>::New();
+
+	std::cout << "source:" << std::endl;
+	for (auto it = xx2.begin(); it != xx2.end(); ++it)
+	{
+		std::cout << (*it)[0] << "," << (*it)[1] << "," << (*it)[2] << std::endl;
+		src_points->InsertNextPoint((*it));
+	}
+	std::cout << "dest:" << std::endl;
+	for (auto it = xx1.begin(); it != xx1.end(); ++it)
+	{
+		std::cout << (*it)[0] << "," << (*it)[1] << "," << (*it)[2] << std::endl;
+		dst_points->InsertNextPoint((*it));
+	}
+	reg1->SetSourcePoints(src_points);
+	reg1->SetTargetPoints(dst_points);
+	reg1->GenerateTransform();
+	auto res1 = reg1->GetTransformMatrix();
+
+	std::cout << "\nres1:" << std::endl;
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+			std::cout << res1->GetElement(i, j) << ",";
+		std::cout << std::endl;
+	}
+
 }
 
 void TestRegistration()
@@ -166,34 +228,25 @@ void TestRegistration()
 	auto src_points = vtkSmartPointer<vtkPoints>::New();
 	auto dst_points = vtkSmartPointer<vtkPoints>::New();
 
-	float v1[9][3] = {
-		{ 0, 0, 0 },
-		{ 1, 0, 0 },
-		{ 1, 1, 0 },
-		{ 1, 1, 1 },
-		{ 0, 1, 0 },
-		{ 0, 1, 1 },
-		{ 0, 1, 1 },
-		{ 0, 0, 1 },
-		{ 1, 1, 1 } };
-
-	float vv1[9][3] ={
-	{ 0 + 10, 0 + 10, 0 + 10 },
-	{ 1 + 10, 0 + 10, 0 + 10 },
-	{ 1 + 10, 1 + 10, 0 + 10 },
-	{ 1 + 10, 1 + 10, 1 + 10 },
-	{ 0 + 10, 1 + 10, 0 + 10 },
-	{ 0 + 10, 1 + 10, 1 + 10 },
-	{ 0 + 10, 1 + 10, 1 + 10 },
-	{ 0 + 10, 0 + 10, 1 + 10 },
-	{ 1 + 10, 1 + 10, 1 + 10 }
+	float v1[4][3] = {
+		{27.0123, -312.651, 175.357},
+		{110.84, -313.097, 117.314 },
+		{99.9009, -366.006, 130.82 },
+		{19.4221, 288.541, -121.779}
 	};
 
-	for (size_t i = 0; i < 9; i++)
+	float vv1[4][3] ={
+		{116.265, 134.093, 90.2336},
+		{90.6786, 150.426, 140.594},
+		{147.852, 149.662, 146.22 },
+		{105.495, 77.2705, 110.88 }
+	};
+
+	for (size_t i = 0; i < 4; i++)
 	{
 		src_points->InsertNextPoint(v1[i]);
 	}
-	for (size_t i = 0; i < 9; i++)
+	for (size_t i = 0; i < 4; i++)
 	{
 		dst_points->InsertNextPoint(vv1[i]);
 	}
@@ -226,21 +279,31 @@ void TestRegistration()
 
 void TestTrackingMarkFunction()
 {
+	auto track = new ATC3DGConfiguration;
 	
-	auto track = new PloarisVicraConfiguration ;
-	
-	auto mark = vtkSmartPointer< vtkTrackingMarkCapture<PloarisVicraConfiguration> >::New();
+	auto mark = vtkSmartPointer< vtkTrackingMarkCapture<ATC3DGConfiguration> >::New();
 	
 	mark->SetTracker(track);
-	mark->SetToolIndex(1);
-	mark->SetReferIndex(2);
+	mark->SetToolIndex(0);
 
 	track->ConfigureTracker();
 	track->StartTracking();
 	
-	while (getchar()!='q')
+	char a;
+	a = getchar();
+	while (a!='q')
 	{
+
 		mark->GetNextMarker();
+		a = getchar();
+	}
+
+	auto xx2 = mark->GetMarkerList();
+
+	std::cout << "source:" << std::endl;
+	for (auto it = xx2.begin(); it != xx2.end(); ++it)
+	{
+		std::cout << (*it)[0] << "," << (*it)[1] << "," << (*it)[2] << std::endl;
 	}
 
 	track->StopTracking();
@@ -296,9 +359,12 @@ void TestOrthogonalPlane()
 
 int main(int argc, char** argv)
 {
+
 	//TestMousePick();
-	TestTrackingDevice();
+	//TestTrackingDevice();
 	//TestOrthogonalPlane();
+	//TestTrackingMarkFunction();
+	TestRegistration();
 	return 0;
 }
 

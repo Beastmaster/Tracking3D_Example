@@ -21,6 +21,7 @@ Status:
 	3. "System Ready"         System is set up and ready for next step
 	4. "Sensors Ready"         Sensors is set up and ready for next step
 	5. "Transmitters Ready"    Transmitter is ready for next step (ready for tracking)
+	6. "Tracking"			   If all configurations are ready
 	||======================================
 	Order of setting up system/sensors/transmitters is not restricted,
 	I restrict the order for easy usage purpose
@@ -106,16 +107,49 @@ int ATC3DGConfiguration::ConfigureTracker()
 	{
 		return 4;
 	}
+	m_Status = "Tracking";
 	return 0;
 }
 
 /*
 Description:
 
+
+Return:
+	0: "Tracking"
+	1. "NULL Status" :
+	2. "Initialized Status"
+	3. "System Ready"
+	4. "Sensors Ready"
+	5. "Transmitters Ready"
+
 */
 int ATC3DGConfiguration::GetTrackingStatus()
 {
-	return 0;
+	if (m_Status == "Tracking")
+	{
+		return 0;
+	}
+	if (m_Status == "NULL Status")
+	{
+		return 1;
+	}
+	if (m_Status == "Initialized Status" )
+	{
+		return 2;
+	}
+	if (m_Status == "System Ready")
+	{
+		return 3;
+	}
+	if (m_Status == "Sensors Ready")
+	{
+		return 4;
+	}
+	if (m_Status == "Transmitters Ready")
+	{
+		return 5;
+	}
 }
 
 /*
@@ -143,7 +177,7 @@ QIN_Transform_Type* ATC3DGConfiguration::GetTransform(int index)
 
 	m_Transform->x = m_TransformInformation[index]->x;
 	m_Transform->y = m_TransformInformation[index]->y;
-	m_Transform->x = m_TransformInformation[index]->z;
+	m_Transform->z = m_TransformInformation[index]->z;
 	m_Transform->qx = m_TransformInformation[index]->a;
 	m_Transform->qy = m_TransformInformation[index]->e;
 	m_Transform->qz = m_TransformInformation[index]->r;
@@ -369,8 +403,8 @@ int ATC3DGConfiguration::GetTransformInformation()
 		
 		if (status == VALID_STATUS)
 		{
-			std::cout <<
-				sensorID << "  "<<
+			std::cout << "Sensor"<<
+				sensorID << " : \n"<<
 				m_TransformInformation[sensorID]->x << "  " <<
 				m_TransformInformation[sensorID]->y << "  " <<
 				m_TransformInformation[sensorID]->z << "  " <<

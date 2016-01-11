@@ -46,7 +46,7 @@ public:
 
 
 	virtual int StartTracking() = 0;
-	//virtual int StopTracking() ;
+	virtual int StopTracking() = 0;
 	virtual int ConfigureTracker()     = 0;
 	virtual int GetTrackingStatus()    = 0;
 	virtual int GetToolValidation(int) = 0;

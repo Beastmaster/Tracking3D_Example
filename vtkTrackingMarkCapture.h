@@ -45,6 +45,7 @@ public:
 	void SetReferIndex(int);
 
 	void GetNextMarker();
+	std::vector<double*> GetMarkerList();
 private:
 	TrackerType* m_Tracker;
 
@@ -100,8 +101,8 @@ void vtkTrackingMarkCapture<TrackerType>::GetNextMarker()
 		return;
 	}
 
-	auto tool_trans = m_Tracker->GetTransform(m_ToolIndex);
-	auto refer_trans = m_Tracker->GetTransform(m_ReferIndex);
+	QIN_Transform_Type*  tool_trans = m_Tracker->GetTransform(m_ToolIndex);
+	QIN_Transform_Type*  refer_trans = m_Tracker->GetTransform(m_ReferIndex);
 
 	QIN_Transform_Type* tem_tool = new QIN_Transform_Type;
 	QIN_Transform_Type* tem_refer = new QIN_Transform_Type;
@@ -111,6 +112,22 @@ void vtkTrackingMarkCapture<TrackerType>::GetNextMarker()
 
 	m_ToolMarkers.push_back(tem_tool);
 	m_ReferMarkers.push_back(tem_refer);
+}
+
+template<typename TrackerType>
+std::vector<double*> vtkTrackingMarkCapture<TrackerType>::GetMarkerList()
+{
+	std::vector<double* > ret;
+	for (auto it = m_ToolMarkers.begin(); it != m_ToolMarkers.end(); ++it)
+	{
+		double* coor;
+		coor = new double[3];
+		coor[0] = (*it)->x;
+		coor[1] = (*it)->y;
+		coor[2] = (*it)->z;
+		ret.push_back(coor);
+	}
+	return ret;
 }
 
 

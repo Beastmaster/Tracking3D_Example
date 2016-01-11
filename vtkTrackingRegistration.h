@@ -32,6 +32,12 @@ User Manual:
 	2. Set Destination points   
 	3. Run registration 	    GenerateTransform()
 	4. Get transform matrix	    
+
+
+Note:
+	You are suggested to use LandMarkRegistration method
+	For ICP method require a lot of points and may return
+	an invalid value.
 */
 class vtkTrackingRegistrationBase : public vtkObject
 {

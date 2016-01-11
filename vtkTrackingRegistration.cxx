@@ -53,6 +53,14 @@ void vtkTrackingICPRegistration::GenerateTransform()
 	auto source_poly = vtkSmartPointer<vtkPolyData>::New();
 	auto target_poly = vtkSmartPointer<vtkPolyData>::New();
 
+	if (src_Points->GetNumberOfPoints()<1)
+	{
+		return;
+	}
+	if (target_Points->GetNumberOfPoints()<1)
+	{
+		return;
+	}
 	//convert point to polydata first
 	source_poly->SetPoints(src_Points);
 	target_poly->SetPoints(target_Points);
@@ -93,6 +101,14 @@ vtkTrackingLandMarkRegistration::~vtkTrackingLandMarkRegistration()
 {}
 void vtkTrackingLandMarkRegistration::GenerateTransform()
 {
+	if (src_Points->GetNumberOfPoints()<1)
+	{
+		return;
+	}
+	if (target_Points->GetNumberOfPoints()<1)
+	{
+		return;
+	}
 	m_landmarkTransform->SetSourceLandmarks(src_Points);
 	m_landmarkTransform->SetTargetLandmarks(target_Points);
 	m_landmarkTransform->SetModeToRigidBody();

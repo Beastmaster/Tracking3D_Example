@@ -76,6 +76,9 @@ User Manual:
 */
 class vtkTracking3D : public vtkObject
 {
+	//typedef  PloarisVicraConfiguration TrackerType;
+	typedef  ATC3DGConfiguration TrackerType;
+
 public:
 	static vtkTracking3D* New();
 	vtkTypeMacro(vtkTracking3D,vtkObject);
@@ -102,10 +105,12 @@ public:
 	int SetColor(int index, double r, double g, double b);
 	int SetColor(int index, double* rgb);
 	int SetTransform(int index, QIN_Transform_Type* in);
+	int SetRegisterTransform(vtkTransform*);
 	void SetInterval(unsigned long xx) { m_interval = xx; };
 	void SetWindow( vtkSmartPointer<vtkRenderWindow> );
 	void SetInteractor(vtkSmartPointer<vtkRenderWindowInteractor> inct);
 	void SetInteractorStyle( vtkInteractorStyle* );
+	void SetTracker(TrackerType* in) { delete m_tracker ; m_tracker = in; };
 
 	// Get Functions
 	static vtkActor* GetActorPointer(vtkPropCollection*, int);
@@ -117,12 +122,17 @@ public:
 	int InstallPipeline();
 	void RefreshView();
 
-	//tracking device confuration
+	//marker control function
+	int ValidMarker();
+	int ClearMarkers();
+	std::vector<double*> GetMarkerList();
+
+	//tracking device configuration
 	//PloarisVicraConfiguration* m_tracker;
-	//typedef  PloarisVicraConfiguration TrackerType;
-	typedef  ATC3DGConfiguration TrackerType;
 	TrackerType* m_tracker;
 	std::map<int, int> m_Obj_Tool_Map;   //map: link index of actor and trackingTool
+
+	double m_marker_tobe_set[3];
 protected:
 	vtkTracking3D();
 	~vtkTracking3D();
@@ -131,9 +141,14 @@ protected:
 	unsigned long m_interval; //timer interval in millisecond
 	unsigned long m_TimerID;
 
+	std::vector<double*> m_marker_list;
+
 private:
 
-	//vtk transform
+	/*
+	This Transform is used to transform raw tracking device position to
+	registered coordinate.
+	*/
 	vtkSmartPointer<vtkTransform> m_Transform;
 	//
 	vtkSmartPointer<vtkRenderer> m_CurrentRenderer;

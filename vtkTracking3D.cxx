@@ -139,6 +139,41 @@ vtkActor* vtkTracking3D::GetActorPointer(vtkPropCollection* collection, int inde
 	else
 		return NULL;
 }
+
+/*
+Description:
+	Put the selected marker in the world coordinate to marker list
+Return:
+	0: success
+	1: fail
+*/
+int vtkTracking3D::ValidMarker()
+{
+	double* mar;
+	mar = new double[3];
+	memcpy(mar,m_marker_tobe_set,3*sizeof(double));
+	m_marker_list.push_back(mar);
+
+	std::cout << "The "<<m_marker_list.size() << " marker is set" << std::endl;
+	return 0;
+}
+
+int vtkTracking3D::ClearMarkers()
+{
+	for (auto it = m_marker_list.begin(); it != m_marker_list.end(); ++it)
+	{
+		delete *it;
+	}
+	m_marker_list.clear();
+	return 0;
+}
+
+std::vector<double*> vtkTracking3D::GetMarkerList()
+{
+	return this->m_marker_list;
+}
+
+
 /*
 Description:
 	Set the opacity of a specified actor
@@ -170,7 +205,10 @@ int vtkTracking3D::SetEnableOutline(int index, bool en)
 	return 0;
 }
 
-
+/*
+Description:
+	Set color function
+*/
 int vtkTracking3D::SetColor(int index, double r, double g, double b)
 {
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() >= index)
@@ -195,7 +233,9 @@ int vtkTracking3D::SetColor(int index, double* rgb)
 }
 
 /*
-
+Description:
+	Private function
+	Apply certain transform to moving actor
 */
 int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 {
@@ -219,8 +259,25 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 
 }
 
-/*
 
+/*
+Description:
+	Setup registration matrix, transforming abslote coordinate
+*/
+int vtkTracking3D::SetRegisterTransform(vtkTransform*)
+{
+
+
+	return 0;
+}
+
+
+
+/*
+Description:
+	Remove actor by index
+Input:
+	Index count from 0
 */
 int vtkTracking3D::RemoveObject(int index)
 {
@@ -234,14 +291,10 @@ int vtkTracking3D::RemoveObject(vtkActor* obj)
 	m_CurrentRenderer->RemoveActor(obj);
 	return 0;
 }
-
 void vtkTracking3D::SetInteractor(vtkSmartPointer<vtkRenderWindowInteractor> inct)
 {
 	this->m_Interactor = inct;
 }
-
-
-
 //Note: when you assign a new renderwindow, the interactor
 //      and actor collection or other property will be reset
 //      to the new window
@@ -263,8 +316,6 @@ vtkSmartPointer<vtkRenderWindowInteractor> vtkTracking3D::GetInteractor()
 {
 	return m_Interactor;
 }
-
-
 void vtkTracking3D::SetInteractorStyle( vtkInteractorStyle* style)
 {
 	m_InteractorStyle = style;
@@ -303,10 +354,23 @@ void vtkTracking3D::RefreshView()
 	m_RenderWindow->Render();
 }
 
+/*
+Description:
+	Tracking start working, means that you have already done registration
+	This function is different from tracker device start tracking function,
+	tracker start tracking means tracker begin working, it can get points.
+*/
 void vtkTracking3D::StartTracking()
 {
 	m_TimerID = m_Interactor->CreateRepeatingTimer(m_interval);
 }
+
+/*
+Description:
+	When this function is called, the vtk timer is stopped, 
+	while the tracking is still in tracking mode,
+	Just call StartTracking function to re-run the timer
+*/
 void vtkTracking3D::StopTracking()
 {
 	m_Interactor->DestroyTimer(m_TimerID);
@@ -324,7 +388,7 @@ void KeypressCallbackFunction(vtkObject* caller,long unsigned int eventId,void* 
 	//add actor
 	if (key == "a")
 	{
-		tracking->StartTracking();
+		tracking->ValidMarker();
 	}
 	//remove actor
 	else if (key == "b")
@@ -373,7 +437,9 @@ static void MouseclickCallbackFunction(
 	double* pos = picker->GetPickPosition();
 
 	std::cout << "Position is: " << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
-
+	tracking->m_marker_tobe_set[0] = pos[0];
+	tracking->m_marker_tobe_set[1] = pos[1];
+	tracking->m_marker_tobe_set[2] = pos[2];
 }
 
 

@@ -31,8 +31,9 @@ public:
 	~ATC3DGConfiguration();
 
 	virtual int StartTracking() { return 0; };
-	virtual int ConfigureTracker();
+	virtual int StopTracking() { CloseSystem(); return 0; };
 	virtual int GetTrackingStatus();
+	virtual int ConfigureTracker();
 	virtual int GetToolValidation(int) { return 0; };
 	virtual int GetTransformValidation(int) { return 0; };
 	virtual QIN_Transform_Type* GetTransform(int index);

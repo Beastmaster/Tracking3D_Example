@@ -32,6 +32,10 @@ vtkTracking3D::vtkTracking3D()
 	m_TimerCallBack = vtkSmartPointer<vtkCallbackCommand>::New();
 	m_MouseCallback = vtkSmartPointer<vtkCallbackCommand>::New();
 
+	//
+	m_Transform = vtkSmartPointer<vtkTransform>::New();
+	m_Transform->PostMultiply(); //this is the key line
+
 	m_tracker = new TrackerType;
 
 }
@@ -243,15 +247,10 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
 	{
 		// construct transform
-		m_Transform->Translate(trans->x, trans->y, trans->z);
-		m_Transform->RotateWXYZ(trans->q0, trans->qx, trans->qy, trans->qz);
+		double* temp = m_Transform->TransformPoint(trans->x, trans->y, trans->z);
 
-		//static_cast<vtkActor*>(m_ActorCollection->GetItemAsObject(index))->GetProperty()->SetOpacity(opacity);
-		//GetActorPointer(m_ActorCollection, index)->SetUserTransform(m_Transform);
-		//
-		GetActorPointer(m_ActorCollection, index)->SetPosition(trans->x, trans->y, trans->z);
+		GetActorPointer(m_ActorCollection, index)->SetPosition(temp[0], temp[1], temp[2]);
 		GetActorPointer(m_ActorCollection, index)->SetOrientation(trans->qx, trans->qy, trans->qz);
-		//GetActorPointer(m_ActorCollection, index)->SetOrientation();
 		return 0;
 	}
 	else
@@ -264,10 +263,9 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 Description:
 	Setup registration matrix, transforming abslote coordinate
 */
-int vtkTracking3D::SetRegisterTransform(vtkTransform*)
+int vtkTracking3D::SetRegisterTransform(vtkMatrix4x4* in)
 {
-
-
+	m_Transform->SetMatrix(in);
 	return 0;
 }
 
@@ -341,9 +339,7 @@ int vtkTracking3D::InstallPipeline()
 	m_Interactor->AddObserver(vtkCommand::KeyPressEvent, m_InteractCallBack);
 	m_Interactor->AddObserver(vtkCommand::TimerEvent, m_TimerCallBack);
 	m_Interactor->AddObserver(vtkCommand::LeftButtonPressEvent, m_MouseCallback);
-	//
-	m_Transform = vtkSmartPointer<vtkTransform>::New();
-	m_Transform->PostMultiply(); //this is the key line
+
 
 	m_CurrentRenderer->ResetCamera();
 

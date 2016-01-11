@@ -39,10 +39,8 @@ Test Function for tracking device
 */
 void TestTrackingDevice()
 {
-	vtkSmartPointer<vtkSphereSource> sphere =
-		vtkSmartPointer<vtkSphereSource>::New();
-	sphere->SetCenter(0, 0, 0);
-	sphere->SetRadius(50);
+	auto sphere = vtkSmartPointer<vtkSTLReader>::New();
+	sphere->SetFileName("E:/test/QinShuoTShape.stl");
 	sphere->Update();
 
 	//vtkSmartPointer<vtkSTLReader> reader = vtkSmartPointer<vtkSTLReader>::New();
@@ -68,6 +66,29 @@ void TestTrackingDevice()
 	track->AddPolySource(boneExtractor->GetOutput());
 	track->AddPolySource(sphere->GetOutput());
 
+	auto tra = vtkSmartPointer<vtkMatrix4x4>::New();
+	tra->SetElement(0, 0, 0.491933);
+	tra->SetElement(0, 1, 0.159776);
+	tra->SetElement(0, 2, 0.855847);
+	tra->SetElement(0, 3, 46.9787);
+	tra->SetElement(1, 0, -0.186244);
+	tra->SetElement(1, 1, -0.940949);
+	tra->SetElement(1, 2, 0.282715);
+	tra->SetElement(1, 3, -46.9093);
+	tra->SetElement(2, 0, 0.850479);
+	tra->SetElement(2, 1, -0.298473);
+	tra->SetElement(2, 2, -0.433126);
+	tra->SetElement(2, 3, 47.4986);
+	tra->SetElement(3, 0, 0);
+	tra->SetElement(3, 1, 0);
+	tra->SetElement(3, 2, 0);
+	tra->SetElement(3, 3, 1);
+
+	auto tra2= vtkSmartPointer<vtkMatrix4x4>::New();
+	vtkMatrix4x4::Invert(tra,tra2);
+
+	//track->SetRegisterTransform(tra2);
+
 	auto interactorx = vtkSmartPointer<vtkRenderWindowInteractor>::New();
 	auto style = vtkSmartPointer<vtkInteractorStyleTrackballCamera >::New();
 	track->SetInteractorStyle(style);
@@ -86,6 +107,7 @@ void TestTrackingDevice()
 	track->GetRenderWindow()->Render();
 	interactorx->Start();
 
+	track->m_tracker->StopTracking();
 }
 
 void TestMousePick()
@@ -361,10 +383,10 @@ int main(int argc, char** argv)
 {
 
 	//TestMousePick();
-	//TestTrackingDevice();
+	TestTrackingDevice();
 	//TestOrthogonalPlane();
 	//TestTrackingMarkFunction();
-	TestRegistration();
+	//TestRegistration();
 	return 0;
 }
 

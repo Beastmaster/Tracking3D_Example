@@ -30,6 +30,7 @@ Description:
 #include "vtkOutlineFilter.h"
 
 #include <vtkTransform.h>
+#include <vtkLandmarkTransform.h>
 #include <vtkPropAssembly.h>
 
 #include <vtkCallbackCommand.h>
@@ -114,6 +115,7 @@ public:
 	void SetInteractor(vtkSmartPointer<vtkRenderWindowInteractor> inct);
 	void SetInteractorStyle( vtkInteractorStyle* );
 	void SetTracker(TrackerType* in);
+	//int SetLandMarks(std::vector<double*>src, std::vector<double*> tgt);//test function
 
 	// Get Functions
 	static vtkActor* GetActorPointer(vtkPropCollection*, int);
@@ -158,6 +160,7 @@ private:
 	registered coordinate.
 	*/
 	vtkSmartPointer<vtkTransform> m_Transform;
+	//vtkSmartPointer<vtkLandmarkTransform> m_LandMarkTransform;  //test
 	//
 	vtkSmartPointer<vtkRenderer> m_CurrentRenderer;
 	// renderer collections

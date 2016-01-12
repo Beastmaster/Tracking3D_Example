@@ -168,8 +168,32 @@
      <height>30</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="actionCalibrate_Tool"/>
+    <addaction name="actionSet_Tool"/>
+    <addaction name="actionLoad_Target_Model"/>
+   </widget>
+   <addaction name="menuOptions"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionCalibrate_Tool">
+   <property name="text">
+    <string>Calibrate Tool</string>
+   </property>
+  </action>
+  <action name="actionSet_Tool">
+   <property name="text">
+    <string>Set Tool</string>
+   </property>
+  </action>
+  <action name="actionLoad_Target_Model">
+   <property name="text">
+    <string>Load Target Model</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

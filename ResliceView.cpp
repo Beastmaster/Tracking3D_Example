@@ -45,6 +45,7 @@ reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)
 	mask_actor   = vtkSmartPointer<vtkImageActor>::New();
 	WindowLevel1 = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
 	WindowLevel2 = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
+
 	this->InteractorStyle = vtkSmartPointer<reslice_interactor_style>::New();
 	this->Interactor      = vtkSmartPointer<vtkRenderWindowInteractor>::New();
 
@@ -58,6 +59,36 @@ reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)
 
 	this->actor->SetOpacity(1);
 	this->mask_actor->SetOpacity(0.5);
+
+
+	/*
+	//init slider
+	m_Slider = vtkSmartPointer<vtkSliderRepresentation2D>::New();
+	m_Slider->SetMinimumValue(0.0);
+	m_Slider->SetMaximumValue(50.0);
+	m_Slider->SetValue(25.0);
+	m_Slider->SetTitleText("Slice");
+	// Set color properties:
+	m_Slider->GetSliderProperty()->SetColor(1, 0, 0);// Change the color of the knob that slides//red
+	m_Slider->GetTitleProperty()->SetColor(1, 0, 0);// Change the color of the text indicating what the slider controls//red
+	m_Slider->GetLabelProperty()->SetColor(1, 0, 0);// Change the color of the text displaying the value//red
+	m_Slider->GetSelectedProperty()->SetColor(0, 1, 0);// Change the color of the knob when the mouse is held on it//green
+	m_Slider->GetTubeProperty()->SetColor(1, 1, 0);// Change the color of the bar//yellow
+	m_Slider->GetCapProperty()->SetColor(1, 1, 0);// Change the color of the ends of the bar//yellow
+	//set position of slider bar
+	m_Slider->GetPoint1Coordinate()->SetCoordinateSystemToDisplay();
+	m_Slider->GetPoint1Coordinate()->SetValue(40, 40);
+	m_Slider->GetPoint2Coordinate()->SetCoordinateSystemToDisplay();
+	m_Slider->GetPoint2Coordinate()->SetValue(100, 40);
+
+	vtkSmartPointer<vtkSliderWidget> sliderWidget =
+		vtkSmartPointer<vtkSliderWidget>::New();
+	sliderWidget->SetInteractor(this->view_window->GetInteractor());
+	sliderWidget->SetRepresentation(m_Slider);
+	sliderWidget->SetAnimationModeToAnimate();
+	sliderWidget->EnabledOn();
+	//sliderWidget->
+	//sliderWidget->AddObserver(vtkCommand::InteractionEvent, callback);*/
 }
 
 reslice_view_base::~reslice_view_base()
@@ -126,6 +157,12 @@ void reslice_view_base::Set_Mask_Img(vtkSmartPointer<vtkImageData> img)
 	//set window level
 	this->WindowLevel2->SetWindow(valuesRange[1]-valuesRange[0]);
 	this->WindowLevel2->SetLevel((valuesRange[1]+valuesRange[0])/2);
+	//add an lookup table to windowlevel2
+	auto lookUp = vtkSmartPointer<vtkLookupTable>::New();
+	lookUp->SetNumberOfTableValues(int(valuesRange[1] - valuesRange[0]));
+	lookUp->SetRange(0.0,255.0);
+	lookUp->Build();
+	WindowLevel2->SetLookupTable(lookUp);
 }
 
 void reslice_view_base::RemoveMask()
@@ -436,8 +473,11 @@ void reslice_view_base:: on_click_mouse_lft(vtkObject* obj)
 	propPicker->GetPickPosition(pos);
 
 	std::cout<<"click mouse left button "<<eve_pos[0]<<" , "<<eve_pos[1]<<" , "<<this->slice_n<<std::endl;
-	std::cout<<"click mouse left button "<<vtkMath::Round(pos[0])<<" , "<<pos[1]<<" , "<<pos[2]<<std::endl;
+	//std::cout<<"click mouse left button "<<vtkMath::Round(pos[0])<<" , "<<pos[1]<<" , "<<pos[2]<<std::endl;
+	on_emit_coordinate(eve_pos[0], eve_pos[1],this->slice_n);
 }
+
+
 // private method: set view direction
 void reslice_view_base::Set_Direction(char x)
 {
@@ -530,3 +570,27 @@ double* reslice_view_base::calculate_img_center(vtkSmartPointer<vtkImageData> im
 //vtkObjectFactory.h must include!
 vtkStandardNewMacro(reslice_interactor_style);
 
+
+
+
+/*
+Build up an lookup table for visulizaiton
+*/
+vtkSmartPointer<vtkLookupTable> reslice_view_base::BuildUpLookupTable()
+{
+	vtkSmartPointer<vtkLookupTable> rgbLut =
+		vtkSmartPointer<vtkLookupTable>::New();
+
+	rgbLut->SetNumberOfTableValues(256);
+	rgbLut->SetRange(0.0, 255.0);
+
+	//int max_level = 30;
+	//for (size_t id = 0; id < max_level/3; id++)
+	//{
+	//	rgbLut->SetTableValue(id,      id / 30 , 1 , 1 , 1.0);
+	//	rgbLut->SetTableValue(id + 10, 1, id / 30, 1, 1.0);
+	//	rgbLut->SetTableValue(id + 20, 1, 1, id / 30, 1.0);
+	//}
+	rgbLut->Build();
+	return rgbLut;
+}

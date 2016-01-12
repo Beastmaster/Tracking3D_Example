@@ -76,6 +76,8 @@ public:
 		void on_scroll_mouse_back(vtkObject*);
 		void on_scroll_mouse_forward(vtkObject*);
 		void on_click_mouse_lft(vtkObject*);
+	signals:
+		void on_emit_coordinate(int,int,int);
 private:
 	double view_dirX[3];
 	double view_dirY[3];
@@ -121,6 +123,9 @@ private:
 	vtkSmartPointer<vtkEventQtSlotConnect> m_Connections_mouse_forward;
 	vtkSmartPointer<vtkEventQtSlotConnect> m_Connections_mouse_lft_click;
 
+	//unimportant functions
+	vtkSmartPointer<vtkSliderRepresentation2D> m_Slider;
+	vtkSmartPointer<vtkLookupTable> BuildUpLookupTable();
 };
 
 

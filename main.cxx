@@ -51,6 +51,7 @@ Description:
 #include "vtkNIFTIImageReader.h"
 #include "vtkImageMapper.h"
 #include "vtkImageActor.h"
+#include "vtkSliderRepresentation3D.h"
 /*
 Test Function for tracking device
 */
@@ -469,6 +470,77 @@ void TestView()
 
 }
 
+void TestSliderWidget()
+{
+	// A sphere
+	vtkSmartPointer<vtkSphereSource> sphereSource =
+		vtkSmartPointer<vtkSphereSource>::New();
+	sphereSource->SetCenter(0.0, 0.0, 0.0);
+	sphereSource->SetRadius(4.0);
+	sphereSource->SetPhiResolution(4);
+	sphereSource->SetThetaResolution(8);
+
+	vtkSmartPointer<vtkPolyDataMapper> mapper =
+		vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->SetInputConnection(sphereSource->GetOutputPort());
+
+	vtkSmartPointer<vtkActor> actor =
+		vtkSmartPointer<vtkActor>::New();
+	actor->SetMapper(mapper);
+	actor->GetProperty()->SetInterpolationToFlat();
+
+	// A renderer and render window
+	vtkSmartPointer<vtkRenderer> renderer =
+		vtkSmartPointer<vtkRenderer>::New();
+	vtkSmartPointer<vtkRenderWindow> renderWindow =
+		vtkSmartPointer<vtkRenderWindow>::New();
+	renderWindow->AddRenderer(renderer);
+
+	// An interactor
+	vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+		vtkSmartPointer<vtkRenderWindowInteractor>::New();
+	renderWindowInteractor->SetRenderWindow(renderWindow);
+
+	// Add the actors to the scene
+	renderer->AddActor(actor);
+
+	// Render an image (lights and cameras are created automatically)
+	renderWindow->Render();
+
+	vtkSmartPointer<vtkSliderRepresentation2D> sliderRep =
+		vtkSmartPointer<vtkSliderRepresentation2D>::New();
+	sliderRep->SetMinimumValue(3.0);
+	sliderRep->SetMaximumValue(50.0);
+	sliderRep->SetValue(sphereSource->GetThetaResolution());
+	sliderRep->SetTitleText("Sphere Resolution");
+	sliderRep->GetPoint1Coordinate()->SetCoordinateSystemToWorld();
+	sliderRep->GetPoint1Coordinate()->SetValue(-4, 6, 0);
+	sliderRep->GetPoint2Coordinate()->SetCoordinateSystemToWorld();
+	sliderRep->GetPoint2Coordinate()->SetValue(4, 6, 0);
+	sliderRep->SetSliderLength(0.075);
+	sliderRep->SetSliderWidth(0.05);
+	sliderRep->SetEndCapLength(0.05);
+
+	vtkSmartPointer<vtkSliderWidget> sliderWidget =
+		vtkSmartPointer<vtkSliderWidget>::New();
+	sliderWidget->SetInteractor(renderWindowInteractor);
+	sliderWidget->SetRepresentation(sliderRep);
+	sliderWidget->SetAnimationModeToAnimate();
+	sliderWidget->EnabledOn();
+
+	//vtkSmartPointer<vtkSliderCallback> callback =
+	//	vtkSmartPointer<vtkSliderCallback>::New();
+	//callback->SphereSource = sphereSource;
+
+	//sliderWidget->AddObserver(vtkCommand::InteractionEvent, callback);
+
+	renderWindowInteractor->Initialize();
+	renderWindow->Render();
+
+	renderWindowInteractor->Start();
+
+}
+
 int main(int argc, char** argv)
 {
 
@@ -477,7 +549,7 @@ int main(int argc, char** argv)
 	//TestOrthogonalPlane();
 	//TestTrackingMarkFunction();
 	//TestRegistration();
-
+	//TestSliderWidget();
 
 	QApplication Reg_main_app(argc, argv);
 

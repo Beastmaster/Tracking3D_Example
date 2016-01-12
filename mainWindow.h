@@ -2,6 +2,7 @@
 Author: QIN Shuo
 Organization: RC-MIC (CUHK)
 Date: 2016/1/10
+
 */
 
 
@@ -31,6 +32,7 @@ Date: 2016/1/10
 #include "vtkEventQtSlotConnect.h"
 #include "vtkMarchingCubes.h"
 #include "vtkSphereSource.h"
+#include "vtkSTLReader.h"
 
 #include "PolarisVicraConfiguration.h"
 #include "ATC3DGConfiguration.h"
@@ -56,6 +58,7 @@ public:
 	~MainWindow();
 
 	void sys_Init();
+	void createActions();
 
 public slots:
 	void on_Load_Image();
@@ -69,18 +72,24 @@ public slots:
 	void on_StartTracking();
 	void on_StopTracking();
 	void on_OpacityMove(int);
+	void on_ActionCalibrate();
+	void on_ActionSetTool();
+	void on_ActionLoadTarget();
+
 
 private:
 	Ui::MainWindow *ui;
 
 	std::string m_ImageFileName;
 	std::string m_AtlasFileName;
-	std::string m_ToolModel;
+	std::string m_ToolModelFileName;
+	std::string m_TargetFileName;
 
 	vtkSmartPointer<vtkImageData> m_Image;
 	vtkSmartPointer<vtkPolyData> m_ImageModel;
 	vtkSmartPointer<vtkImageData> m_Atlas;
-	vtkSmartPointer<vtkPolyData>  m_Tool;
+	vtkSmartPointer<vtkPolyData>  m_Tool;  //tracking tool model
+	vtkSmartPointer<vtkPolyData>  m_Target;  //planed target model
 
 	reslice_view_base* m_Sagittal_View;
 	reslice_view_base* m_Axial_View;
@@ -88,6 +97,7 @@ private:
 	vtkSmartPointer<QtWrapvtkTracking3D>  m_3d_View;
 	ATC3DGConfiguration* m_TrackerATC3DG;
 	PloarisVicraConfiguration* m_TrackerPolaris;
+
 
 	vtkSmartPointer< vtkTrackingMarkCapture<TrackerBase> > m_Marker_Capture;
 

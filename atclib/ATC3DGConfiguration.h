@@ -64,7 +64,7 @@ private:
 	int m_Num_Sensor;
 	int m_Num_Transmitter;
 	std::map< int, DefinedTransformType* >  m_TransformInformation;
-	QIN_Transform_Type*                  m_Transform;
+	//QIN_Transform_Type*                  m_Transform;  // this object has been defined in TrackerBase class
 };
 
 

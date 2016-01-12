@@ -38,7 +38,7 @@ ATC3DGConfiguration::ATC3DGConfiguration()
 	m_BoardConfig = NULL;
 
 	m_TransformInformation.clear();
-	m_Transform = NULL;
+	//m_Transform = NULL; This transform is managed in base class
 	
 }
 ATC3DGConfiguration::~ATC3DGConfiguration()
@@ -71,11 +71,11 @@ ATC3DGConfiguration::~ATC3DGConfiguration()
 	}
 	m_TransformInformation.clear();
 
-	if (m_Transform!=NULL)
-	{
-		delete m_Transform;
-		m_Transform = NULL;
-	}
+	//if (m_Transform!=NULL)
+	//{
+	//	delete m_Transform;
+	//	m_Transform = NULL;
+	//}
 }
 
 

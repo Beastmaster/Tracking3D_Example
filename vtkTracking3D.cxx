@@ -39,8 +39,8 @@ vtkTracking3D::vtkTracking3D()
 }
 vtkTracking3D::~vtkTracking3D()
 {
-	delete m_tracker; //There is error if I use static_cast
-	m_tracker = NULL;
+	//Tracker is managed by it self
+	//delete m_tracker;	//m_tracker = NULL; 
 }
 
 // Please be noted that:
@@ -182,7 +182,6 @@ Description:
 	Set the opacity of a specified actor
 	index count from 0
 */
-
 int vtkTracking3D :: SetOpacity(int index, float opacity) 
 {
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems()>=index)
@@ -247,6 +246,7 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 	{
 		// construct transform
 		double* temp = m_Transform->TransformPoint(trans->x, trans->y, trans->z);
+		//double* temp = m_LandMarkTransform->TransformVector(trans->x, trans->y, trans->z);
 
 		GetActorPointer(m_ActorCollection, index)->SetPosition(temp[0], temp[1], temp[2]);
 		GetActorPointer(m_ActorCollection, index)->SetOrientation(trans->qx, trans->qy, trans->qz);
@@ -257,7 +257,6 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 
 }
 
-
 /*
 Description:
 	Setup registration matrix, transforming abslote coordinate
@@ -265,9 +264,31 @@ Description:
 int vtkTracking3D::SetRegisterTransform(vtkMatrix4x4* in)
 {
 	m_Transform->SetMatrix(in);
+	m_Transform->PreMultiply();
 	return 0;
-}
+}/*
+int vtkTracking3D::SetLandMarks(std::vector<double*>src, std::vector<double*> tgt)
+{
+	auto src_Points = vtkSmartPointer<vtkPoints>::New();
+	for (auto it = src.begin(); it != src.end(); ++it)
+	{
+		src_Points->InsertNextPoint((*it));
+	}
 
+	auto tgt_Points = vtkSmartPointer<vtkPoints>::New();
+	for (auto it = tgt.begin(); it != tgt.end(); ++it)
+	{
+		tgt_Points->InsertNextPoint((*it));
+	}
+
+	m_LandMarkTransform = vtkSmartPointer<vtkLandmarkTransform>::New();
+	m_LandMarkTransform->SetSourceLandmarks(src_Points);
+	m_LandMarkTransform->SetTargetLandmarks(tgt_Points);
+	m_LandMarkTransform->SetModeToAffine();
+	m_LandMarkTransform->Update();
+
+	return 0;
+}*/
 
 
 /*
@@ -496,7 +517,10 @@ static void MouseclickCallbackFunction(
 
 
 /*
-
+Description:
+	Timer callback
+	When timer triggered, then new tool position is assigned.
+	And you will see tool moving with your tracking device.
 */
 void TimerCallbackFunction(
 	vtkObject* caller,

@@ -20,21 +20,39 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	//connect
 	connect(ui->load_Image_Btn,SIGNAL(clicked()),this,SLOT(on_Load_Image()));
 	connect(ui->load_Atlas_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Atlas()));
+	connect(ui->del_Atlas_Btn, SIGNAL(clicked()),this,SLOT(on_Del_Atlas()));
 	connect(ui->config_Tracker_Btn,SIGNAL(clicked()),this,SLOT(on_Config_Tracker()));
 	connect(ui->sel_Marker_Btn, SIGNAL(clicked()),this,SLOT(on_Sel_Markers()));
 	connect(ui->cap_Marker_Btn, SIGNAL(clicked()), this, SLOT(on_Cap_Btn()));
 	connect(ui->ok_Sel_Btn, SIGNAL(clicked()), this, SLOT(on_CapDone_Btn()));
 	connect(ui->start_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StartTracking()));
 	connect(ui->stop_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StopTracking()));
+	createActions();
 }
 
 MainWindow:: ~MainWindow()
 {
+	delete m_Sagittal_View;
+	delete m_Axial_View;
+	delete m_Coronal_View;
+
+	if (m_TrackerPolaris != NULL)
+	{
+		delete m_TrackerPolaris;
+	}
+	if (m_TrackerATC3DG!=NULL)
+	{
+		delete m_TrackerATC3DG;
+	}
 }
 
 
 void MainWindow::sys_Init()
 {
+	m_ImageFileName = "";
+	m_AtlasFileName = "";
+	m_ToolModelFileName = "";
+
 	//init qvtkwidget 
 	ui->axialWidget->GetRenderWindow()->Render();
 	ui->sagittalWidget->GetRenderWindow()->Render();
@@ -49,6 +67,8 @@ void MainWindow::sys_Init()
 	m_3d_View->SetInteractor(ui->threeDWidget->GetRenderWindow()->GetInteractor());
 	m_3d_View->InstallPipeline();
 
+	m_TrackerATC3DG = NULL;
+	m_TrackerPolaris = NULL;
 	//by default, we use ATC3DG device for tracking
 	m_TrackerATC3DG = new ATC3DGConfiguration;
 	m_3d_View->SetTracker(m_TrackerATC3DG);
@@ -56,6 +76,16 @@ void MainWindow::sys_Init()
 	m_Marker_Capture = vtkSmartPointer< vtkTrackingMarkCapture<TrackerBase> >::New();
 	m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
 	m_Marker_Capture->SetToolIndex(0);
+}
+
+/*
+Connect signal/slot of QActions
+*/
+void MainWindow::createActions()
+{
+	connect(ui->actionCalibrate_Tool, SIGNAL(triggered()), this, SLOT(on_ActionCalibrate()));
+	connect(ui->actionSet_Tool, SIGNAL(triggered()), this, SLOT(on_ActionSetTool()));
+	connect(ui->actionLoad_Target_Model, SIGNAL(triggered()), this, SLOT(on_ActionLoadTarget()));
 }
 
 void MainWindow::on_Load_Image()
@@ -158,7 +188,7 @@ void MainWindow::on_Sel_Markers()
 	QMessageBox msgBox;
 	msgBox.setText("Select Marker.");
 	//msgBox.setInformativeText("Press \"a\" to accept the marker.\nPress \"b\" to abort. \nPress \"q\" to finish.");
-	msgBox.setInformativeText("Press \"a\" to accept the marker.\nPress \"b\" to abort. \nPress \"q\" to finish.");
+	msgBox.setInformativeText("Put the Tool in the corresponding place and press \"Capture\" ");
 	msgBox.setStandardButtons(QMessageBox::Ok);
 	int ret = msgBox.exec();
 
@@ -209,16 +239,20 @@ void MainWindow::on_CapDone_Btn()
 	}
 
 	m_3d_View->SetRegisterTransform(res2);
+	//m_3d_View->SetLandMarks(temp_src,temp_dst);
 }
 
 void MainWindow::on_StartTracking()
 {
+	if (m_ToolModelFileName.empty())
+	{
+		auto sphere = vtkSmartPointer<vtkSphereSource>::New();
+		sphere->SetRadius(10);
+		sphere->Update();
+		m_Tool = sphere->GetOutput();
+	}
 	//connect tracking object
-	auto sphere = vtkSmartPointer<vtkSphereSource>::New();
-	sphere->SetRadius(50);
-	sphere->Update();
-
-	m_3d_View->AddPolySource(sphere->GetOutput());
+	m_3d_View->AddPolySource(m_Tool);
 	m_3d_View->ConnectObjectTracker(1,0);
 	m_3d_View->StartTracking();
 }
@@ -233,4 +267,40 @@ void MainWindow::on_OpacityMove(int op)
 	m_3d_View->SetOpacity( 0 , op/1000);
 }
 
+void MainWindow::on_ActionCalibrate()
+{
 
+}
+
+/*
+Set Tracking Tool Model
+*/
+void MainWindow::on_ActionSetTool()
+{
+	QString fileName = QFileDialog::getOpenFileName(this,
+		tr("Open Image"), "E:/", tr("Image Files (*.stl)"));
+	if (fileName.isEmpty())
+	{
+		return;
+	}
+	m_ToolModelFileName = fileName.toStdString();
+	
+	auto reader = vtkSmartPointer<vtkSTLReader>::New();
+	reader->SetFileName(m_ToolModelFileName.c_str());
+	reader->Update();
+	m_Tool = reader->GetOutput();
+}
+
+/*
+Load target
+*/
+void MainWindow::on_ActionLoadTarget()
+{
+	QString fileName = QFileDialog::getOpenFileName(this,
+		tr("Open Image"), "E:/", tr("Image Files (*.msh)"));
+	if (fileName.isEmpty())
+	{
+		return;
+	}
+	m_TargetFileName = fileName.toStdString();
+}

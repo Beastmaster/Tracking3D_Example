@@ -18,14 +18,8 @@ reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)
 #else
 	extent_m = NULL;
 #endif
-
-	this->img_to_mask = NULL;
-	this->img_to_view = NULL;
-
 	this->dimensions = NULL;
-	//this->view_dirX = NULL;
-	//this->view_dirY = NULL;
-	//this->view_dirZ = NULL;
+	this->img_to_view = NULL;
 	this->img_to_mask = NULL;
 	this->mask_actor  = NULL;
 	this->new_render  = NULL;

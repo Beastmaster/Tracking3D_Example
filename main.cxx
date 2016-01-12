@@ -282,20 +282,20 @@ void TestMousePick()
 
 void TestRegistration()
 {
-	auto reg1 = vtkSmartPointer <vtkTrackingICPRegistration > ::New();
-	auto reg2 = vtkSmartPointer<vtkTrackingLandMarkRegistration>::New();
-
 	auto src_points = vtkSmartPointer<vtkPoints>::New();
 	auto dst_points = vtkSmartPointer<vtkPoints>::New();
 
-	float v1[4][3] = {
+	std::vector<double*> src1;
+	std::vector<double*> dst1;
+
+	double v1[4][3] = {
 		{27.0123, -312.651, 175.357},
 		{110.84, -313.097, 117.314 },
 		{99.9009, -366.006, 130.82 },
 		{19.4221, 288.541, -121.779}
 	};
 
-	float vv1[4][3] ={
+	double vv1[4][3] ={
 		{116.265, 134.093, 90.2336},
 		{90.6786, 150.426, 140.594},
 		{147.852, 149.662, 146.22 },
@@ -304,20 +304,24 @@ void TestRegistration()
 
 	for (size_t i = 0; i < 4; i++)
 	{
-		src_points->InsertNextPoint(v1[i]);
+		src1.push_back(v1[i]);
 	}
 	for (size_t i = 0; i < 4; i++)
 	{
-		dst_points->InsertNextPoint(vv1[i]);
+		//dst_points->InsertNextPoint(vv1[i]);
+		dst1.push_back(vv1[i]);
 	}
 
-	reg1->SetSourcePoints(src_points);
-	reg1->SetTargetPoints(dst_points);
+	auto reg1 = vtkSmartPointer <vtkTrackingICPRegistration > ::New();
+	auto reg2 = vtkSmartPointer<vtkTrackingLandMarkRegistration>::New();
+
+	reg1->SetSourcePoints(src1);
+	reg1->SetTargetPoints(dst1);
 	reg1->GenerateTransform();
 	auto res1 = reg1->GetTransformMatrix();
 
-	reg2->SetSourcePoints(src_points);
-	reg2->SetTargetPoints(dst_points);
+	reg2->SetSourcePoints(src1);
+	reg2->SetTargetPoints(dst1);
 	reg2->GenerateTransform();
 	auto res2 = reg2->GetTransformMatrix();
 

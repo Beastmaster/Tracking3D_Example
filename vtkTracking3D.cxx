@@ -56,6 +56,7 @@ int vtkTracking3D::AddObject(vtkSmartPointer< vtkActor > act)
 {
 	m_ActorCollection->AddItem(act);
 	m_CurrentRenderer->AddActor(act);
+	m_CurrentRenderer->ResetCamera();
 	return 0;
 }
 

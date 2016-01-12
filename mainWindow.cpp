@@ -24,7 +24,8 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	connect(ui->sel_Marker_Btn, SIGNAL(clicked()),this,SLOT(on_Sel_Markers()));
 	connect(ui->cap_Marker_Btn, SIGNAL(clicked()), this, SLOT(on_Cap_Btn()));
 	connect(ui->ok_Sel_Btn, SIGNAL(clicked()), this, SLOT(on_CapDone_Btn()));
-	//connect();
+	connect(ui->start_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StartTracking()));
+	connect(ui->stop_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StopTracking()));
 }
 
 MainWindow:: ~MainWindow()
@@ -43,7 +44,7 @@ void MainWindow::sys_Init()
 	m_Sagittal_View = new reslice_view_base(ui->sagittalWidget->GetRenderWindow(),'s');
 	m_Axial_View = new reslice_view_base(ui->axialWidget->GetRenderWindow(), 'a');
 	m_Coronal_View = new reslice_view_base(ui->coronalWidget->GetRenderWindow(), 'c');
-	m_3d_View = vtkSmartPointer<vtkTracking3D>::New();
+	m_3d_View = QtWrapvtkTracking3D::New();//vtkSmartPointer<QtWrapvtkTracking3D>::New();
 	m_3d_View->SetWindow(ui->threeDWidget->GetRenderWindow());
 	m_3d_View->SetInteractor(ui->threeDWidget->GetRenderWindow()->GetInteractor());
 	m_3d_View->InstallPipeline();
@@ -190,11 +191,31 @@ void MainWindow::on_CapDone_Btn()
 	auto temp_src = m_Marker_Capture->GetMarkerList();
 	auto temp_dst = m_3d_View->GetMarkerList();
 
+	auto reg = vtkSmartPointer<vtkTrackingLandMarkRegistration>::New();
+	reg->SetSourcePoints(temp_src);
+	reg->SetTargetPoints(temp_dst);
+	reg->GenerateTransform();
+	auto res2 = reg->GetTransformMatrix();
+	std::cout << "Result" << std::endl;
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+			std::cout << res2->GetElement(i, j) << ",";
+		std::cout << std::endl;
+	}
 
+	m_3d_View->SetRegisterTransform(res2);
 }
 
 void MainWindow::on_StartTracking()
 {
+	//connect tracking object
+	auto sphere = vtkSmartPointer<vtkSphereSource>::New();
+	sphere->SetRadius(50);
+	sphere->Update();
+
+	m_3d_View->AddPolySource(sphere->GetOutput());
+	m_3d_View->ConnectObjectTracker(1,0);
 	m_3d_View->StartTracking();
 }
 

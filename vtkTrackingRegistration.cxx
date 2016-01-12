@@ -22,16 +22,38 @@ vtkTrackingRegistrationBase::~vtkTrackingRegistrationBase()
 {
 }
 
+/*
+Description:
+	Set input points to be registered
+*/
 void vtkTrackingRegistrationBase::SetSourcePoints(vtkPoints* input)
 {
-	src_Points = input;
+	src_Points->DeepCopy(input);
+	std::cout << "Number of src poins:" << src_Points->GetNumberOfPoints() << std::endl;
+}
+void vtkTrackingRegistrationBase::SetSourcePoints(std::vector<double*> xx2)
+{
+	for (auto it = xx2.begin(); it != xx2.end(); ++it)
+	{
+		src_Points->InsertNextPoint((*it));
+	}
 }
 
 void vtkTrackingRegistrationBase::SetTargetPoints(vtkPoints* input)
 {
-	target_Points = input;
+	target_Points->DeepCopy(input);
+}
+void vtkTrackingRegistrationBase::SetTargetPoints(std::vector<double*> xx2)
+{
+	for (auto it = xx2.begin(); it != xx2.end(); ++it)
+	{
+		target_Points->InsertNextPoint((*it));
+	}
 }
 
+/*
+Output a 4x4 matrix
+*/
 vtkSmartPointer<vtkMatrix4x4> vtkTrackingRegistrationBase::GetTransformMatrix()
 {
 	return transform_matrix;

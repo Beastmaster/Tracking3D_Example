@@ -46,7 +46,9 @@ public:
 	vtkTypeMacro(vtkTrackingRegistrationBase, vtkObject);
 
 	void SetSourcePoints(vtkPoints*);
+	void SetSourcePoints(std::vector<double*>);
 	void SetTargetPoints(vtkPoints*);
+	void SetTargetPoints(std::vector<double*>);
 	virtual void GenerateTransform()=0;
 	vtkSmartPointer<vtkMatrix4x4> GetTransformMatrix();
 

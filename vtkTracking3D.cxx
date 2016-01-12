@@ -33,7 +33,8 @@ vtkTracking3D::vtkTracking3D()
 	m_Transform = vtkSmartPointer<vtkTransform>::New();
 	m_Transform->PostMultiply(); //this is the key line
 
-	m_tracker = new TrackerType;
+	//m_tracker = new TrackerType;
+	m_tracker = NULL;
 
 }
 vtkTracking3D::~vtkTracking3D()
@@ -317,6 +318,24 @@ void vtkTracking3D::SetInteractorStyle( vtkInteractorStyle* style)
 	m_InteractorStyle = style;
 	m_Interactor->SetInteractorStyle(style);
 }
+/*
+Description:
+	Setup tracker device, check NULL point first
+Note:
+	In class constructor, the m_tracker is set to NULL
+	to ensure safety.
+*/
+void vtkTracking3D::SetTracker(TrackerType* in) 
+{ 
+	if (m_tracker != NULL)
+	{
+		delete m_tracker;
+	}
+	m_tracker = in; 
+};
+
+
+
 
 /*
 Description:

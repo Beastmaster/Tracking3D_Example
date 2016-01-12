@@ -32,11 +32,14 @@ Date: 2016/1/10
 #include "vtkMarchingCubes.h"
 #include "vtkSphereSource.h"
 
+#include "PolarisVicraConfiguration.h"
+#include "ATC3DGConfiguration.h"
 #include "ResliceView.h"
 #include "vtkTracking3D.h"
 #include "vtkTrackingMarkCapture.h"
 #include "vtkTrackingRegistration.h"
 #include "QtWrapvtkTracking3D.h"
+
 
 namespace Ui {
 	class MainWindow;
@@ -83,9 +86,10 @@ private:
 	reslice_view_base* m_Axial_View;
 	reslice_view_base* m_Coronal_View;
 	vtkSmartPointer<QtWrapvtkTracking3D>  m_3d_View;
-	//QtWrapvtkTracking3D* m_3d_View;
+	ATC3DGConfiguration* m_TrackerATC3DG;
+	PloarisVicraConfiguration* m_TrackerPolaris;
 
-	vtkSmartPointer< vtkTrackingMarkCapture<ATC3DGConfiguration> > m_Marker_Capture;
+	vtkSmartPointer< vtkTrackingMarkCapture<TrackerBase> > m_Marker_Capture;
 
 };
 

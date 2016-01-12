@@ -49,7 +49,11 @@ void MainWindow::sys_Init()
 	m_3d_View->SetInteractor(ui->threeDWidget->GetRenderWindow()->GetInteractor());
 	m_3d_View->InstallPipeline();
 
-	m_Marker_Capture = vtkSmartPointer< vtkTrackingMarkCapture<ATC3DGConfiguration> >::New();
+	//by default, we use ATC3DG device for tracking
+	m_TrackerATC3DG = new ATC3DGConfiguration;
+	m_3d_View->SetTracker(m_TrackerATC3DG);
+
+	m_Marker_Capture = vtkSmartPointer< vtkTrackingMarkCapture<TrackerBase> >::New();
 	m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
 	m_Marker_Capture->SetToolIndex(0);
 }

@@ -36,8 +36,10 @@ Description:
 #include <vtkCommand.h>
 
 #include <vector>
-#include "PolarisVicraConfiguration.h"
-#include "ATC3DGConfiguration.h"
+#include <map>
+#include "TrackerBase.h"
+//#include "PolarisVicraConfiguration.h"
+//#include "ATC3DGConfiguration.h"
 
 //----------  define user event id here  ---------//
 #define QIN_MOVE_EVENT "new data"
@@ -77,7 +79,8 @@ User Manual:
 class vtkTracking3D : public vtkObject
 {
 	//typedef  PloarisVicraConfiguration TrackerType;
-	typedef  ATC3DGConfiguration TrackerType;
+	//typedef  ATC3DGConfiguration TrackerType;
+	typedef TrackerBase TrackerType;
 
 public:
 	static vtkTracking3D* New();
@@ -110,7 +113,7 @@ public:
 	void SetWindow( vtkSmartPointer<vtkRenderWindow> );
 	void SetInteractor(vtkSmartPointer<vtkRenderWindowInteractor> inct);
 	void SetInteractorStyle( vtkInteractorStyle* );
-	void SetTracker(TrackerType* in) { delete m_tracker ; m_tracker = in; };
+	void SetTracker(TrackerType* in);
 
 	// Get Functions
 	static vtkActor* GetActorPointer(vtkPropCollection*, int);

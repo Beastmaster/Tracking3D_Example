@@ -50,10 +50,7 @@ public:
 public slots:
 	void on_timer_callback(vtkObject*)
 	{
-		int index_x = 0 ;
-		int index_y = 0;
-		int index_z = 0;
-		emit on_timer_signal(index_x,index_y,index_z);
+		emit on_timer_signal(this->m_index_tobe_set[0], this->m_index_tobe_set[1], this->m_index_tobe_set[2]);
 	};
 signals:
 	void on_timer_signal(int index_x,int index_y, int index_z);

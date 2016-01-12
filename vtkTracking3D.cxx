@@ -7,10 +7,6 @@ tracking 3d object
 */
 
 
-
-
-
-
 #include "vtkTracking3D.h"
 
 
@@ -322,6 +318,26 @@ void vtkTracking3D::SetInteractorStyle( vtkInteractorStyle* style)
 	m_Interactor->SetInteractorStyle(style);
 }
 
+/*
+Description:
+	These overload functions' function is get the reslice index
+	in picked point of 3d view.
+	Mainly for timer callback return. (connect qt)
+Note:
+	If you pass an pointer in, you must allocate memory!
+Parameter:
+	int[3]
+*/
+int* vtkTracking3D::GetResliceIndex()
+{
+	return m_index_tobe_set;
+}
+void vtkTracking3D::GetResliceIndex(int* in)
+{
+	memcpy(in,m_index_tobe_set,3*sizeof(int));
+}
+
+
 // install / reinstall the visiualizaiton pipeline here
 // must be done if any of the visi-pipline is modified
 int vtkTracking3D::InstallPipeline()
@@ -489,6 +505,14 @@ void TimerCallbackFunction(
 			std::cout << "transform invalid" << std::endl;
 		}
 	}
+
+	/*
+	Calculate index here!!!!!
+	Not implemented
+
+	Manipulate m_index_tobe_set
+	*/
+
 	tracking->GetRenderWindow()->Render();
 }
 

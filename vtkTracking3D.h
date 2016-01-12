@@ -117,6 +117,8 @@ public:
 	vtkRenderer* GetDefaultRenderer();
 	vtkSmartPointer<vtkRenderWindow> GetRenderWindow();
 	vtkSmartPointer<vtkRenderWindowInteractor> GetInteractor();
+	int* GetResliceIndex();
+	void GetResliceIndex(int*);
 	void EnablePick();
 	void DisablePick();
 
@@ -135,6 +137,7 @@ public:
 	std::map<int, int> m_Obj_Tool_Map;   //map: link index of actor and trackingTool
 
 	double m_marker_tobe_set[3];
+	int m_index_tobe_set[3];
 protected:
 	vtkTracking3D();
 	~vtkTracking3D();

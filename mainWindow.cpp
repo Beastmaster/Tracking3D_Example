@@ -20,9 +20,11 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	//connect
 	connect(ui->load_Image_Btn,SIGNAL(clicked()),this,SLOT(on_Load_Image()));
 	connect(ui->load_Atlas_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Atlas()));
+	connect(ui->config_Tracker_Btn,SIGNAL(clicked()),this,SLOT(on_Config_Tracker()));
 	connect(ui->sel_Marker_Btn, SIGNAL(clicked()),this,SLOT(on_Sel_Markers()));
 	connect(ui->cap_Marker_Btn, SIGNAL(clicked()), this, SLOT(on_Cap_Btn()));
 	connect(ui->ok_Sel_Btn, SIGNAL(clicked()), this, SLOT(on_CapDone_Btn()));
+	//connect();
 }
 
 MainWindow:: ~MainWindow()
@@ -45,6 +47,10 @@ void MainWindow::sys_Init()
 	m_3d_View->SetWindow(ui->threeDWidget->GetRenderWindow());
 	m_3d_View->SetInteractor(ui->threeDWidget->GetRenderWindow()->GetInteractor());
 	m_3d_View->InstallPipeline();
+
+	m_Marker_Capture = vtkSmartPointer< vtkTrackingMarkCapture<ATC3DGConfiguration> >::New();
+	m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
+	m_Marker_Capture->SetToolIndex(0);
 }
 
 void MainWindow::on_Load_Image()
@@ -120,11 +126,24 @@ void MainWindow::on_Del_Atlas()
 	m_Coronal_View->RenderView();
 }
 
+/*
+No use by now
+*/
 void MainWindow::on_Sel_Tracker()
 {}
 
 void MainWindow::on_Config_Tracker()
-{}
+{
+	if (m_3d_View->m_tracker->ConfigureTracker()!=0)
+	{
+		std::cout << "Tracker configuration fail" << std::endl;
+	}
+	if (m_3d_View->m_tracker->StartTracking()!=0)
+	{
+		std::cout << "Start Tracker fail" << std::endl;
+	}
+	
+}
 
 /*
 Begin selecting marker
@@ -133,33 +152,60 @@ void MainWindow::on_Sel_Markers()
 {
 	QMessageBox msgBox;
 	msgBox.setText("Select Marker.");
+	//msgBox.setInformativeText("Press \"a\" to accept the marker.\nPress \"b\" to abort. \nPress \"q\" to finish.");
 	msgBox.setInformativeText("Press \"a\" to accept the marker.\nPress \"b\" to abort. \nPress \"q\" to finish.");
 	msgBox.setStandardButtons(QMessageBox::Ok);
 	int ret = msgBox.exec();
 
+	// enable mouse pick first
+	m_3d_View->EnablePick(); //press a to accept
 }
 /*
 Capture the point and the device position
 */
 void MainWindow::on_Cap_Btn()
 {
+	// valid marker you select in the 3d view
+	m_3d_View->ValidMarker();
 
+	// marker capture get marker;
+	m_Marker_Capture->GetNextMarker();
 }
 /*
 Finish capture and run registration
 */
 void MainWindow::on_CapDone_Btn()
 {
+	//disconnect pick callback
+	m_3d_View->DisablePick();
+
+	if (m_3d_View->GetMarkerList().size() != m_Marker_Capture->GetMarkerList().size())
+	{
+		std::cout << "Markers invalid" << std::endl;
+		m_3d_View->ClearMarkers();
+		m_Marker_Capture->ClearMarkers();
+	}
+
+	// start registration here
+	auto temp_src = m_Marker_Capture->GetMarkerList();
+	auto temp_dst = m_3d_View->GetMarkerList();
+
 
 }
 
 void MainWindow::on_StartTracking()
-{}
+{
+	m_3d_View->StartTracking();
+}
 
 void MainWindow::on_StopTracking()
-{}
+{
+	m_3d_View->StopTracking();
+}
 
-void MainWindow::on_OpacityMove(int)
-{}
+void MainWindow::on_OpacityMove(int op)
+{
+	m_3d_View->SetOpacity( 0 , op/1000);
+}
 
 

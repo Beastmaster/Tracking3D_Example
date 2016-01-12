@@ -19,7 +19,7 @@ vtkTracking3D::vtkTracking3D()
 {
 	m_interval = 100;
 	m_CurrentRenderer = vtkSmartPointer<vtkRenderer>::New();
-	m_CurrentRenderer->SetBackground(0,1,0);
+	m_CurrentRenderer->SetBackground(1,1,1);
 	m_RendererCollection = vtkSmartPointer<vtkRendererCollection>::New();
 	m_RenderWindow = vtkSmartPointer< vtkRenderWindow >::New();
 	m_ActorCollection = vtkSmartPointer < vtkActorCollection >::New();

@@ -33,6 +33,7 @@ Date: 2016/1/10
 
 #include "ResliceView.h"
 #include "vtkTracking3D.h"
+#include "vtkTrackingMarkCapture.h"
 
 namespace Ui {
 	class MainWindow;
@@ -79,6 +80,7 @@ private:
 	reslice_view_base* m_Axial_View;
 	reslice_view_base* m_Coronal_View;
 	vtkSmartPointer<vtkTracking3D>  m_3d_View;
+	vtkSmartPointer< vtkTrackingMarkCapture<ATC3DGConfiguration> > m_Marker_Capture;
 
 };
 

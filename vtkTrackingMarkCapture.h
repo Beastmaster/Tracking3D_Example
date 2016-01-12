@@ -45,7 +45,9 @@ public:
 	void SetReferIndex(int);
 
 	void GetNextMarker();
+	void ClearMarkers();
 	std::vector<double*> GetMarkerList();
+
 private:
 	TrackerType* m_Tracker;
 
@@ -113,6 +115,28 @@ void vtkTrackingMarkCapture<TrackerType>::GetNextMarker()
 	m_ToolMarkers.push_back(tem_tool);
 	m_ReferMarkers.push_back(tem_refer);
 }
+
+/*
+Description:
+	Clear all markers captured
+*/
+template<typename TrackerType>
+void vtkTrackingMarkCapture<TrackerType>::ClearMarkers()
+{
+	for (auto it = m_ToolMarkers.begin(); it != m_ToolMarkers.end(); ++it)
+	{
+		delete *it;
+		*it = NULL;
+	}
+	m_ToolMarkers.clear();
+	for (auto it = m_ReferMarkers.begin(); it != m_ReferMarkers.end(); ++it)
+	{
+		delete *it;
+		*it = NULL;
+	}
+	m_ReferMarkers.clear();
+}
+
 
 template<typename TrackerType>
 std::vector<double*> vtkTrackingMarkCapture<TrackerType>::GetMarkerList()

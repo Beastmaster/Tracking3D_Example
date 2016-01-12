@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1035</width>
-    <height>674</height>
+    <width>1062</width>
+    <height>694</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_5">
+   <layout class="QHBoxLayout" name="horizontalLayout_7">
     <item>
      <widget class="QWidget" name="horizontalWidget" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout">
@@ -69,18 +69,29 @@
          <item>
           <widget class="QPushButton" name="del_Atlas_Btn">
            <property name="text">
-            <string>Del</string>
+            <string>Del Atlas</string>
            </property>
           </widget>
          </item>
         </layout>
        </item>
        <item>
-        <widget class="QPushButton" name="config_Tracker_Btn">
-         <property name="text">
-          <string>Configure Tracker</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QPushButton" name="config_Tracker_Btn">
+           <property name="text">
+            <string>Configure Tracker</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="sel_Tracker_Btn">
+           <property name="text">
+            <string>Select Tracker</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -108,25 +119,22 @@
         </layout>
        </item>
        <item>
-        <widget class="QPushButton" name="start_Tracking_Btn">
-         <property name="text">
-          <string>Start Tracking</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="sel_Tracker_Btn">
-         <property name="text">
-          <string>Select Tracker</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="stop_Tracking_Btn">
-         <property name="text">
-          <string>Stop Tracking</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QPushButton" name="start_Tracking_Btn">
+           <property name="text">
+            <string>Start Tracking</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="stop_Tracking_Btn">
+           <property name="text">
+            <string>Stop Tracking</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -156,7 +164,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1035</width>
+     <width>1062</width>
      <height>30</height>
     </rect>
    </property>

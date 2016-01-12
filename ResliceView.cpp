@@ -14,6 +14,10 @@ reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)
 	this->Set_Direction(a);
 	this->Set_Window(winx);
 	this->slice_n = 0;
+#if VTK_MAJOR_VERSION <= 5
+#else
+	extent_m = NULL;
+#endif
 
 	this->img_to_mask = NULL;
 	this->img_to_view = NULL;
@@ -177,6 +181,10 @@ void reslice_view_base::RenderView()
 	this->reslice->SetResliceAxesDirectionCosines(this->view_dirX,this->view_dirY,this->view_dirZ);
 	this->reslice->SetResliceAxesOrigin(center);
 	this->reslice->SetInterpolationModeToLinear();
+	//Attention  !!!!
+	//Attention  !!!!
+	//Attention  !!!!
+	// You must Update here!!!
 	this->reslice->Update();
 #if VTK_MAJOR_VERSION <= 5
 	this->WindowLevel1->SetInput(this->reslice->GetOutput());
@@ -214,10 +222,19 @@ void reslice_view_base::RenderView()
 		this->mask_reslice->SetResliceAxesDirectionCosines(this->view_dirX,this->view_dirY,this->view_dirZ);
 		this->mask_reslice->SetResliceAxesOrigin(center);
 		this->mask_reslice->SetInterpolationModeToLinear();
+		//Attention  !!!!
+		//Attention  !!!!
+		//Attention  !!!!
+		// You must Update here!!!
+		this->mask_reslice->Update();
 #if VTK_MAJOR_VERSION <= 5
 		this->WindowLevel2->SetInput(this->mask_reslice->GetOutput());
 #else
 		this->WindowLevel2->SetInputData(this->mask_reslice->GetOutput());
+		//Attention  !!!!
+		//Attention  !!!!
+		//Attention  !!!!
+		// You must Update here!!!
 		this->WindowLevel2->Update();
 #endif
 	}
@@ -235,7 +252,10 @@ void reslice_view_base::on_scroll_mouse_back(vtkObject* obj)
 	iren = vtkRenderWindowInteractor::SafeDownCast(obj);
 
 	//std::cout<<"direct  "<<this->direction<<"  call mouse scroll  "<<this->slice_n<<std::endl;
-
+	if (extent_m == NULL)
+	{
+		return;
+	}
 	switch(this->direction)
 	{
 	case 'a':
@@ -308,7 +328,10 @@ void reslice_view_base::on_scroll_mouse_forward(vtkObject* obj)
 	iren = vtkRenderWindowInteractor::SafeDownCast(obj);
 
 	//std::cout<<"direct  "<<this->direction<<"  call mouse scroll  "<<this->slice_n<<std::endl;
-
+	if (extent_m == NULL)
+	{
+		return;
+	}
 	switch(this->direction)
 	{
 	case 'a':

@@ -25,7 +25,7 @@ vtkTracking3D::vtkTracking3D()
 	
 	m_Interactor = vtkSmartPointer < vtkRenderWindowInteractor >::New();
 	m_InteractorStyle = vtkSmartPointer < vtkInteractorStyleImage > ::New();
-	m_InteractCallBack = vtkSmartPointer<vtkCallbackCommand> ::New();
+	m_KeyPressCallBack = vtkSmartPointer<vtkCallbackCommand> ::New();
 	m_TimerCallBack = vtkSmartPointer<vtkCallbackCommand>::New();
 	m_MouseCallback = vtkSmartPointer<vtkCallbackCommand>::New();
 
@@ -247,9 +247,18 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 		// construct transform
 		double* temp = m_Transform->TransformPoint(trans->x, trans->y, trans->z);
 		//double* temp = m_LandMarkTransform->TransformVector(trans->x, trans->y, trans->z);
+		
+		// put out
+		m_marker_tobe_set[0] = temp[0];
+		m_marker_tobe_set[1] = temp[1];
+		m_marker_tobe_set[2] = temp[2];
 
+		//move actor here
 		GetActorPointer(m_ActorCollection, index)->SetPosition(temp[0], temp[1], temp[2]);
 		GetActorPointer(m_ActorCollection, index)->SetOrientation(trans->qx, trans->qy, trans->qz);
+
+		//this emit a signal to connect qt signal, to reslice 2D views
+		this->InvokeEvent(QIN_S_VTK_EVENT, this);
 		return 0;
 	}
 	else
@@ -388,13 +397,13 @@ int vtkTracking3D::InstallPipeline()
 	m_Interactor->Initialize();  //this line is very important to start timer
 
 	//register callbacks
-	m_InteractCallBack->SetClientData(this);
-	m_InteractCallBack->SetCallback(KeypressCallbackFunction);
+	m_KeyPressCallBack->SetClientData(this);
+	m_KeyPressCallBack->SetCallback(KeypressCallbackFunction);
 	m_TimerCallBack->SetClientData(this);
 	m_TimerCallBack->SetCallback(TimerCallbackFunction);
 	m_MouseCallback->SetClientData(this);
 	m_MouseCallback->SetCallback(MouseclickCallbackFunction);
-	m_Interactor->AddObserver(vtkCommand::KeyPressEvent, m_InteractCallBack);
+	m_Interactor->AddObserver(vtkCommand::KeyPressEvent, m_KeyPressCallBack);
 	m_Interactor->AddObserver(vtkCommand::TimerEvent, m_TimerCallBack);
 
 	m_CurrentRenderer->ResetCamera();
@@ -510,9 +519,13 @@ static void MouseclickCallbackFunction(
 	double* pos = picker->GetPickPosition();
 
 	std::cout << "Position is: " << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
+	
 	tracking->m_marker_tobe_set[0] = pos[0];
 	tracking->m_marker_tobe_set[1] = pos[1];
 	tracking->m_marker_tobe_set[2] = pos[2];
+
+	//this emit a signal to connect qt signal
+	tracking->InvokeEvent(QIN_S_VTK_EVENT, tracking);
 }
 
 
@@ -549,11 +562,11 @@ void TimerCallbackFunction(
 		}
 	}
 
-	/*						   /////////////////////////////////////////////////////////
-	Calculate index here!!!!!  /////////////////////////////////////////////////////////
-	Not implemented			   /////////////////////////////////////////////////////////
-							   /////////////////////////////////////////////////////////
-	Manipulate m_index_tobe_set/////////////////////////////////////////////////////////
+	/*						   
+	Calculate index here!!!!!  
+	Not implemented			   
+							   
+	Manipulate m_index_tobe_set
 	*/
 
 	tracking->GetRenderWindow()->Render();

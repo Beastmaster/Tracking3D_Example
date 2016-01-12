@@ -17,6 +17,9 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	//system parameters initialization
 	sys_Init();
 
+	//connect vtkTracking3D
+	connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double,double,double)));
+
 	//connect
 	connect(ui->load_Image_Btn,SIGNAL(clicked()),this,SLOT(on_Load_Image()));
 	connect(ui->load_Atlas_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Atlas()));
@@ -62,7 +65,7 @@ void MainWindow::sys_Init()
 	m_Sagittal_View = new reslice_view_base(ui->sagittalWidget->GetRenderWindow(),'s');
 	m_Axial_View = new reslice_view_base(ui->axialWidget->GetRenderWindow(), 'a');
 	m_Coronal_View = new reslice_view_base(ui->coronalWidget->GetRenderWindow(), 'c');
-	m_3d_View = vtkSmartPointer<QtWrapvtkTracking3D>::New();//vtkSmartPointer<QtWrapvtkTracking3D>::New();
+	m_3d_View = QtWrapvtkTracking3D::New();//vtkSmartPointer<QtWrapvtkTracking3D>::New();
 	m_3d_View->SetWindow(ui->threeDWidget->GetRenderWindow());
 	m_3d_View->SetInteractor(ui->threeDWidget->GetRenderWindow()->GetInteractor());
 	m_3d_View->InstallPipeline();
@@ -86,6 +89,17 @@ void MainWindow::createActions()
 	connect(ui->actionCalibrate_Tool, SIGNAL(triggered()), this, SLOT(on_ActionCalibrate()));
 	connect(ui->actionSet_Tool, SIGNAL(triggered()), this, SLOT(on_ActionSetTool()));
 	connect(ui->actionLoad_Target_Model, SIGNAL(triggered()), this, SLOT(on_ActionLoadTarget()));
+}
+
+/*
+This function receive signal from vtkTracking3D class
+Parameters are coordinate from the world coordinate.
+*/
+void MainWindow::on_ResliceAction(double x, double y, double z)
+{
+	int pt_ID = 0;
+	pt_ID = m_Image->FindPoint(x,y,z);
+	std::cout << "Point ID is: " << pt_ID << std::endl;
 }
 
 void MainWindow::on_Load_Image()

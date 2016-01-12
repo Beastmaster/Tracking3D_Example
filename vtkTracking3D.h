@@ -45,7 +45,7 @@ Description:
 //----------  define user event id here  ---------//
 #define QIN_MOVE_EVENT "new data"
 #define QIN_ERROR_EVENT "error!!!"
-
+#define QIN_S_VTK_EVENT 8888    // this is an unique event ID to connect mouse picked coordinate
 /*
 typedef struct
 {
@@ -168,7 +168,7 @@ private:
 	// renderwindow
 	vtkSmartPointer<vtkRenderWindow> m_RenderWindow;
 	// callback command
-	vtkSmartPointer<vtkCallbackCommand> m_InteractCallBack;
+	vtkSmartPointer<vtkCallbackCommand> m_KeyPressCallBack;
 	vtkSmartPointer<vtkCallbackCommand> m_TimerCallBack;
 	vtkSmartPointer<vtkCallbackCommand> m_MouseCallback;
 	// interactor

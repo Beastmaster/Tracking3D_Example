@@ -142,7 +142,6 @@ void reslice_view_base::Set_View_Img(vtkSmartPointer<vtkImageData> img)
 	//set window level
 	this->WindowLevel1->SetWindow(valuesRange[1]-valuesRange[0]);
 	this->WindowLevel1->SetLevel((valuesRange[1]+valuesRange[0])*1/2);
-
 }
 
 void reslice_view_base::Set_Mask_Img(vtkSmartPointer<vtkImageData> img)

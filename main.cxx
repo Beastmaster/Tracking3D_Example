@@ -157,6 +157,9 @@ void TestMousePick()
 	sphere->SetCenter(0, 0, 0);
 	sphere->SetRadius(50);
 	sphere->Update();
+
+	
+
 	/*
 	vtkSmartPointer<vtkConeSource> cone =
 		vtkSmartPointer<vtkConeSource>::New();

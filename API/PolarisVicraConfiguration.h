@@ -6,6 +6,16 @@ Organization: RC-MIC(CUHK)
 Description:
 	Reconstruct the API command handling
 	Inhert from class: CCommandHandling
+
+Attention:
+	You should copy the file:
+		TrackerPolarisVicra.ini
+	To the .exe folder. Because the programe
+	search for this configuration file first.
+
+	There are 3 ROM files, and you should put 
+	the path of these rom files to the right
+	place.
 */
 
 
@@ -60,7 +70,6 @@ public:
 	2. StartTracking
 	3. StopTracking
 	*/
-	int  SetConfigureFile(std::string);
 	virtual int  StartTracking();
 	virtual int  StopTracking();
 	virtual int  GetTrackingStatus();
@@ -79,7 +88,7 @@ public:
 	void ResetHardare(int);
 	void SetWireless(int);
 	void AddSROMFile(std::string);
-
+	int  SetConfigureFile(std::string);
 
 private:
 	std::string m_ConfigFile;

@@ -6,8 +6,17 @@ Organization: RC-MIC(CUHK)
 Description:
 Reconstruct the API command handling
 Inhert from class: CCommandHandling
-*/
 
+Attention:
+	You should copy the file:
+		TrackerPolarisVicra.ini
+	To the .exe folder. Because the programe
+	search for this configuration file first.
+
+	There are 3 ROM files, and you should put
+	the path of these rom files to the right
+	place.
+*/
 
 #include "PolarisVicraConfiguration.h"
 #include "INIFileRW.h"
@@ -24,19 +33,19 @@ PloarisVicraConfiguration::PloarisVicraConfiguration()
 	m_bPortEnabled = false;			/* port enable status */
 	m_bPortInitialized = false;		/* port initialization flag */
 
-	m_bUseEulerAngles = false;    // display euler mode
-	m_bUse0x0800Option = false;    // use 0x0800opetion
+	m_bUseEulerAngles = false;      // display euler mode
+	m_bUse0x0800Option = false;     // use 0x0800opetion
 
-	m_nCOMPort = 0;				/* the current com port number */
-	m_nTrackingMode = 0;		//used in getdatafunction
-	m_szFrameNumber = 0;		//display frame number;
-	//device information
-	m_szSystemMode = "";			/* system operating mode */
-	m_szSerialNo = "";			/* serial number */
-	m_szToolRev = "";			/* tool reversion */
-	m_szToolType = "";			/* tool type */
-	m_szPartNumber = "";			/* part number */
-	m_szManufID = "";			/* manufacturer ID */
+	m_nCOMPort = 0;				    /* the current com port number */
+	m_nTrackingMode = 0;		    //used in getdatafunction
+	m_szFrameNumber = 0;		    //display frame number;
+	//device information		    
+	m_szSystemMode = "";		    	/* system operating mode */
+	m_szSerialNo = "";			    /* serial number */
+	m_szToolRev = "";			    /* tool reversion */
+	m_szToolType = "";			    /* tool type */
+	m_szPartNumber = "";		    	/* part number */
+	m_szManufID = "";			    /* manufacturer ID */
 
 	m_PortID.clear();
 	m_OperatingStatus = "";
@@ -86,7 +95,12 @@ int PloarisVicraConfiguration::StartTracking()
 		return 1;
 	}
 }
+
 /*
+Description:
+	Stop tracking device, if you want to start another
+	tracking process, you should call configure tracker
+	and start function.
 Return Value:
 	0:	success
 	1:	fail
@@ -122,6 +136,10 @@ int  PloarisVicraConfiguration::SetConfigureFile(std::string m_ConfigFile)
 
 
 /*
+Description:
+	This function implement the virtual fucntion in TrackerBase class
+	You should just call this single function to finished the whole
+	initialization process.
 Return Value:
 	0: success
 	other: fail
@@ -422,6 +440,7 @@ void PloarisVicraConfiguration::SetnParity(int nParity)
 {
 	WriteINIParm("Communication", "Parity", nParity);
 }
+
 /*
 	Input variables:
 	Data Bits=0

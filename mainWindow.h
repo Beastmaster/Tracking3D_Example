@@ -72,11 +72,13 @@ public slots:
 	void on_CapDone_Btn();
 	void on_StartTracking();
 	void on_StopTracking();
-	void on_OpacityMove(int);
 	void on_ActionCalibrate();
 	void on_ActionSetTool();
 	void on_ActionLoadTarget();
-
+	void on_Sagittal_Slider(int);
+	void on_Axial_Slider(int);
+	void on_Coronal_Slider(int);
+	void on_Opacity_Slider(int);
 
 private:
 	Ui::MainWindow *ui;

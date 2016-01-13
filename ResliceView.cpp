@@ -687,13 +687,6 @@ vtkSmartPointer<vtkLookupTable> reslice_view_base::BuildUpLookupTable()
 	rgbLut->SetNumberOfTableValues(256);
 	rgbLut->SetRange(0.0, 255.0);
 
-	//int max_level = 30;
-	//for (size_t id = 0; id < max_level/3; id++)
-	//{
-	//	rgbLut->SetTableValue(id,      id / 30 , 1 , 1 , 1.0);
-	//	rgbLut->SetTableValue(id + 10, 1, id / 30, 1, 1.0);
-	//	rgbLut->SetTableValue(id + 20, 1, 1, id / 30, 1.0);
-	//}
 	rgbLut->Build();
 	return rgbLut;
 }

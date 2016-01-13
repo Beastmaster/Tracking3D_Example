@@ -14,6 +14,11 @@ MainWindow::MainWindow(QWidget *parent):
 QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
+	//some ui parameters
+	ui->opacity_Slider->setMaximum(100);
+	ui->opacity_Slider->setMinimum(1);
+	ui->opacity_Slider->setValue(100);
+
 	//system parameters initialization
 	sys_Init();
 
@@ -30,6 +35,10 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	connect(ui->ok_Sel_Btn, SIGNAL(clicked()), this, SLOT(on_CapDone_Btn()));
 	connect(ui->start_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StartTracking()));
 	connect(ui->stop_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StopTracking()));
+	connect(ui->opacity_Slider, SIGNAL(sliderMoved(int)), this, SLOT(on_Opacity_Slider(int)));
+	connect(ui->axial_slider, SIGNAL(sliderMoved(int)), this, SLOT(on_Axial_Slider(int)));
+	connect(ui->sagittal_slider, SIGNAL(sliderMoved(int)), this, SLOT(on_Sagittal_Slider(int)));
+	connect(ui->coronal_slider, SIGNAL(sliderMoved(int)), this, SLOT(on_Coronal_Slider(int)));
 	createActions();
 }
 
@@ -137,6 +146,16 @@ void MainWindow::on_Load_Image()
 		reader->Update();
 		m_Image = reader->GetOutput();
 
+		//modify slider range
+		int extent[6];
+		m_Image->GetExtent(extent);
+		ui->axial_slider->setRange(extent[4], extent[5]);
+		ui->axial_slider->setValue((extent[5] + extent[4]) / 2);
+		ui->sagittal_slider->setRange(extent[0], extent[1]);
+		ui->sagittal_slider->setValue((extent[0] + extent[1]) / 2);
+		ui->coronal_slider->setRange(extent[2], extent[3]);
+		ui->coronal_slider->setValue((extent[2] + extent[3]) / 2);
+
 		m_Sagittal_View->Set_View_Img(m_Image);
 		m_Axial_View->Set_View_Img(m_Image);
 		m_Coronal_View->Set_View_Img(m_Image);
@@ -151,6 +170,7 @@ void MainWindow::on_Load_Image()
 		marchingCubes->SetValue(0,500);
 		marchingCubes->Update();
 		m_3d_View->AddPolySource(marchingCubes->GetOutput());
+		m_3d_View->SetColor(0,0.5,0.6,0.7);
 		m_3d_View->RefreshView();
 		m_3d_View->GetRenderWindow()->Render();
 	}
@@ -287,6 +307,13 @@ void MainWindow::on_StartTracking()
 	//connect tracking object
 	m_3d_View->AddPolySource(m_Tool);
 	m_3d_View->ConnectObjectTracker(1,0);
+
+	//add target to view
+	if (!m_TargetFileName.empty())
+	{
+		m_3d_View->AddPolySource(m_Target);
+	}
+
 	m_3d_View->StartTracking();
 }
 
@@ -295,10 +322,6 @@ void MainWindow::on_StopTracking()
 	m_3d_View->StopTracking();
 }
 
-void MainWindow::on_OpacityMove(int op)
-{
-	m_3d_View->SetOpacity( 0 , op/1000);
-}
 
 void MainWindow::on_ActionCalibrate()
 {
@@ -337,3 +360,27 @@ void MainWindow::on_ActionLoadTarget()
 	}
 	m_TargetFileName = fileName.toStdString();
 }
+
+
+
+void MainWindow::on_Sagittal_Slider(int po)
+{
+	m_Sagittal_View->SetSlice(po);
+}
+void MainWindow::on_Axial_Slider(int po)
+{
+	m_Axial_View->SetSlice(po);
+}
+void MainWindow::on_Coronal_Slider(int po)
+{
+	m_Coronal_View->SetSlice(po);
+}
+
+void MainWindow::on_Opacity_Slider(int value)
+{
+	float op = value;
+	m_3d_View->SetOpacity(0,op/100);
+}
+
+
+

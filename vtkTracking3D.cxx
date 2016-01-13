@@ -60,6 +60,7 @@ int vtkTracking3D::AddObject(vtkSmartPointer< vtkActor > act)
 int vtkTracking3D::AddPolySource(vtkSmartPointer<vtkPolyData> poly)
 {
 	vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->ScalarVisibilityOff();
 	mapper->SetInputData(poly);
 	vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
 	actor->SetMapper(mapper);
@@ -179,22 +180,6 @@ std::vector<double*> vtkTracking3D::GetMarkerList()
 
 /*
 Description:
-	Set the opacity of a specified actor
-	index count from 0
-*/
-int vtkTracking3D :: SetOpacity(int index, float opacity) 
-{
-	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems()>=index)
-	{
-		//static_cast<vtkActor*>(m_ActorCollection->GetItemAsObject(index))->GetProperty()->SetOpacity(opacity);
-		GetActorPointer(m_ActorCollection, index)->GetProperty()->SetOpacity(opacity);
-		return 0;
-	}
-	else
-		return 1;
-}
-/*
-Description:
 	Set the outline of a specified actor
 Input:
 	index: index of the actor
@@ -207,6 +192,25 @@ int vtkTracking3D::SetEnableOutline(int index, bool en)
 	return 0;
 }
 
+
+
+/*
+Description:
+Set the opacity of a specified actor
+index count from 0
+*/
+int vtkTracking3D::SetOpacity(int index, float opacity)
+{
+	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() >= index)
+	{
+		//static_cast<vtkActor*>(m_ActorCollection->GetItemAsObject(index))->GetProperty()->SetOpacity(opacity);
+		GetActorPointer(m_ActorCollection, index)->GetProperty()->SetOpacity(opacity);
+		return 0;
+	}
+	else
+		return 1;
+}
+
 /*
 Description:
 	Set color function
@@ -216,7 +220,7 @@ int vtkTracking3D::SetColor(int index, double r, double g, double b)
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() >= index)
 	{
 		//static_cast<vtkActor*>(m_ActorCollection->GetItemAsObject(index))->GetProperty()->SetOpacity(opacity);
-		GetActorPointer(m_ActorCollection, index)->GetProperty()->SetColor(r,g,b);
+		GetActorPointer(m_ActorCollection, index)->GetProperty()->SetColor(r,g,b);	
 		return 0;
 	}
 	else

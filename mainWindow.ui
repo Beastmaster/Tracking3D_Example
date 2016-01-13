@@ -6,12 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1062</width>
-    <height>694</height>
+    <width>1132</width>
+    <height>849</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Navigate</string>
+  </property>
+  <property name="windowOpacity">
+   <double>1.000000000000000</double>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(100, 100, 100);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -21,20 +27,64 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QVTKWidget" name="axialWidget"/>
-         </item>
-         <item>
-          <widget class="QVTKWidget" name="sagittalWidget"/>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QVTKWidget" name="axialWidget"/>
+           </item>
+           <item>
+            <widget class="QSlider" name="axial_slider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <item>
+              <widget class="QVTKWidget" name="sagittalWidget"/>
+             </item>
+             <item>
+              <widget class="QSlider" name="sagittal_slider">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QVTKWidget" name="coronalWidget"/>
-         </item>
-         <item>
-          <widget class="QVTKWidget" name="threeDWidget"/>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <item>
+            <widget class="QVTKWidget" name="coronalWidget"/>
+           </item>
+           <item>
+            <widget class="QSlider" name="coronal_slider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_7">
+             <item>
+              <widget class="QVTKWidget" name="threeDWidget"/>
+             </item>
+             <item>
+              <widget class="QSlider" name="opacity_Slider">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
@@ -49,9 +99,42 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>300</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QPushButton" name="load_Image_Btn">
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>12</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+ 
+QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
+
+QPushButton:hover:!pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:hover { color:rgb(255, 255, 255);}
+
+
+
+QPushButton:checked { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;}
+
+QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
+
+QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
+         </property>
          <property name="text">
           <string>Load Image</string>
          </property>
@@ -61,6 +144,33 @@
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
           <widget class="QPushButton" name="load_Atlas_Btn">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+ 
+QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
+
+QPushButton:hover:!pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:hover { color:rgb(255, 255, 255);}
+
+
+
+QPushButton:checked { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;}
+
+QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
+
+QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
+           </property>
            <property name="text">
             <string>Load Atlas</string>
            </property>
@@ -68,6 +178,33 @@
          </item>
          <item>
           <widget class="QPushButton" name="del_Atlas_Btn">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+ 
+QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
+
+QPushButton:hover:!pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:hover { color:rgb(255, 255, 255);}
+
+
+
+QPushButton:checked { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;}
+
+QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
+
+QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
+           </property>
            <property name="text">
             <string>Del Atlas</string>
            </property>
@@ -79,6 +216,33 @@
         <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
           <widget class="QPushButton" name="config_Tracker_Btn">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+ 
+QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
+
+QPushButton:hover:!pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:hover { color:rgb(255, 255, 255);}
+
+
+
+QPushButton:checked { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;}
+
+QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
+
+QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
+           </property>
            <property name="text">
             <string>Configure Tracker</string>
            </property>
@@ -86,6 +250,33 @@
          </item>
          <item>
           <widget class="QPushButton" name="sel_Tracker_Btn">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+ 
+QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
+
+QPushButton:hover:!pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:hover { color:rgb(255, 255, 255);}
+
+
+
+QPushButton:checked { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;}
+
+QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
+
+QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
+           </property>
            <property name="text">
             <string>Select Tracker</string>
            </property>
@@ -97,6 +288,33 @@
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
           <widget class="QPushButton" name="sel_Marker_Btn">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+ 
+QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
+
+QPushButton:hover:!pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:hover { color:rgb(255, 255, 255);}
+
+
+
+QPushButton:checked { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;}
+
+QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
+
+QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
+           </property>
            <property name="text">
             <string>Select Markers</string>
            </property>
@@ -104,6 +322,33 @@
          </item>
          <item>
           <widget class="QPushButton" name="cap_Marker_Btn">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+ 
+QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
+
+QPushButton:hover:!pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:hover { color:rgb(255, 255, 255);}
+
+
+
+QPushButton:checked { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;}
+
+QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
+
+QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
+           </property>
            <property name="text">
             <string>Capture</string>
            </property>
@@ -111,6 +356,33 @@
          </item>
          <item>
           <widget class="QPushButton" name="ok_Sel_Btn">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+ 
+QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
+
+QPushButton:hover:!pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:hover { color:rgb(255, 255, 255);}
+
+
+
+QPushButton:checked { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;}
+
+QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
+
+QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
+           </property>
            <property name="text">
             <string>Finish</string>
            </property>
@@ -122,6 +394,33 @@
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
           <widget class="QPushButton" name="start_Tracking_Btn">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+ 
+QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
+
+QPushButton:hover:!pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:hover { color:rgb(255, 255, 255);}
+
+
+
+QPushButton:checked { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;}
+
+QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
+
+QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
+           </property>
            <property name="text">
             <string>Start Tracking</string>
            </property>
@@ -129,26 +428,35 @@
          </item>
          <item>
           <widget class="QPushButton" name="stop_Tracking_Btn">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+ 
+QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
+
+QPushButton:hover:!pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:hover { color:rgb(255, 255, 255);}
+
+
+
+QPushButton:checked { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;}
+
+QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
+
+QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
+           </property>
            <property name="text">
             <string>Stop Tracking</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Opacity</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSlider" name="opacity_Slider">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
@@ -164,11 +472,39 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1062</width>
-     <height>30</height>
+     <width>1132</width>
+     <height>27</height>
     </rect>
    </property>
+   <property name="styleSheet">
+    <string notr="true"> QMenuBar {
+     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                       stop:0 lightgray, stop:1 darkgray);
+ }
+
+ QMenuBar::item {
+     spacing: 3px; /* spacing between menu bar items */
+     padding: 1px 4px;
+     background: transparent;
+     border-radius: 4px;
+ }
+
+ QMenuBar::item:selected { /* when selected using mouse or keyboard */
+     background: #a8a8a8;
+ }
+
+ QMenuBar::item:pressed {
+     background: #888888;
+ }</string>
+   </property>
    <widget class="QMenu" name="menuOptions">
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
     <property name="title">
      <string>Options</string>
     </property>
@@ -178,20 +514,52 @@
    </widget>
    <addaction name="menuOptions"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+  </widget>
   <action name="actionCalibrate_Tool">
    <property name="text">
     <string>Calibrate Tool</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>12</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
    </property>
   </action>
   <action name="actionSet_Tool">
    <property name="text">
     <string>Set Tool</string>
    </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>12</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
   </action>
   <action name="actionLoad_Target_Model">
    <property name="text">
     <string>Load Target Model</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>12</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
    </property>
   </action>
  </widget>

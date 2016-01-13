@@ -128,7 +128,7 @@ private:
 
 	//unimportant functions
 	vtkSmartPointer<vtkSliderRepresentation2D> m_Slider;
-	vtkSmartPointer<vtkLookupTable> BuildUpLookupTable();
+	vtkSmartPointer<vtkLookupTable> BuildUpLookupTable(); // Make mask colorful
 };
 
 

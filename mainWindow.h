@@ -65,7 +65,7 @@ public slots:
 	void on_Load_Image();
 	void on_Load_Atlas();
 	void on_Del_Atlas();
-	void on_Sel_Tracker();
+	void on_Sel_Tracker(int);
 	void on_Config_Tracker();
 	void on_Sel_Markers();
 	void on_Cap_Btn();

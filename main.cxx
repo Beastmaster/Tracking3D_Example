@@ -35,6 +35,7 @@ Description:
 //private head files
 #include "vtkTrackingRegistration.h"
 #include "vtkTrackingMarkCapture.h"
+#include "PolarisVicraConfiguration.h"
 
 //test head files
 #include "vtkOutlineFilter.h"
@@ -542,6 +543,12 @@ void TestSliderWidget()
 
 	renderWindowInteractor->Start();
 
+}
+
+
+void TestPolaris()
+{
+	auto polaris_tracker = new PloarisVicraConfiguration;
 }
 
 int main(int argc, char** argv)

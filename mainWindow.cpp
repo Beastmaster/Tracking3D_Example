@@ -30,6 +30,7 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	connect(ui->load_Atlas_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Atlas()));
 	connect(ui->del_Atlas_Btn, SIGNAL(clicked()),this,SLOT(on_Del_Atlas()));
 	connect(ui->config_Tracker_Btn,SIGNAL(clicked()),this,SLOT(on_Config_Tracker()));
+	connect(ui->sel_Tracker_Combo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_Sel_Tracker(int)));
 	connect(ui->sel_Marker_Btn, SIGNAL(clicked()),this,SLOT(on_Sel_Markers()));
 	connect(ui->cap_Marker_Btn, SIGNAL(clicked()), this, SLOT(on_Cap_Btn()));
 	connect(ui->ok_Sel_Btn, SIGNAL(clicked()), this, SLOT(on_CapDone_Btn()));
@@ -125,9 +126,12 @@ void MainWindow::on_ResliceAction(double x, double y, double z)
 	std::cout << "y coor:" << y_coor << std::endl;
 	std::cout << "z coor:" << z_coor << std::endl;
 	
-	m_Axial_View->SetSlice(y_coor);
-	m_Sagittal_View->SetSlice(z_coor);
-	m_Coronal_View->SetSlice(x_coor);
+	ui->axial_slider->setSliderPosition(y_coor);
+	ui->sagittal_slider->setSliderPosition(z_coor);
+	ui->coronal_slider->setSliderPosition(x_coor);
+	//m_Axial_View->SetSlice(y_coor);
+	//m_Sagittal_View->SetSlice(z_coor);
+	//m_Coronal_View->SetSlice(x_coor);
 }
 
 void MainWindow::on_Load_Image()
@@ -217,8 +221,14 @@ void MainWindow::on_Del_Atlas()
 /*
 No use by now
 */
-void MainWindow::on_Sel_Tracker()
-{}
+void MainWindow::on_Sel_Tracker(int value)
+{
+	if (value == 1)
+	{
+		m_TrackerPolaris = new PloarisVicraConfiguration;
+		m_3d_View->m_tracker = m_TrackerPolaris;
+	}
+}
 
 void MainWindow::on_Config_Tracker()
 {

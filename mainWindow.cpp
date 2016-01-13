@@ -227,6 +227,7 @@ void MainWindow::on_Sel_Tracker(int value)
 	if (value == 1)
 	{
 		m_3d_View->m_tracker = m_TrackerPolaris;
+		m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
 	}
 }
 
@@ -301,8 +302,22 @@ void MainWindow::on_CapDone_Btn()
 		std::cout << std::endl;
 	}
 
-	m_3d_View->SetRegisterTransform(res2);
-	//m_3d_View->SetLandMarks(temp_src,temp_dst);
+	QMessageBox msgBox;
+	msgBox.setText("Register Box");
+	msgBox.setInformativeText("Do you want to apply this matrix?");
+	msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Discard);
+	msgBox.setDefaultButton(QMessageBox::Yes);
+	int ret = msgBox.exec();
+	if (ret == QMessageBox::Yes)
+	{
+		m_3d_View->SetRegisterTransform(res2);
+		//m_3d_View->SetLandMarks(temp_src,temp_dst);
+	}
+	else
+	{
+		m_Marker_Capture->ClearMarkers();
+		m_3d_View->ClearMarkers();
+	}
 }
 
 void MainWindow::on_StartTracking()

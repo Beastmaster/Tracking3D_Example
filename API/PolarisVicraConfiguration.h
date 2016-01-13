@@ -63,8 +63,6 @@ public:
 	~PloarisVicraConfiguration();
 
 	//====== Basic functions =======//
-	//int nStartTracking();
-	//int nStopTracking();
 	/*
 	1. Configure Tracker
 	2. StartTracking

@@ -100,6 +100,22 @@ void MainWindow::on_ResliceAction(double x, double y, double z)
 	int pt_ID = 0;
 	pt_ID = m_Image->FindPoint(x,y,z);
 	std::cout << "Point ID is: " << pt_ID << std::endl;
+
+	int extent[6];
+	m_Image->GetExtent(extent);
+	
+	int x_e = extent[1] - extent[0];
+	int y_e = extent[3] - extent[2];
+	int z_e = extent[5] - extent[4];
+
+	int z_coor = floor(pt_ID/(x_e*y_e));
+	int y_coor = floor(pt_ID % (x_e*y_e) / y_e);
+	int x_coor = pt_ID%y_e;
+
+	std::cout << "x coor:" << x_coor << std::endl;
+	std::cout << "y coor:" << y_coor << std::endl;
+	std::cout << "z coor:" << z_coor << std::endl;
+
 }
 
 void MainWindow::on_Load_Image()

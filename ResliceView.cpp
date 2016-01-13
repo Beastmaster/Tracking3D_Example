@@ -11,7 +11,6 @@ Date: 2016/1/11
 reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)
 {
 	// init para
-	this->Set_Direction(a);
 	this->Set_Window(winx);
 	this->slice_n = 0;
 #if VTK_MAJOR_VERSION <= 5
@@ -56,7 +55,7 @@ reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)
 		vtkSmartPointer<reslice_interactor_style>::New();
 	this->view_window->GetInteractor()->SetInteractorStyle(new_act_style);
 	this->InstallPipeline();
-
+	this->Set_Direction(a); // set direction here
 	this->actor->SetOpacity(1);
 	this->mask_actor->SetOpacity(0.5);
 
@@ -120,7 +119,83 @@ void reslice_view_base::InstallPipeline()
 	}
 }
 
+/*
+Locate the position
+*/
+void reslice_view_base::SetSlice(int x)
+{ 
+	this->slice_n = x; 
 
+	//std::cout<<"direct  "<<this->direction<<"  call mouse scroll  "<<this->slice_n<<std::endl;
+	if (extent_m == NULL)
+	{
+		return;
+	}
+	switch (this->direction)
+	{
+	case 'a':
+	{
+		//this->slice_n++;
+		if (this->slice_n>this->extent_m[5])
+		{
+			this->slice_n = this->extent_m[4];
+		}
+		else if (this->slice_n<extent_m[4])
+		{
+			this->slice_n = this->extent_m[5];
+		}
+		center[2] = origin[2] + spacing[2] * this->slice_n;
+		//center[2] = spacing[2]*this->slice_n;
+		break;
+	}
+	case 'c':
+	{
+		//this->slice_n++;
+		if (this->slice_n>this->extent_m[3])
+		{
+			this->slice_n = this->extent_m[2];
+		}
+		else if (this->slice_n<extent_m[2])
+		{
+			this->slice_n = this->extent_m[3];
+		}
+		center[1] = origin[1] + spacing[1] * this->slice_n;
+		//center[1] = spacing[1]*this->slice_n;
+		break;
+	}
+	case 's':
+	{
+		//this->slice_n++;
+		if (this->slice_n>this->extent_m[1])
+		{
+			this->slice_n = this->extent_m[0];
+		}
+		else if (this->slice_n<extent_m[0])
+		{
+			this->slice_n = this->extent_m[1];
+		}
+		center[0] = origin[0] + spacing[0] * this->slice_n;
+		//center[0] = spacing[0]*this->slice_n;
+		break;
+	}
+	default:
+	{
+		//this->slice_n++;
+		if (this->slice_n>this->extent_m[1])
+		{
+			this->slice_n = this->extent_m[0];
+		}
+		else if (this->slice_n<extent_m[0])
+		{
+			this->slice_n = this->extent_m[1];
+		}
+		center[0] = origin[0] + spacing[0] * this->slice_n;
+		//center[0] = spacing[0]*this->slice_n;
+		break;
+	}
+	}
+	this->RenderView();
+}
 
 void reslice_view_base::Set_View_Img(vtkSmartPointer<vtkImageData> img)
 {
@@ -486,9 +561,16 @@ void reslice_view_base::Set_Direction(char x)
 	{
 	case 'a':
 		{
+			m_ViewDirText = vtkSmartPointer<vtkTextActor>::New();
+			m_ViewDirText->SetInput("Axial View");
+			m_ViewDirText->SetPosition2(10, 40);
+			m_ViewDirText->GetTextProperty()->SetFontSize(20);
+			m_ViewDirText->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
+			this->new_render->AddActor2D(m_ViewDirText);
+
 			double axialX[3] = {-1,0,0};
 			double axialY[3] = {0,-1,0};
-			double axialZ[3] = {0,0,-1};
+			double axialZ[3] = {0,0, 1};//double axialZ[3] = {0,0,-1};
 
 			for (int i=0;i<3;i++)
 			{
@@ -501,7 +583,14 @@ void reslice_view_base::Set_Direction(char x)
 		}
 	case 'c':
 		{
-			double coronalX[3] = {-1,0,0};
+			m_ViewDirText = vtkSmartPointer<vtkTextActor>::New();
+			m_ViewDirText->SetInput("Coronal View");
+			m_ViewDirText->SetPosition2(10, 40);
+			m_ViewDirText->GetTextProperty()->SetFontSize(20);
+			m_ViewDirText->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
+			this->new_render->AddActor2D(m_ViewDirText);
+
+			double coronalX[3] = { 1, 0, 0 };// double coronalX[3] = { -1, 0, 0 };
 			double coronalY[3] = {0,0,1};
 			double coronalZ[3] = {0,1,0};
 
@@ -515,9 +604,16 @@ void reslice_view_base::Set_Direction(char x)
 		}
 	case 's':
 		{
+			m_ViewDirText = vtkSmartPointer<vtkTextActor>::New();
+			m_ViewDirText->SetInput("Sagittal View");
+			m_ViewDirText->SetPosition2(10, 40);
+			m_ViewDirText->GetTextProperty()->SetFontSize(20);
+			m_ViewDirText->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
+			this->new_render->AddActor2D(m_ViewDirText);
+
 			double sagittalX[3] = {0,1,0};
 			double sagittalY[3] = {0,0,1};
-			double sagittalZ[3] = {1,0,0};
+			double sagittalZ[3] = { 1, 0, 0 };
 			for (int i=0;i<3;i++)
 			{
 				this->view_dirX[i] = sagittalX[i];
@@ -528,6 +624,13 @@ void reslice_view_base::Set_Direction(char x)
 		}
 	default:
 		{
+			m_ViewDirText = vtkSmartPointer<vtkTextActor>::New();
+			m_ViewDirText->SetInput("Default View");
+			m_ViewDirText->SetPosition2(10, 40);
+			m_ViewDirText->GetTextProperty()->SetFontSize(20);
+			m_ViewDirText->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
+			this->new_render->AddActor2D(m_ViewDirText);
+
 			double axialX[3] = {1,0,0};
 			double axialY[3] = {0,1,0};
 			double axialZ[3] = {0,0,1};

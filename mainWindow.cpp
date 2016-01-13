@@ -115,7 +115,10 @@ void MainWindow::on_ResliceAction(double x, double y, double z)
 	std::cout << "x coor:" << x_coor << std::endl;
 	std::cout << "y coor:" << y_coor << std::endl;
 	std::cout << "z coor:" << z_coor << std::endl;
-
+	
+	m_Axial_View->SetSlice(y_coor);
+	m_Sagittal_View->SetSlice(z_coor);
+	m_Coronal_View->SetSlice(x_coor);
 }
 
 void MainWindow::on_Load_Image()

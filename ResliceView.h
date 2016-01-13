@@ -51,6 +51,7 @@ Date: 2016/1/11
 #include <vtkCallbackCommand.h>
 #include <vtkWidgetEventTranslator.h>
 #include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkTextActor.h>
 
 class reslice_interactor_style;
 //class vtkSliderCallback;
@@ -64,7 +65,7 @@ public:
 	reslice_view_base(vtkRenderWindow*,char);
 	~reslice_view_base();
 
-	void SetSlice(int x) {this->slice_n = x;};//useless
+	void SetSlice(int x);
 	void SetMaskOpacity(double op) {mask_actor->SetOpacity(op);};
 	void Set_View_Img(vtkSmartPointer<vtkImageData>);
 	void Set_Mask_Img(vtkSmartPointer<vtkImageData>);
@@ -99,6 +100,8 @@ private:
 	vtkSmartPointer<vtkImageReslice> mask_reslice;
 	vtkSmartPointer<vtkWindowLevelLookupTable> lookup_table;
 	vtkSmartPointer<vtkImageMapToColors> color_map;
+	vtkSmartPointer<vtkTextActor>    m_ViewDirText;
+
 	//two actors
 	vtkSmartPointer<vtkImageActor>					 actor;
 	vtkSmartPointer<vtkImageActor>					 mask_actor;

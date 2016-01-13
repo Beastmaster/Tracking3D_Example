@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1132</width>
-    <height>849</height>
+    <height>780</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -101,7 +101,7 @@
       </property>
       <property name="maximumSize">
        <size>
-        <width>300</width>
+        <width>400</width>
         <height>16777215</height>
        </size>
       </property>
@@ -219,7 +219,7 @@ QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>12</pointsize>
+             <pointsize>10</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -279,7 +279,7 @@ QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>12</pointsize>
+             <pointsize>10</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -445,6 +445,25 @@ QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px
            </property>
            <property name="text">
             <string>Stop Tracking</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QCheckBox" name="en_Plane_Check">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Eable Plane</string>
            </property>
           </widget>
          </item>

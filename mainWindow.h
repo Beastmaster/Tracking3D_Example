@@ -79,6 +79,7 @@ public slots:
 	void on_Axial_Slider(int);
 	void on_Coronal_Slider(int);
 	void on_Opacity_Slider(int);
+	void on_EnablePlane(int);
 
 private:
 	Ui::MainWindow *ui;
@@ -103,6 +104,13 @@ private:
 
 
 	vtkSmartPointer< vtkTrackingMarkCapture<TrackerBase> > m_Marker_Capture;
+
+	int m_SliceX;  //---> Sagittal
+	int m_SliceY;  //---> Coronal
+	int m_SliceZ;  //---> Axial
+	vtkSmartPointer<vtkImagePlaneWidget> m_PlaneX;
+	vtkSmartPointer<vtkImagePlaneWidget> m_PlaneY;
+	vtkSmartPointer<vtkImagePlaneWidget> m_PlaneZ;
 
 };
 

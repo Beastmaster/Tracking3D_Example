@@ -28,6 +28,7 @@ Description:
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkOutlineFilter.h"
+#include "vtkImagePlaneWidget.h"
 
 #include <vtkTransform.h>
 #include <vtkLandmarkTransform.h>

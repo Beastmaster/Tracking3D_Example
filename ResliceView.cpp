@@ -15,7 +15,7 @@ reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)
 	this->slice_n = 0;
 #if VTK_MAJOR_VERSION <= 5
 #else
-	extent_m = NULL;
+	//extent_m = NULL;
 #endif
 	this->dimensions = NULL;
 	this->img_to_view = NULL;
@@ -405,7 +405,7 @@ void reslice_view_base::on_scroll_mouse_back(vtkObject* obj)
 			{
 				this->slice_n = this->extent_m[1];
 			}
-			center[0] = origin[0]+spacing[0]*this->slice_n;
+			center[0] = origin[0] + spacing[0] * this->slice_n;// center[0] = origin[0] + spacing[0] * this->slice_n;
 			//center[0] = spacing[0]*this->slice_n;
 			break;
 		}
@@ -581,7 +581,7 @@ void reslice_view_base::Set_Direction(char x)
 
 			break;
 		}
-	case 'c':
+	case 'c': //c
 		{
 			m_ViewDirText = vtkSmartPointer<vtkTextActor>::New();
 			m_ViewDirText->SetInput("Coronal View");
@@ -590,9 +590,13 @@ void reslice_view_base::Set_Direction(char x)
 			m_ViewDirText->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
 			this->new_render->AddActor2D(m_ViewDirText);
 
-			double coronalX[3] = { 1, 0, 0 };// double coronalX[3] = { -1, 0, 0 };
+			double coronalX[3] = { -1, 0, 0 };
 			double coronalY[3] = {0,0,1};
 			double coronalZ[3] = {0,1,0};
+
+			//double coronalX[3] = { 0, 1, 0 };
+			//double coronalY[3] = { 0, 0, 1 };
+			//double coronalZ[3] = { 1, 0, 0 };
 
 			for (int i=0;i<3;i++)
 			{
@@ -602,7 +606,7 @@ void reslice_view_base::Set_Direction(char x)
 			}
 			break;
 		}
-	case 's':
+	case 's': //s
 		{
 			m_ViewDirText = vtkSmartPointer<vtkTextActor>::New();
 			m_ViewDirText->SetInput("Sagittal View");
@@ -614,6 +618,11 @@ void reslice_view_base::Set_Direction(char x)
 			double sagittalX[3] = {0,1,0};
 			double sagittalY[3] = {0,0,1};
 			double sagittalZ[3] = { 1, 0, 0 };
+
+			//double sagittalX[3] = { -1, 0, 0 };
+			//double sagittalY[3] = { 0, 0, 1 };
+			//double sagittalZ[3] = { 0, 1, 0 };
+
 			for (int i=0;i<3;i++)
 			{
 				this->view_dirX[i] = sagittalX[i];
@@ -651,7 +660,7 @@ double* reslice_view_base::calculate_img_center(vtkSmartPointer<vtkImageData> im
 #if VTK_MAJOR_VERSION <= 5
 	img->GetWholeExtent(extent_m);
 #else
-	extent_m = img->GetExtent();
+	img->GetExtent(extent_m);
 #endif
 
 	img->GetSpacing(spacing);

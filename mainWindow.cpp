@@ -40,6 +40,7 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	connect(ui->axial_slider, SIGNAL(sliderMoved(int)), this, SLOT(on_Axial_Slider(int)));
 	connect(ui->sagittal_slider, SIGNAL(sliderMoved(int)), this, SLOT(on_Sagittal_Slider(int)));
 	connect(ui->coronal_slider, SIGNAL(sliderMoved(int)), this, SLOT(on_Coronal_Slider(int)));
+	connect(ui->en_Plane_Check, SIGNAL(stateChanged(int)), this, SLOT(on_EnablePlane(int)));
 	createActions();
 }
 
@@ -90,6 +91,14 @@ void MainWindow::sys_Init()
 	m_Marker_Capture = vtkSmartPointer< vtkTrackingMarkCapture<TrackerBase> >::New();
 	m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
 	m_Marker_Capture->SetToolIndex(0);
+
+	//setup plane widget
+	m_PlaneX = vtkSmartPointer<vtkImagePlaneWidget>::New();
+	m_PlaneY = vtkSmartPointer<vtkImagePlaneWidget>::New();
+	m_PlaneZ = vtkSmartPointer<vtkImagePlaneWidget>::New();
+	m_PlaneX->SetInteractor(ui->threeDWidget->GetInteractor());
+	m_PlaneY->SetInteractor(ui->threeDWidget->GetInteractor());
+	m_PlaneZ->SetInteractor(ui->threeDWidget->GetInteractor());
 }
 
 /*
@@ -119,20 +128,27 @@ void MainWindow::on_ResliceAction(double x, double y, double z)
 	int y_e = extent[3] - extent[2];
 	int z_e = extent[5] - extent[4];
 
-	int z_coor = floor(pt_ID/(x_e*y_e));
-	int y_coor = floor(pt_ID % (x_e*y_e) / y_e);
-	int x_coor = pt_ID%y_e;
+	//m_SliceZ = floor(pt_ID/(x_e*y_e));
+	//m_SliceY = floor(pt_ID % (x_e*y_e) / y_e);
+	//m_SliceX = pt_ID%y_e;
 
-	std::cout << "x coor:" << x_coor << std::endl;
-	std::cout << "y coor:" << y_coor << std::endl;
-	std::cout << "z coor:" << z_coor << std::endl;
+
+	m_PlaneX->SetSlicePosition(x);
+	m_PlaneY->SetSlicePosition(y);
+	m_PlaneZ->SetSlicePosition(z);
+	ui->threeDWidget->GetRenderWindow()->Render();
 	
-	ui->axial_slider->setSliderPosition(y_coor);
-	ui->sagittal_slider->setSliderPosition(z_coor);
-	ui->coronal_slider->setSliderPosition(x_coor);
-	//m_Axial_View->SetSlice(y_coor);
-	//m_Sagittal_View->SetSlice(z_coor);
-	//m_Coronal_View->SetSlice(x_coor);
+	m_SliceZ = m_PlaneZ->GetSliceIndex();
+	m_SliceY = m_PlaneY->GetSliceIndex();
+	m_SliceX = m_PlaneX->GetSliceIndex();
+
+	m_Axial_View->SetSlice(m_SliceZ);
+	m_Sagittal_View->SetSlice(m_SliceX);
+	m_Coronal_View->SetSlice(m_SliceY);
+
+	std::cout << "x coor:" << m_SliceZ << std::endl;
+	std::cout << "y coor:" << m_SliceY << std::endl;
+	std::cout << "z coor:" << m_SliceX << std::endl;
 }
 
 void MainWindow::on_Load_Image()
@@ -153,13 +169,16 @@ void MainWindow::on_Load_Image()
 
 		//modify slider range
 		int extent[6];
+		m_SliceX = (extent[5] + extent[4]) / 2;
+		m_SliceY = (extent[0] + extent[1]) / 2;
+		m_SliceZ = (extent[2] + extent[3]) / 2;
 		m_Image->GetExtent(extent);
 		ui->axial_slider->setRange(extent[4], extent[5]);
-		ui->axial_slider->setValue((extent[5] + extent[4]) / 2);
+		ui->axial_slider->setValue(m_SliceX);
 		ui->sagittal_slider->setRange(extent[0], extent[1]);
-		ui->sagittal_slider->setValue((extent[0] + extent[1]) / 2);
+		ui->sagittal_slider->setValue(m_SliceY);
 		ui->coronal_slider->setRange(extent[2], extent[3]);
-		ui->coronal_slider->setValue((extent[2] + extent[3]) / 2);
+		ui->coronal_slider->setValue(m_SliceZ);
 
 		m_Sagittal_View->Set_View_Img(m_Image);
 		m_Axial_View->Set_View_Img(m_Image);
@@ -168,6 +187,20 @@ void MainWindow::on_Load_Image()
 		m_Sagittal_View->RenderView();
 		m_Axial_View->RenderView();
 		m_Coronal_View->RenderView();
+
+		//plane widget
+		m_PlaneX->SetInputData(m_Image);
+		m_PlaneY->SetInputData(m_Image);
+		m_PlaneZ->SetInputData(m_Image);
+		m_PlaneX->SetPlaneOrientationToXAxes();
+		m_PlaneY->SetPlaneOrientationToYAxes();
+		m_PlaneZ->SetPlaneOrientationToZAxes();
+		//m_PlaneX->On();
+		//m_PlaneY->On();
+		//m_PlaneZ->On();
+		//m_PlaneX->SetSliceIndex(100);
+		//m_PlaneY->SetSliceIndex(100);
+		//m_PlaneZ->SetSliceIndex(100);
 
 		//extract 3d model
 		auto marchingCubes = vtkSmartPointer<vtkMarchingCubes>::New();
@@ -386,18 +419,26 @@ void MainWindow::on_ActionLoadTarget()
 	m_TargetFileName = fileName.toStdString();
 }
 
-
-
 void MainWindow::on_Sagittal_Slider(int po)
 {
+	m_SliceX = po;
+	m_PlaneX->SetSliceIndex(m_SliceX);
+
+	ui->threeDWidget->GetRenderWindow()->Render();
 	m_Sagittal_View->SetSlice(po);
 }
 void MainWindow::on_Axial_Slider(int po)
 {
+	m_SliceZ = po;
+	m_PlaneZ->SetSliceIndex(m_SliceZ);
+	ui->threeDWidget->GetRenderWindow()->Render();
 	m_Axial_View->SetSlice(po);
 }
 void MainWindow::on_Coronal_Slider(int po)
 {
+	m_SliceY = po;
+	m_PlaneY->SetSliceIndex(m_SliceY);
+	ui->threeDWidget->GetRenderWindow()->Render();
 	m_Coronal_View->SetSlice(po);
 }
 
@@ -408,4 +449,19 @@ void MainWindow::on_Opacity_Slider(int value)
 }
 
 
+void MainWindow::on_EnablePlane(int state)
+{
+	if (state == Qt::Checked)
+	{
+		m_PlaneX->On();
+		m_PlaneY->On();
+		m_PlaneZ->On();
+	}
+	else
+	{
+		m_PlaneX->Off();
+		m_PlaneY->Off();
+		m_PlaneZ->Off();
+	}
 
+}

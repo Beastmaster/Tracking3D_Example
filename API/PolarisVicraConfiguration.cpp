@@ -194,9 +194,47 @@ int  PloarisVicraConfiguration::ConfigureTracker()
 					* Check system type: Polaris, Polaris Accedo, and Aurora
 					*/
 
-					std::cout << "cannot get device information " << std::endl;
+					std::cout << "Cannot get device information " << std::endl;
 					return 1;
-				} /* if */
+				}
+
+				/*
+				Post a message here to indicate system type
+				*/
+				std::cout << "System Type is:";
+				switch (this->m_dtSystemInformation.nTypeofSystem)
+				{
+					case		POLARIS_SYSTEM:
+					{
+						std::cout << "Polaris system" << std::endl;
+						break;
+					}
+					case		AURORA_SYSTEM:
+					{
+						std::cout << "Aurora system" << std::endl;
+						break;
+					}
+					case		ACCEDO_SYSTEM:
+					{
+						std::cout << "Accedo system" << std::endl;
+						break;
+					}
+					case		VICRA_SYSTEM:
+					{
+						std::cout << "Polaris Vicra system" << std::endl;
+						break;
+					}
+					case		SPECTRA_SYSTEM:
+					{
+						std::cout << "Spectra system" << std::endl;
+						break;
+					}
+					default:
+					{
+						std::cout << "Unknown system" << std::endl;
+						break;
+					}
+				}
 
 				/*
 				* Set firing rate if system type is Polaris or Polaris Accedo.
@@ -223,20 +261,20 @@ int  PloarisVicraConfiguration::ConfigureTracker()
 			}
 			else
 			{
-				//show message here
-				std::cout << "cannot initialized" << std::endl;
+				//Post message here
+				std::cout << "Cannot initialized" << std::endl;
 				return 1;
 			}
 		}
 		else
 		{
-			std::cout << "cannot set comm parameters" << std::endl;
+			std::cout << "Cannot set comm parameters" << std::endl;
 			return 1;
 		}
 	}
 	else
 	{
-		std::cout << "cannot set system comm parameters" << std::endl;
+		std::cout << "Cannot set system comm parameters\nMaybe low temperature, Just wait a minute" << std::endl;
 		return 1;
 	}
 }

@@ -84,7 +84,8 @@ void MainWindow::sys_Init()
 	m_TrackerPolaris = NULL;
 	//by default, we use ATC3DG device for tracking
 	m_TrackerATC3DG = new ATC3DGConfiguration;
-	m_3d_View->SetTracker(m_TrackerATC3DG);
+	m_TrackerPolaris = new PloarisVicraConfiguration;
+	m_3d_View->SetTracker(m_TrackerATC3DG); // default tracker is ATC3DG device
 
 	m_Marker_Capture = vtkSmartPointer< vtkTrackingMarkCapture<TrackerBase> >::New();
 	m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
@@ -225,7 +226,6 @@ void MainWindow::on_Sel_Tracker(int value)
 {
 	if (value == 1)
 	{
-		m_TrackerPolaris = new PloarisVicraConfiguration;
 		m_3d_View->m_tracker = m_TrackerPolaris;
 	}
 }

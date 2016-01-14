@@ -23,8 +23,8 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	sys_Init();
 
 	//connect vtkTracking3D
-	connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double,double,double)));
-
+	//connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double,double,double)));
+	connect(m_3d_View, SIGNAL(on_timer_signal_index(int, int, int)), this, SLOT(on_ResliceAction(int, int, int)));
 	//connect
 	connect(ui->load_Image_Btn,SIGNAL(clicked()),this,SLOT(on_Load_Image()));
 	connect(ui->load_Atlas_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Atlas()));
@@ -92,13 +92,13 @@ void MainWindow::sys_Init()
 	m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
 	m_Marker_Capture->SetToolIndex(0);
 
-	//setup plane widget
-	m_PlaneX = vtkSmartPointer<vtkImagePlaneWidget>::New();
-	m_PlaneY = vtkSmartPointer<vtkImagePlaneWidget>::New();
-	m_PlaneZ = vtkSmartPointer<vtkImagePlaneWidget>::New();
-	m_PlaneX->SetInteractor(ui->threeDWidget->GetInteractor());
-	m_PlaneY->SetInteractor(ui->threeDWidget->GetInteractor());
-	m_PlaneZ->SetInteractor(ui->threeDWidget->GetInteractor());
+	////setup plane widget
+	//m_PlaneX = vtkSmartPointer<vtkImagePlaneWidget>::New();
+	//m_PlaneY = vtkSmartPointer<vtkImagePlaneWidget>::New();
+	//m_PlaneZ = vtkSmartPointer<vtkImagePlaneWidget>::New();
+	//m_PlaneX->SetInteractor(ui->threeDWidget->GetInteractor());
+	//m_PlaneY->SetInteractor(ui->threeDWidget->GetInteractor());
+	//m_PlaneZ->SetInteractor(ui->threeDWidget->GetInteractor());
 }
 
 /*
@@ -133,14 +133,14 @@ void MainWindow::on_ResliceAction(double x, double y, double z)
 	//m_SliceX = pt_ID%y_e;
 
 
-	m_PlaneX->SetSlicePosition(x);
-	m_PlaneY->SetSlicePosition(y);
-	m_PlaneZ->SetSlicePosition(z);
-	ui->threeDWidget->GetRenderWindow()->Render();
-	
-	m_SliceZ = m_PlaneZ->GetSliceIndex();
-	m_SliceY = m_PlaneY->GetSliceIndex();
-	m_SliceX = m_PlaneX->GetSliceIndex();
+	//m_PlaneX->SetSlicePosition(x);
+	//m_PlaneY->SetSlicePosition(y);
+	//m_PlaneZ->SetSlicePosition(z);
+	//ui->threeDWidget->GetRenderWindow()->Render();
+	//
+	//m_SliceZ = m_PlaneZ->GetSliceIndex();
+	//m_SliceY = m_PlaneY->GetSliceIndex();
+	//m_SliceX = m_PlaneX->GetSliceIndex();
 
 	m_Axial_View->SetSlice(m_SliceZ);
 	m_Sagittal_View->SetSlice(m_SliceX);
@@ -150,6 +150,14 @@ void MainWindow::on_ResliceAction(double x, double y, double z)
 	std::cout << "y coor:" << m_SliceY << std::endl;
 	std::cout << "z coor:" << m_SliceX << std::endl;
 }
+void MainWindow::on_ResliceAction(int x, int y, int z)
+{
+	m_Axial_View->SetSlice(m_3d_View->m_SliceX);
+	m_Sagittal_View->SetSlice(m_3d_View->m_SliceY);
+	m_Coronal_View->SetSlice(m_3d_View->m_SliceZ);
+}
+
+
 
 void MainWindow::on_Load_Image()
 {
@@ -188,19 +196,15 @@ void MainWindow::on_Load_Image()
 		m_Axial_View->RenderView();
 		m_Coronal_View->RenderView();
 
+		m_3d_View->SetImage(m_Image);
 		//plane widget
-		m_PlaneX->SetInputData(m_Image);
-		m_PlaneY->SetInputData(m_Image);
-		m_PlaneZ->SetInputData(m_Image);
-		m_PlaneX->SetPlaneOrientationToXAxes();
-		m_PlaneY->SetPlaneOrientationToYAxes();
-		m_PlaneZ->SetPlaneOrientationToZAxes();
-		//m_PlaneX->On();
-		//m_PlaneY->On();
-		//m_PlaneZ->On();
-		//m_PlaneX->SetSliceIndex(100);
-		//m_PlaneY->SetSliceIndex(100);
-		//m_PlaneZ->SetSliceIndex(100);
+		//m_PlaneX->SetInputData(m_Image);
+		//m_PlaneY->SetInputData(m_Image);
+		//m_PlaneZ->SetInputData(m_Image);
+		//m_PlaneX->SetPlaneOrientationToXAxes();
+		//m_PlaneY->SetPlaneOrientationToYAxes();
+		//m_PlaneZ->SetPlaneOrientationToZAxes();
+
 
 		//extract 3d model
 		auto marchingCubes = vtkSmartPointer<vtkMarchingCubes>::New();
@@ -369,6 +373,10 @@ void MainWindow::on_StartTracking()
 	//add target to view
 	if (!m_TargetFileName.empty())
 	{
+		auto reader_ = vtkSmartPointer<vtkSTLReader>::New();
+		reader_->SetFileName(m_TargetFileName.c_str());
+		reader_->Update();
+		m_Target = reader_->GetOutput();
 		m_3d_View->AddPolySource(m_Target);
 	}
 
@@ -422,7 +430,8 @@ void MainWindow::on_ActionLoadTarget()
 void MainWindow::on_Sagittal_Slider(int po)
 {
 	m_SliceX = po;
-	m_PlaneX->SetSliceIndex(m_SliceX);
+	//m_PlaneX->SetSliceIndex(m_SliceX);
+	m_3d_View->m_PlaneX->SetSliceIndex(po);
 
 	ui->threeDWidget->GetRenderWindow()->Render();
 	m_Sagittal_View->SetSlice(po);
@@ -430,14 +439,18 @@ void MainWindow::on_Sagittal_Slider(int po)
 void MainWindow::on_Axial_Slider(int po)
 {
 	m_SliceZ = po;
-	m_PlaneZ->SetSliceIndex(m_SliceZ);
+	//m_PlaneZ->SetSliceIndex(m_SliceZ);
+	m_3d_View->m_PlaneZ->SetSliceIndex(po);
+
 	ui->threeDWidget->GetRenderWindow()->Render();
 	m_Axial_View->SetSlice(po);
 }
 void MainWindow::on_Coronal_Slider(int po)
 {
 	m_SliceY = po;
-	m_PlaneY->SetSliceIndex(m_SliceY);
+	//m_PlaneY->SetSliceIndex(m_SliceY);
+	m_3d_View->m_PlaneY->SetSliceIndex(po);
+
 	ui->threeDWidget->GetRenderWindow()->Render();
 	m_Coronal_View->SetSlice(po);
 }
@@ -453,15 +466,23 @@ void MainWindow::on_EnablePlane(int state)
 {
 	if (state == Qt::Checked)
 	{
-		m_PlaneX->On();
-		m_PlaneY->On();
-		m_PlaneZ->On();
+		m_3d_View->m_PlaneX->On();
+		m_3d_View->m_PlaneY->On();
+		m_3d_View->m_PlaneZ->On();
+
+		//m_PlaneX->On();
+		//m_PlaneY->On();
+		//m_PlaneZ->On();
 	}
 	else
 	{
-		m_PlaneX->Off();
-		m_PlaneY->Off();
-		m_PlaneZ->Off();
+		m_3d_View->m_PlaneX->Off();
+		m_3d_View->m_PlaneY->Off();
+		m_3d_View->m_PlaneZ->Off();
+
+		//m_PlaneX->Off();
+		//m_PlaneY->Off();
+		//m_PlaneZ->Off();
 	}
 
 }

@@ -6,6 +6,9 @@ Date: 2016/1/12
 Description:
 	Wrap vtkTracking3D class to qt
 	Main purpose is share interactor timer
+
+	This class connect vtkTracking3D event
+	to Qt slot by an unique EVENT_ID
 */
 
 #ifndef _QTWRAPVTKTRACKING3D_H_
@@ -43,15 +46,16 @@ public:
 	QtWrapvtkTracking3D()
 	{																						   //   I have tested that, if you want to pass an
 		m_MouseClickConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();				   //   VTK User defined event to other object, for 
-		m_MouseClickConnect->Connect( this,QIN_S_VTK_EVENT,//vtkCommand::LeftButtonPressEvent, //   example Qt slot, you should define an unique 
-			this, SLOT(on_emit_callback(vtkObject*)));										   //   EVENT ID like QIN_S_VTK_EVENT, and then
-	};																						   //   connect in the way like left code block.
+		m_MouseClickConnect->Connect(this, QIN_S_VTK_EVENT,//vtkCommand::LeftButtonPressEvent, //   example Qt slot, you should define an unique 
+			this, SLOT(on_emit_callback(vtkObject*)));										   //   EVENT ID like QIN_S_VTK_EVENT(This ID is 
+	};																						   //   defined in vtkTracking3D.h), and then
+																							   //   connect in the way like left code block.
 	~QtWrapvtkTracking3D(){};
 
 public slots:
 	void on_emit_callback(vtkObject*)
 	{
-		emit on_timer_signal_index(this->m_index_tobe_set[0], this->m_index_tobe_set[1], this->m_index_tobe_set[2]);
+		emit on_timer_signal_index(this->m_SliceX, this->m_SliceY, this->m_SliceZ);
 		emit on_timer_signal_coor(m_marker_tobe_set[0], m_marker_tobe_set[1], m_marker_tobe_set[2]);
 	};
 signals:

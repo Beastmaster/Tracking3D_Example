@@ -34,7 +34,7 @@ public:
 	virtual int StopTracking() { CloseSystem(); return 0; };
 	virtual int GetTrackingStatus();
 	virtual int ConfigureTracker();
-	virtual int GetToolValidation(int) { return 0; };
+	virtual int GetToolValidation(int);
 	virtual int GetTransformValidation(int) { return 0; };
 	virtual QIN_Transform_Type* GetTransform(int index);
 

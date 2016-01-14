@@ -3,7 +3,8 @@ Author: QIN Shuo
 Date: 2015/12/29
 Organization: RC-MIC (CUHK)
 Description:
-tracking 3d object
+	tracking 3d object
+	add OrthogonalPlanes
 */
 
 
@@ -36,6 +37,9 @@ vtkTracking3D::vtkTracking3D()
 	//m_tracker = new TrackerType;
 	m_tracker = NULL;
 
+	m_PlaneX = vtkSmartPointer<vtkImagePlaneWidget>::New();
+	m_PlaneY = vtkSmartPointer<vtkImagePlaneWidget>::New();
+	m_PlaneZ = vtkSmartPointer<vtkImagePlaneWidget>::New();
 }
 vtkTracking3D::~vtkTracking3D()
 {
@@ -67,6 +71,26 @@ int vtkTracking3D::AddPolySource(vtkSmartPointer<vtkPolyData> poly)
 	this->AddObject(actor);
 	return 1;
 }
+
+/*
+Orthogonal View planes
+*/
+int vtkTracking3D::EnableOrthogonalPlanes() 
+{ 
+	m_PlaneX->On();
+	m_PlaneY->On();
+	m_PlaneZ->On();
+	return 0; 
+};
+int vtkTracking3D::DisableOrthogonalPlanes() 
+{ 
+	m_PlaneX->Off();
+	m_PlaneY->Off();
+	m_PlaneZ->Off();
+	return 0; 
+};
+
+
 
 
 /*
@@ -193,6 +217,30 @@ int vtkTracking3D::SetEnableOutline(int index, bool en)
 }
 
 
+/*
+Description:
+	Set Input image data
+	This image is badly need to calculate the reslice 
+	index in 3d image.
+Input:
+	type: vtkImageData*
+
+*/
+int vtkTracking3D::SetImage(vtkSmartPointer<vtkImageData> in)
+{
+	m_Image = vtkSmartPointer<vtkImageData>::New();
+	m_Image = in;
+
+	m_PlaneX->SetInputData(m_Image);
+	m_PlaneY->SetInputData(m_Image);
+	m_PlaneZ->SetInputData(m_Image);
+	m_PlaneX->SetPlaneOrientationToXAxes();
+	m_PlaneY->SetPlaneOrientationToYAxes();
+	m_PlaneZ->SetPlaneOrientationToZAxes();
+
+	return 0;
+}
+
 
 /*
 Description:
@@ -273,6 +321,7 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 /*
 Description:
 	Setup registration matrix, transforming abslote coordinate
+	This function is badly need.
 */
 int vtkTracking3D::SetRegisterTransform(vtkMatrix4x4* in)
 {
@@ -280,28 +329,6 @@ int vtkTracking3D::SetRegisterTransform(vtkMatrix4x4* in)
 	m_Transform->PreMultiply();
 	return 0;
 }/*
-int vtkTracking3D::SetLandMarks(std::vector<double*>src, std::vector<double*> tgt)
-{
-	auto src_Points = vtkSmartPointer<vtkPoints>::New();
-	for (auto it = src.begin(); it != src.end(); ++it)
-	{
-		src_Points->InsertNextPoint((*it));
-	}
-
-	auto tgt_Points = vtkSmartPointer<vtkPoints>::New();
-	for (auto it = tgt.begin(); it != tgt.end(); ++it)
-	{
-		tgt_Points->InsertNextPoint((*it));
-	}
-
-	m_LandMarkTransform = vtkSmartPointer<vtkLandmarkTransform>::New();
-	m_LandMarkTransform->SetSourceLandmarks(src_Points);
-	m_LandMarkTransform->SetTargetLandmarks(tgt_Points);
-	m_LandMarkTransform->SetModeToAffine();
-	m_LandMarkTransform->Update();
-
-	return 0;
-}*/
 
 
 /*
@@ -381,13 +408,11 @@ Note:
 Parameter:
 	int[3]
 */
-int* vtkTracking3D::GetResliceIndex()
-{
-	return m_index_tobe_set;
-}
 void vtkTracking3D::GetResliceIndex(int* in)
 {
-	memcpy(in,m_index_tobe_set,3*sizeof(int));
+	in[0] = m_SliceX;
+	in[1] = m_SliceY;
+	in[2] = m_SliceZ;
 }
 
 
@@ -409,6 +434,10 @@ int vtkTracking3D::InstallPipeline()
 	m_MouseCallback->SetCallback(MouseclickCallbackFunction);
 	m_Interactor->AddObserver(vtkCommand::KeyPressEvent, m_KeyPressCallBack);
 	m_Interactor->AddObserver(vtkCommand::TimerEvent, m_TimerCallBack);
+
+	m_PlaneX->SetInteractor(m_Interactor);
+	m_PlaneY->SetInteractor(m_Interactor);
+	m_PlaneZ->SetInteractor(m_Interactor);
 
 	m_CurrentRenderer->ResetCamera();
 
@@ -527,6 +556,14 @@ static void MouseclickCallbackFunction(
 	tracking->m_marker_tobe_set[0] = pos[0];
 	tracking->m_marker_tobe_set[1] = pos[1];
 	tracking->m_marker_tobe_set[2] = pos[2];
+
+	tracking->m_PlaneX->SetSlicePosition(pos[0]);
+	tracking->m_PlaneY->SetSlicePosition(pos[1]);
+	tracking->m_PlaneZ->SetSlicePosition(pos[2]);
+
+	tracking->m_SliceZ = tracking->m_PlaneZ->GetSliceIndex();
+	tracking->m_SliceY = tracking->m_PlaneY->GetSliceIndex();
+	tracking->m_SliceX = tracking->m_PlaneX->GetSliceIndex();
 
 	//this emit a signal to connect qt signal
 	tracking->InvokeEvent(QIN_S_VTK_EVENT, tracking);

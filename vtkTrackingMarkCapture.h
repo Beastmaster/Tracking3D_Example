@@ -30,7 +30,18 @@ Note:
 #include <vector>
 #include <iostream>
 
+/*
+This Class is inhert from vtkObject,
+So it is recommanded to use vtkSmartPointer to manage
+instead of managing by hand.
 
+There seems no need to use templete here because
+there is no tracker type specified functions to be called.
+
+Please be noted that, this class do not configure any tracker,
+you should pass a configured tracker in. Because this class 
+just call some get data functions.
+*/
 template<typename TrackerType>
 class vtkTrackingMarkCapture : public vtkObject
 {
@@ -92,7 +103,9 @@ vtkTrackingMarkCapture<TrackerType>::~vtkTrackingMarkCapture()
 
 /*
 Description:
-
+	When all configurations are done
+	Call this function to append the marker to the 
+	bufer list
 */
 template<typename TrackerType>
 void vtkTrackingMarkCapture<TrackerType>::GetNextMarker()
@@ -137,7 +150,10 @@ void vtkTrackingMarkCapture<TrackerType>::ClearMarkers()
 	m_ReferMarkers.clear();
 }
 
-
+/*
+Description:
+	Return a list of markers, by type std::vector
+*/
 template<typename TrackerType>
 std::vector<double*> vtkTrackingMarkCapture<TrackerType>::GetMarkerList()
 {

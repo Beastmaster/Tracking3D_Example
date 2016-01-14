@@ -33,6 +33,7 @@ Date: 2016/1/10
 #include "vtkMarchingCubes.h"
 #include "vtkSphereSource.h"
 #include "vtkSTLReader.h"
+#include "vtkXMLPolyDataReader.h"
 
 #include "PolarisVicraConfiguration.h"
 #include "ATC3DGConfiguration.h"
@@ -41,6 +42,7 @@ Date: 2016/1/10
 #include "vtkTrackingMarkCapture.h"
 #include "vtkTrackingRegistration.h"
 #include "QtWrapvtkTracking3D.h"
+
 
 
 namespace Ui {
@@ -62,6 +64,7 @@ public:
 
 public slots:
 	void on_ResliceAction(double,double,double);
+	void on_ResliceAction(int x, int y, int z);
 	void on_Load_Image();
 	void on_Load_Atlas();
 	void on_Del_Atlas();
@@ -108,9 +111,6 @@ private:
 	int m_SliceX;  //---> Sagittal
 	int m_SliceY;  //---> Coronal
 	int m_SliceZ;  //---> Axial
-	vtkSmartPointer<vtkImagePlaneWidget> m_PlaneX;
-	vtkSmartPointer<vtkImagePlaneWidget> m_PlaneY;
-	vtkSmartPointer<vtkImagePlaneWidget> m_PlaneZ;
 
 };
 

@@ -562,7 +562,7 @@ void reslice_view_base::Set_Direction(char x)
 	case 'a':
 		{
 			m_ViewDirText = vtkSmartPointer<vtkTextActor>::New();
-			m_ViewDirText->SetInput("Axial View");
+			//m_ViewDirText->SetInput("Axial View");
 			m_ViewDirText->SetPosition2(10, 40);
 			m_ViewDirText->GetTextProperty()->SetFontSize(20);
 			m_ViewDirText->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
@@ -584,7 +584,7 @@ void reslice_view_base::Set_Direction(char x)
 	case 'c': //c
 		{
 			m_ViewDirText = vtkSmartPointer<vtkTextActor>::New();
-			m_ViewDirText->SetInput("Coronal View");
+			//m_ViewDirText->SetInput("Coronal View");
 			m_ViewDirText->SetPosition2(10, 40);
 			m_ViewDirText->GetTextProperty()->SetFontSize(20);
 			m_ViewDirText->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
@@ -609,7 +609,7 @@ void reslice_view_base::Set_Direction(char x)
 	case 's': //s
 		{
 			m_ViewDirText = vtkSmartPointer<vtkTextActor>::New();
-			m_ViewDirText->SetInput("Sagittal View");
+			//m_ViewDirText->SetInput("Sagittal View");
 			m_ViewDirText->SetPosition2(10, 40);
 			m_ViewDirText->GetTextProperty()->SetFontSize(20);
 			m_ViewDirText->GetTextProperty()->SetColor(1.0, 0.0, 0.0);

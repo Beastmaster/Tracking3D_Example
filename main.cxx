@@ -26,7 +26,7 @@ Description:
 #include "vtkActorCollection.h"
 
 #include "vtkSTLReader.h"
-
+#include "vtkXMLPolyDataReader.h"
 
 #include "vtkSphereSource.h"
 #include "vtkConeSource.h"
@@ -545,6 +545,13 @@ void TestSliderWidget()
 
 }
 
+void TestMesh()
+{
+	auto reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
+	reader->SetFileName("E:/test/Appimplant.msh");
+	reader->Update();
+	auto xx = reader->GetOutput();
+}
 
 void TestPolaris()
 {
@@ -553,7 +560,7 @@ void TestPolaris()
 
 int main(int argc, char** argv)
 {
-
+	//TestMesh();
 	//TestMousePick();
 	//TestTrackingDevice();
 	//TestOrthogonalPlane();

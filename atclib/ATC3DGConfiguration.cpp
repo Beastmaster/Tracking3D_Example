@@ -70,12 +70,6 @@ ATC3DGConfiguration::~ATC3DGConfiguration()
 		}
 	}
 	m_TransformInformation.clear();
-
-	//if (m_Transform!=NULL)
-	//{
-	//	delete m_Transform;
-	//	m_Transform = NULL;
-	//}
 }
 
 
@@ -113,6 +107,25 @@ int ATC3DGConfiguration::ConfigureTracker()
 
 /*
 Description:
+	Get the validation status of tool by index
+Input:
+	index: index of sensor to check, count from 0
+Return:
+	0: valid
+	1: invalid
+*/
+int ATC3DGConfiguration::GetToolValidation(int index) 
+{ 
+
+
+	return 0; 
+};
+
+
+
+
+/*
+Description:
 
 
 Return:
@@ -122,14 +135,18 @@ Return:
 	3. "System Ready"
 	4. "Sensors Ready"
 	5. "Transmitters Ready"
-
 */
 int ATC3DGConfiguration::GetTrackingStatus()
 {
 	if (m_Status == "Tracking")
 	{
+		//if the status is tracking, then check device status
+		//1. Check Transmitter status
+
 		return 0;
 	}
+	//If the global status is not Tracking,
+	//There is no need to check device
 	if (m_Status == "NULL Status")
 	{
 		return 1;
@@ -160,19 +177,36 @@ Return Value:
 */
 QIN_Transform_Type* ATC3DGConfiguration::GetTransform(int index)
 {
-	if (GetTransformInformation()!=0)
-	{
-		return NULL;
-	}
-	if (index <0 || index>=m_Num_Sensor-1)  // index outof range
-	{
-		return NULL;
-	}
-	
 	if (m_Transform == NULL)
 	{
 		m_Transform = new QIN_Transform_Type;
 	}
+
+	if (GetTransformInformation()!=0)
+	{
+		m_Transform->x = 0;
+		m_Transform->y = 0;
+		m_Transform->z = 0;
+		m_Transform->qx = 0;
+		m_Transform->qy = 0;
+		m_Transform->qz = 0;
+		m_Transform->q0 = 0;
+		m_Transform->error = 0;
+		return m_Transform;
+	}
+	if (index <0 || index>=m_Num_Sensor-1)  // index outof range
+	{
+		m_Transform->x = 0;
+		m_Transform->y = 0;
+		m_Transform->z = 0;
+		m_Transform->qx = 0;
+		m_Transform->qy = 0;
+		m_Transform->qz = 0;
+		m_Transform->q0 = 0;
+		m_Transform->error = 0;
+		return m_Transform;
+	}
+	
 	memset(m_Transform, 0, sizeof(QIN_Transform_Type));
 
 	m_Transform->x = m_TransformInformation[index]->x;

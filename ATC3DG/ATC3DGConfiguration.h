@@ -10,7 +10,7 @@ Date: 2016/01/05
 
 
 #include "ATC3DG.h"
-#include "TrackerBase.h"
+#include "../TrackingClass/TrackerBase.h"
 #include <string>
 #include <iostream>
 #include <map>

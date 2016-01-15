@@ -30,7 +30,7 @@ Attention:
 #include "INIFileRW.h"
 #include "resource.h"
 
-#include "TrackerBase.h"
+#include "../TrackingClass/TrackerBase.h"
 
 #include <string>
 #include <iostream>

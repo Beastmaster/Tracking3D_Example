@@ -324,10 +324,21 @@ Return:
 QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 {
 	nGetSystemTransformData();
-	if (index>=m_PortID.size())
+
+	//check is the index in the portID list
+	if (m_PortID.end() == std::find(m_PortID.begin(), m_PortID.end(),index))
 	{
-		return NULL;
+		m_Transform->x = 0;
+		m_Transform->y = 0; 
+		m_Transform->z = 0; 
+		m_Transform->q0 =0; 
+		m_Transform->qx =0; 
+		m_Transform->qy =0; 
+		m_Transform->qz =0; 
+		m_Transform->error = 0;
+		return m_Transform;
 	}
+
 	int index2 = m_PortID[index];
 	auto it = std::find(m_PortID.begin(), m_PortID.end(), index2);
 	if (it != m_PortID.end())

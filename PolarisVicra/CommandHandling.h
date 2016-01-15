@@ -145,7 +145,6 @@ Variables
 	DiagNewAlertFlags
 		m_dtNewAlerts; /* alert information */
 
-	//CMAP<CString, LPCTSTR, int, int>
 	std::map<std::string, int>
 		m_dtTimeoutValues;
 

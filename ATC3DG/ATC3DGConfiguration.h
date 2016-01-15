@@ -35,7 +35,7 @@ public:
 	virtual int GetTrackingStatus();
 	virtual int ConfigureTracker();
 	virtual int GetToolValidation(int);
-	virtual int GetTransformValidation(int) { return 0; };
+	virtual int GetTransformValidation(int);
 	virtual QIN_Transform_Type* GetTransform(int index);
 
 	//

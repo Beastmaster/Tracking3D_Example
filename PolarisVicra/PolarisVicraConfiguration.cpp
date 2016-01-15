@@ -79,8 +79,7 @@ int PloarisVicraConfiguration::StartTracking()
 	if (this->nStartTracking())
 	{
 		/*
-		* if we can start tracking, set the appropriate window text,
-		* start the tracking thread and set the mode.
+		* if we can start tracking, start the tracking thread and set the mode.
 		*/
 		m_bIsTracking = TRUE;
 		m_bStopTracking = FALSE;
@@ -302,15 +301,27 @@ Description:
 	Check status of tracking, return true if tracking
 
 Return:
-	0: success
-	1: fail
+	0: "Tracking Mode"
+	1: "Pre Init Mode"
+	2: "Init Mode"
+	3: "Activated Mode"
+	4: "Unknown mode"
+	5£º error occur
 */
 int PloarisVicraConfiguration::GetTrackingStatus()
 {
 	if (m_OperatingStatus == "Tracking Mode")
 		return 0;
-	else
+	else if (m_OperatingStatus == "Pre Init Mode")
 		return 1;
+	else if (m_OperatingStatus == "Init Mode")
+		return 2;
+	else if (m_OperatingStatus == "Activated Mode")
+		return 3;
+	else if (m_OperatingStatus == "Unknown mode")
+		return 4;
+	else 
+		return 5;
 }
 
 /*

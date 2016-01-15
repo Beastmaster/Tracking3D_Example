@@ -171,6 +171,23 @@ int ATC3DGConfiguration::GetTrackingStatus()
 
 /*
 Description:
+	This function is for checking the validation of the transform
+	information from a sensor. In EM tracking system, you can always
+	get a valid transform, so we set the flag to 0 (success)
+
+Return:
+	0:     success
+	other: fail
+*/
+int ATC3DGConfiguration£º£ºGetTransformValidation(int)
+{
+	return 0; 
+}
+
+
+
+/*
+Description:
 
 Return Value:
 	NULL: No value returned

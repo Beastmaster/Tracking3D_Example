@@ -44,12 +44,34 @@ public:
 		m_Transform = NULL;
 	};
 
-
+	/*
+	Start Tracking process
+	*/
 	virtual int StartTracking() = 0;
+	
+	/*
+	Stop tracking and close the tracking system
+	*/
 	virtual int StopTracking() = 0;
+	
+	/*
+	Configure tracker for initialization
+	Get ready for tracking
+	*/
 	virtual int ConfigureTracker()     = 0;
+
+	/*
+	Different type of trackers define different tracking status
+	*/
 	virtual int GetTrackingStatus()    = 0;
+
+	/*
+	*/
 	virtual int GetToolValidation(int) = 0;
+	
+	/*
+	
+	*/
 	virtual int GetTransformValidation(int) = 0;
 
 	/*

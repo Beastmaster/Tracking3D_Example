@@ -1,3 +1,9 @@
+Requirement:
+
+Qt5
+VTK6
+
+
 
 
 TrackerBase.h:

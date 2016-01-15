@@ -13,7 +13,6 @@ Description:
 
 
 #include "vtkTracking3D.h"
-#include "QinStyle.h"
 
 
 #include "vtkSmartPointer.h"

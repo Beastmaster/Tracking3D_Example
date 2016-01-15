@@ -37,7 +37,7 @@ Date: 2016/1/10
 
 #include "PolarisVicraConfiguration.h"
 #include "ATC3DGConfiguration.h"
-#include "ResliceView.h"
+#include "vtkTrackingResliceView.h"
 #include "vtkTracking3D.h"
 #include "vtkTrackingMarkCapture.h"
 #include "vtkTrackingRegistration.h"

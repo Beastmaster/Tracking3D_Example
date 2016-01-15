@@ -1,0 +1,17 @@
+Main folder that contains key class files
+
+
+	QtWrapvtkTracking3D.h
+	vtkTracking3D.cxx
+	vtkTracking3D.h
+	
+	vtkTrackingMarkCapture.h
+	vtkTrackingMarkCapture.hxx
+	
+	vtkTrackingRegistration.cxx
+	vtkTrackingRegistration.h
+	
+	vtkTrackingResliceView.cpp
+	vtkTrackingResliceView.h
+
+

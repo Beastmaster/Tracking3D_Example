@@ -500,6 +500,7 @@ void KeypressCallbackFunction(vtkObject* caller,long unsigned int eventId,void* 
 
 	std::string key = iren->GetKeySym();
 	
+	/*
 	//add actor
 	if (key == "a")
 	{
@@ -526,6 +527,7 @@ void KeypressCallbackFunction(vtkObject* caller,long unsigned int eventId,void* 
 		tracking->SetOpacity(1,0.3);
 	}
 	tracking->GetRenderWindow()->Render();
+	*/
 }
 
 /*

@@ -5,7 +5,7 @@ Date: 2016/1/11
 
 */
 
-#include "ResliceView.h"
+#include "vtkTrackingResliceView.h"
 
 
 reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)

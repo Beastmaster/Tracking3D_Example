@@ -37,10 +37,10 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	connect(ui->ok_Sel_Btn, SIGNAL(clicked()), this, SLOT(on_CapDone_Btn()));
 	connect(ui->start_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StartTracking()));
 	connect(ui->stop_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StopTracking()));
-	connect(ui->opacity_Slider, SIGNAL(sliderMoved(int)), this, SLOT(on_Opacity_Slider(int)));
-	connect(ui->axial_slider, SIGNAL(sliderMoved(int)), this, SLOT(on_Axial_Slider(int)));
-	connect(ui->sagittal_slider, SIGNAL(sliderMoved(int)), this, SLOT(on_Sagittal_Slider(int)));
-	connect(ui->coronal_slider, SIGNAL(sliderMoved(int)), this, SLOT(on_Coronal_Slider(int)));
+	connect(ui->opacity_Slider, SIGNAL(valueChanged(int)), this, SLOT(on_Opacity_Slider(int)));
+	connect(ui->axial_slider, SIGNAL(valueChanged(int)), this, SLOT(on_Axial_Slider(int)));
+	connect(ui->sagittal_slider, SIGNAL(valueChanged(int)), this, SLOT(on_Sagittal_Slider(int)));
+	connect(ui->coronal_slider, SIGNAL(valueChanged(int)), this, SLOT(on_Coronal_Slider(int)));
 	connect(ui->en_Plane_Check, SIGNAL(stateChanged(int)), this, SLOT(on_EnablePlane(int)));
 	createActions();
 }
@@ -143,9 +143,9 @@ void MainWindow::on_ResliceAction(int x, int y, int z)
 	std::cout << "y coor:" << m_SliceY << std::endl;
 	std::cout << "z coor:" << m_SliceZ << std::endl;
 
-	m_Sagittal_View->SetSlice(m_3d_View->m_SliceX);
-	m_Coronal_View->SetSlice(m_3d_View->m_SliceY);
-	m_Axial_View->SetSlice(m_3d_View->m_SliceZ);
+	ui->axial_slider->setSliderPosition(m_SliceZ);
+	ui->sagittal_slider->setSliderPosition(m_SliceX);
+	ui->coronal_slider->setSliderPosition(m_SliceY);
 }
 
 

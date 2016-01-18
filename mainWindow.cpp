@@ -25,6 +25,7 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	//connect vtkTracking3D
 	//connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double,double,double)));
 	connect(m_3d_View, SIGNAL(on_timer_signal_index(int, int, int)), this, SLOT(on_ResliceAction(int, int, int)));
+	connect(m_3d_View, SIGNAL(on_timer_signal_coor(double,double,double)), this, SLOT(on_ResliceAction(double, double, double)));
 	//connect
 	connect(ui->load_Image_Btn,SIGNAL(clicked()),this,SLOT(on_Load_Image()));
 	connect(ui->load_Atlas_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Atlas()));
@@ -123,38 +124,28 @@ void MainWindow::on_ResliceAction(double x, double y, double z)
 
 	int extent[6];
 	m_Image->GetExtent(extent);
-	
-	int x_e = extent[1] - extent[0];
-	int y_e = extent[3] - extent[2];
-	int z_e = extent[5] - extent[4];
 
-	//m_SliceZ = floor(pt_ID/(x_e*y_e));
-	//m_SliceY = floor(pt_ID % (x_e*y_e) / y_e);
-	//m_SliceX = pt_ID%y_e;
+	int x_e = extent[1] - extent[0] +1;
+	int y_e = extent[3] - extent[2] +1 ;
+	int z_e = extent[5] - extent[4] +1 ;
 
-
-	//m_PlaneX->SetSlicePosition(x);
-	//m_PlaneY->SetSlicePosition(y);
-	//m_PlaneZ->SetSlicePosition(z);
-	//ui->threeDWidget->GetRenderWindow()->Render();
-	//
-	//m_SliceZ = m_PlaneZ->GetSliceIndex();
-	//m_SliceY = m_PlaneY->GetSliceIndex();
-	//m_SliceX = m_PlaneX->GetSliceIndex();
-
-	m_Axial_View->SetSlice(m_SliceZ);
-	m_Sagittal_View->SetSlice(m_SliceX);
-	m_Coronal_View->SetSlice(m_SliceY);
-
-	std::cout << "x coor:" << m_SliceZ << std::endl;
-	std::cout << "y coor:" << m_SliceY << std::endl;
-	std::cout << "z coor:" << m_SliceX << std::endl;
+	m_SliceZ = floor(pt_ID/(x_e*y_e));
+	m_SliceY = floor(pt_ID%(x_e*y_e) /x_e );
+	m_SliceX = pt_ID%x_e;
 }
 void MainWindow::on_ResliceAction(int x, int y, int z)
 {
-	m_Axial_View->SetSlice(m_3d_View->m_SliceX);
-	m_Sagittal_View->SetSlice(m_3d_View->m_SliceY);
-	m_Coronal_View->SetSlice(m_3d_View->m_SliceZ);
+	m_SliceX = m_3d_View->m_SliceX;
+	m_SliceY = m_3d_View->m_SliceY;
+	m_SliceZ = m_3d_View->m_SliceZ;
+
+	std::cout << "x coor:" << m_SliceX << std::endl;
+	std::cout << "y coor:" << m_SliceY << std::endl;
+	std::cout << "z coor:" << m_SliceZ << std::endl;
+
+	m_Sagittal_View->SetSlice(m_3d_View->m_SliceX);
+	m_Coronal_View->SetSlice(m_3d_View->m_SliceY);
+	m_Axial_View->SetSlice(m_3d_View->m_SliceZ);
 }
 
 

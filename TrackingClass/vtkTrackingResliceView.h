@@ -57,6 +57,13 @@ class reslice_interactor_style;
 //class vtkSliderCallback;
 
 
+
+
+/*
+	Axial:    Z
+	Coronal:  Y
+	Sagittal: X
+*/
 class reslice_view_base : QObject
 {
 	Q_OBJECT

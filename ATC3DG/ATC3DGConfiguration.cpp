@@ -121,7 +121,20 @@ int ATC3DGConfiguration::GetToolValidation(int index)
 	return 0; 
 };
 
+/*
+Description:
+	Get the validation status of transform by index
+Input:
+	index: index of sensor to check, count from 0
+Return:
+	0: valid
+	1: invalid
+*/
+int ATC3DGConfiguration::GetTransformValidation(int index)
+{
 
+	return 0;
+}
 
 
 /*

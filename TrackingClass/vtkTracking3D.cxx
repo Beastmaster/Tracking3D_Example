@@ -500,34 +500,6 @@ void KeypressCallbackFunction(vtkObject* caller,long unsigned int eventId,void* 
 
 	std::string key = iren->GetKeySym();
 	
-	/*
-	//add actor
-	if (key == "a")
-	{
-		tracking->ValidMarker();
-	}
-	//remove actor
-	else if (key == "b")
-	{
-		tracking->StopTracking();
-	}
-	//change color
-	else if (key == "c")
-	{
-		tracking->SetColor(1,0.5,0.6,0.8);
-	}
-	//transform actor
-	else if (key == "d")
-	{
-
-	}
-	//chagne opacity
-	else if (key == "x")
-	{
-		tracking->SetOpacity(1,0.3);
-	}
-	tracking->GetRenderWindow()->Render();
-	*/
 }
 
 /*
@@ -614,4 +586,51 @@ void TimerCallbackFunction(
 
 	tracking->GetRenderWindow()->Render();
 }
+
+
+
+
+
+
+
+/*
+Description:
+	A function to calculate the index of a point in world coordinate.
+	A static function that can be called anywhere
+Input:
+	img:        vtkImageData pointer
+	coordinate: real world coordinate
+	out:        3d index (allocated int array)
+*/
+void vtkTracking3D::Find3DIndex(vtkImageData* img, double* coordinate, int* out)
+{
+	int pt_ID = 0;
+	pt_ID = img->FindPoint(coordinate[0], coordinate[1], coordinate[2]);
+	std::cout << "Point ID is: " << pt_ID << std::endl;
+	int extent[6];
+	img->GetExtent(extent);
+	int x_e = extent[1] - extent[0] + 1;
+	int y_e = extent[3] - extent[2] + 1;
+	int z_e = extent[5] - extent[4] + 1;
+	out[2] = floor(pt_ID / (x_e*y_e));
+	out[1] = floor(pt_ID % (x_e*y_e) / x_e);
+	out[0] = pt_ID%x_e;
+}
+void vtkTracking3D::Find3DIndex(vtkImageData* img, double x, double y, double z, int * out)
+{
+	int pt_ID = 0;
+	pt_ID = img->FindPoint(x, y, z);
+	std::cout << "Point ID is: " << pt_ID << std::endl;
+	int extent[6];
+	img->GetExtent(extent);
+	int x_e = extent[1] - extent[0] + 1;
+	int y_e = extent[3] - extent[2] + 1;
+	int z_e = extent[5] - extent[4] + 1;
+	out[2] = floor(pt_ID / (x_e*y_e));
+	out[1] = floor(pt_ID % (x_e*y_e) / x_e);
+	out[0] = pt_ID%x_e;
+}
+
+
+
 

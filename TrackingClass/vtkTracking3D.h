@@ -150,6 +150,10 @@ public:
 	int ClearMarkers();
 	std::vector<double*> GetMarkerList();
 
+	//static function to find point 3d index from world coordinate
+	static void Find3DIndex(vtkImageData*, double* coordinate,int*);
+	static void Find3DIndex(vtkImageData*, double x,double y,double z,int *);
+
 	//tracking device configuration
 	//PloarisVicraConfiguration* m_tracker;
 	TrackerType* m_tracker;

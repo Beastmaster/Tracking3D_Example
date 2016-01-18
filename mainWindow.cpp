@@ -188,14 +188,6 @@ void MainWindow::on_Load_Image()
 		m_Coronal_View->RenderView();
 
 		m_3d_View->SetImage(m_Image);
-		//plane widget
-		//m_PlaneX->SetInputData(m_Image);
-		//m_PlaneY->SetInputData(m_Image);
-		//m_PlaneZ->SetInputData(m_Image);
-		//m_PlaneX->SetPlaneOrientationToXAxes();
-		//m_PlaneY->SetPlaneOrientationToYAxes();
-		//m_PlaneZ->SetPlaneOrientationToZAxes();
-
 
 		//extract 3d model
 		auto marchingCubes = vtkSmartPointer<vtkMarchingCubes>::New();

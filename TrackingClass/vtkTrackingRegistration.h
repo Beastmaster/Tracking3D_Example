@@ -17,14 +17,15 @@ Description:
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkVertexGlyphFilter.h"
-
+#include "vtkDataArray.h"
 #include "vtkPoints.h"
 #include "vtkMatrix4x4.h"
 
 #include <vtkIterativeClosestPointTransform.h>
 #include <vtkLandmarkTransform.h>
 
-
+#include <stdio.h>
+#include <string.h>
 
 /*
 User Manual:				   
@@ -57,8 +58,18 @@ protected:
 	~vtkTrackingRegistrationBase();
 
 
+	//private functions to calculate error
+	void ComputeLandmarksCentroid();
+	void ComputeLandmarkPrincipalAxes();
+	void ComputeRMSDistanceLandmarksFromPrincipalAxes();
+
+	double m_LandmarkCentroid[3];
+
+
 	vtkSmartPointer<vtkPoints> src_Points;
+	std::vector<double*> m_src_Points;
 	vtkSmartPointer<vtkPoints> target_Points;
+	std::vector<double*> m_target_Points;
 	vtkSmartPointer<vtkMatrix4x4> transform_matrix;
 };
 

@@ -356,7 +356,7 @@ void vtkTracking3D::SetInteractor(vtkSmartPointer<vtkRenderWindowInteractor> inc
 //Note: when you assign a new renderwindow, the interactor
 //      and actor collection or other property will be reset
 //      to the new window
-void vtkTracking3D::SetWindow(vtkSmartPointer<vtkRenderWindow> win)
+void vtkTracking3D::SetWindow(vtkRenderWindow* win)
 {
 	m_RenderWindow = win;
 }
@@ -595,8 +595,12 @@ void TimerCallbackFunction(
 
 /*
 Description:
-	A function to calculate the index of a point in world coordinate.
-	A static function that can be called anywhere
+	1. A function to calculate the index of a point in world coordinate.
+	2. A static function that can be called anywhere.
+	3. You may not input a vtkImageData pointer into this class and get
+		the 3d index you need.
+	4. Make sure that your img is valid.
+	5. Output array must be allocated before passed in.
 Input:
 	img:        vtkImageData pointer
 	coordinate: real world coordinate

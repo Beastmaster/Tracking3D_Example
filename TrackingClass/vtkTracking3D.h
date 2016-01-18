@@ -126,7 +126,7 @@ public:
 	int SetTransform(int index, QIN_Transform_Type* in);
 	int SetRegisterTransform(vtkMatrix4x4*);
 	void SetInterval(unsigned long xx) { m_interval = xx; };
-	void SetWindow( vtkSmartPointer<vtkRenderWindow> );
+	void SetWindow( vtkRenderWindow* );
 	void SetInteractor(vtkSmartPointer<vtkRenderWindowInteractor> inct);
 	void SetInteractorStyle( vtkInteractorStyle* );
 	void SetTracker(TrackerType* in);

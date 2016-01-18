@@ -101,7 +101,7 @@ private:
 	reslice_view_base* m_Sagittal_View;
 	reslice_view_base* m_Axial_View;
 	reslice_view_base* m_Coronal_View;
-	QtWrapvtkTracking3D* m_3d_View;//vtkSmartPointer<QtWrapvtkTracking3D>  m_3d_View;
+	vtkSmartPointer<QtWrapvtkTracking3D>  m_3d_View;
 	ATC3DGConfiguration* m_TrackerATC3DG;
 	PloarisVicraConfiguration* m_TrackerPolaris;
 

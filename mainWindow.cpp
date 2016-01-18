@@ -77,7 +77,7 @@ void MainWindow::sys_Init()
 	m_Sagittal_View = new reslice_view_base(ui->sagittalWidget->GetRenderWindow(),'s');
 	m_Axial_View = new reslice_view_base(ui->axialWidget->GetRenderWindow(), 'a');
 	m_Coronal_View = new reslice_view_base(ui->coronalWidget->GetRenderWindow(), 'c');
-	m_3d_View = QtWrapvtkTracking3D::New();//vtkSmartPointer<QtWrapvtkTracking3D>::New();
+	m_3d_View = vtkSmartPointer<QtWrapvtkTracking3D>::New();
 	m_3d_View->SetWindow(ui->threeDWidget->GetRenderWindow());
 	m_3d_View->SetInteractor(ui->threeDWidget->GetRenderWindow()->GetInteractor());
 	m_3d_View->InstallPipeline();

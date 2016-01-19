@@ -20,6 +20,7 @@ Description:
 #include "vtkDataArray.h"
 #include "vtkPoints.h"
 #include "vtkMatrix4x4.h"
+#include "vtkTransform.h"
 
 #include <vtkIterativeClosestPointTransform.h>
 #include <vtkLandmarkTransform.h>
@@ -52,7 +53,7 @@ public:
 	void SetTargetPoints(std::vector<double*>);
 	virtual void GenerateTransform()=0;
 	vtkSmartPointer<vtkMatrix4x4> GetTransformMatrix();
-
+	double EstimateRegistrationError();
 protected:
 	vtkTrackingRegistrationBase();
 	~vtkTrackingRegistrationBase();
@@ -64,7 +65,7 @@ protected:
 	void ComputeRMSDistanceLandmarksFromPrincipalAxes();
 
 	double m_LandmarkCentroid[3];
-
+	double m_Error;
 
 	vtkSmartPointer<vtkPoints> src_Points;
 	std::vector<double*> m_src_Points;

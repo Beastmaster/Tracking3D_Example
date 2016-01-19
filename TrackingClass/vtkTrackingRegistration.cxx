@@ -120,7 +120,35 @@ void vtkTrackingRegistrationBase::ComputeRMSDistanceLandmarksFromPrincipalAxes()
 {
 }
 
+/*
+Description:
+	Compute the error between the source point and the target point
+Return:
+	double type error
+*/
+double vtkTrackingRegistrationBase::EstimateRegistrationError()
+{
+	double error = 0.0;
+	auto trans = vtkSmartPointer<vtkTransform>::New();
+	trans->PostMultiply();
+	trans->SetMatrix(transform_matrix);
 
+	auto src_iter = m_src_Points.begin();
+	auto tgt_iter = m_target_Points.begin();
+
+	double temp[3];
+
+	while (src_iter!=m_src_Points.end())
+	{
+		trans->TransformNormal(*src_iter,temp);
+
+
+		++src_iter;
+		++tgt_iter;
+	}
+
+	//error = sqrt();
+}
 
 
 

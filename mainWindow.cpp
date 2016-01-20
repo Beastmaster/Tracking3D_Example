@@ -93,13 +93,6 @@ void MainWindow::sys_Init()
 	m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
 	m_Marker_Capture->SetToolIndex(0);
 
-	////setup plane widget
-	//m_PlaneX = vtkSmartPointer<vtkImagePlaneWidget>::New();
-	//m_PlaneY = vtkSmartPointer<vtkImagePlaneWidget>::New();
-	//m_PlaneZ = vtkSmartPointer<vtkImagePlaneWidget>::New();
-	//m_PlaneX->SetInteractor(ui->threeDWidget->GetInteractor());
-	//m_PlaneY->SetInteractor(ui->threeDWidget->GetInteractor());
-	//m_PlaneZ->SetInteractor(ui->threeDWidget->GetInteractor());
 }
 
 /*
@@ -322,6 +315,7 @@ void MainWindow::on_CapDone_Btn()
 		std::cout << std::endl;
 	}
 
+	// a messagebox for user to accecpt or discard the error
 	QMessageBox msgBox;
 	msgBox.setText("Register Box");
 	msgBox.setInformativeText("Do you want to apply this matrix?");

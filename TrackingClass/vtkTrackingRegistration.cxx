@@ -17,6 +17,8 @@ vtkTrackingRegistrationBase::vtkTrackingRegistrationBase()
 	src_Points = vtkSmartPointer<vtkPoints>::New();
 	target_Points = vtkSmartPointer<vtkPoints>::New();
 	transform_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+
+	m_Error = 0.0;
 }
 vtkTrackingRegistrationBase::~vtkTrackingRegistrationBase()
 {
@@ -76,7 +78,11 @@ vtkSmartPointer<vtkMatrix4x4> vtkTrackingRegistrationBase::GetTransformMatrix()
 	return transform_matrix;
 }
 
-
+/* Output the estimated registration error from buffer  */
+double vtkTrackingRegistrationBase::EstimateRegistrationError()
+{
+	return m_Error;
+}
 
 
 /** Compute landmark centroid **/
@@ -122,11 +128,11 @@ void vtkTrackingRegistrationBase::ComputeRMSDistanceLandmarksFromPrincipalAxes()
 
 /*
 Description:
-	Compute the error between the source point and the target point
+	Start computing the error between the source point and the target point
 Return:
-	double type error
+	None
 */
-double vtkTrackingRegistrationBase::EstimateRegistrationError()
+void vtkTrackingRegistrationBase::EstimatingRegistrationError()
 {
 	double error = 0.0;
 	auto trans = vtkSmartPointer<vtkTransform>::New();
@@ -138,16 +144,18 @@ double vtkTrackingRegistrationBase::EstimateRegistrationError()
 
 	double temp[3];
 
-	while (src_iter!=m_src_Points.end())
+	while ((src_iter != m_src_Points.end()) && (tgt_iter != m_target_Points.end()))
 	{
 		trans->TransformNormal(*src_iter,temp);
-
+		error += ((*tgt_iter)[0] - temp[0])*((*tgt_iter)[0] - temp[0]); 
+		error += ((*tgt_iter)[1] - temp[1])*((*tgt_iter)[1] - temp[1]);
+		error += ((*tgt_iter)[2] - temp[2])*((*tgt_iter)[2] - temp[2]);
 
 		++src_iter;
 		++tgt_iter;
 	}
 
-	//error = sqrt();
+	m_Error = sqrt(error/m_src_Points.size());
 }
 
 
@@ -210,6 +218,8 @@ void vtkTrackingICPRegistration::GenerateTransform()
 	m_icp->Update();
 
 	transform_matrix = m_icp->GetMatrix();
+
+	EstimatingRegistrationError(); //this line compute the registration error
 }
 
 
@@ -240,6 +250,8 @@ void vtkTrackingLandMarkRegistration::GenerateTransform()
 	m_landmarkTransform->Update(); //should this be here? YES
 
 	transform_matrix = m_landmarkTransform->GetMatrix();
+
+	EstimatingRegistrationError(); //this line compute the registration error
 }
 
 

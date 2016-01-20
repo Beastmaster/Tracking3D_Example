@@ -63,7 +63,8 @@ protected:
 	void ComputeLandmarksCentroid();
 	void ComputeLandmarkPrincipalAxes();
 	void ComputeRMSDistanceLandmarksFromPrincipalAxes();
-
+	
+	void EstimatingRegistrationError();
 	double m_LandmarkCentroid[3];
 	double m_Error;
 

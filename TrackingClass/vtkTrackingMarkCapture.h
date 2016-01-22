@@ -72,7 +72,11 @@ private:
 };
 
 template<typename TrackerType>
-vtkStandardNewMacro(vtkTrackingMarkCapture<TrackerType>)
+//vtkStandardNewMacro(vtkTrackingMarkCapture<TrackerType>)
+vtkTrackingMarkCapture<TrackerType>* vtkTrackingMarkCapture<TrackerType>::New()
+{
+	return new  vtkTrackingMarkCapture<TrackerType>;
+}
 
 template<typename TrackerType>
 vtkTrackingMarkCapture<TrackerType>::vtkTrackingMarkCapture()

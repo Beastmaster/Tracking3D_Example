@@ -112,7 +112,7 @@ void vtkTrackingRegistrationBase::ComputeLandmarksCentroid()
 }
 
 /*
-
+Tobe continued
 */
 void vtkTrackingRegistrationBase::ComputeLandmarkPrincipalAxes()
 {
@@ -120,7 +120,7 @@ void vtkTrackingRegistrationBase::ComputeLandmarkPrincipalAxes()
 }
 
 /*
-
+Tobe continued
 */
 void vtkTrackingRegistrationBase::ComputeRMSDistanceLandmarksFromPrincipalAxes()
 {
@@ -129,6 +129,11 @@ void vtkTrackingRegistrationBase::ComputeRMSDistanceLandmarksFromPrincipalAxes()
 /*
 Description:
 	Start computing the error between the source point and the target point
+
+Main functions:
+	1. Set/Get input markers
+	2. Set Iterate Steps
+	3. Get transform matrix
 Return:
 	None
 */

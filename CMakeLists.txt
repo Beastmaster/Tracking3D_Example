@@ -21,6 +21,10 @@ include_directories(PolarisVicra)
 add_subdirectory(TrackingClass)
 include_directories(TrackingClass)
 
+add_subdirectory(Calibration)
+include_directories(Calibration)
+
+
 set( UI_FILES
 mainWindow.ui
 )
@@ -51,4 +55,4 @@ target_link_libraries(${PRJ} ${VTK_LIBRARIES})
 target_link_libraries(${PRJ} Polaris_Vicra_lib)
 target_link_libraries(${PRJ} ATC3DG_lib)
 target_link_libraries(${PRJ} vtkTracking3D)
-
+target_link_libraries(${PRJ} Calibration)

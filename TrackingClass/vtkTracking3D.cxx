@@ -196,6 +196,16 @@ int vtkTracking3D::ClearMarkers()
 	return 0;
 }
 
+/*
+1: success
+2: fail
+*/
+int vtkTracking3D::SetMarkerList(std::vector<double*> in)
+{
+	m_marker_list = in;
+	return 1;
+}
+
 std::vector<double*> vtkTracking3D::GetMarkerList()
 {
 	return this->m_marker_list;
@@ -308,7 +318,6 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 		//move actor here
 		GetActorPointer(m_ActorCollection, index)->SetPosition(temp[0], temp[1], temp[2]);
 		GetActorPointer(m_ActorCollection, index)->SetOrientation(trans->qx, trans->qy, trans->qz);
-
 		//this emit a signal to connect qt signal, to reslice 2D views
 		this->InvokeEvent(QIN_S_VTK_EVENT, this);
 		return 0;
@@ -379,6 +388,17 @@ void vtkTracking3D::SetInteractorStyle( vtkInteractorStyle* style)
 	m_InteractorStyle = style;
 	m_Interactor->SetInteractorStyle(style);
 }
+
+/*
+Description:
+	Get output of registration transform (vtkTransform)
+*/
+vtkSmartPointer<vtkTransform> vtkTracking3D:: GetRegisterTransform()
+{
+	return m_Transform;
+}
+
+
 /*
 Description:
 	Setup tracker device, check NULL point first
@@ -477,6 +497,9 @@ Description:
 */
 void vtkTracking3D::StartTracking()
 {
+	m_TimerCallBack->SetClientData(this);
+	m_TimerCallBack->SetCallback(TimerCallbackFunction);
+	m_Interactor->AddObserver(vtkCommand::TimerEvent, m_TimerCallBack);
 	m_TimerID = m_Interactor->CreateRepeatingTimer(m_interval);
 }
 
@@ -489,8 +512,13 @@ Description:
 void vtkTracking3D::StopTracking()
 {
 	m_Interactor->DestroyTimer(m_TimerID);
+	m_Interactor->RemoveAllObservers();
 }
 
+
+/*
+keypress functions, for test purpose
+*/
 void KeypressCallbackFunction(vtkObject* caller,long unsigned int eventId,void* clientData,void* callData)
 {
 	vtkSmartPointer<vtkTracking3D> tracking = static_cast<vtkTracking3D*> (clientData);
@@ -587,6 +615,52 @@ void TimerCallbackFunction(
 	tracking->GetRenderWindow()->Render();
 }
 
+
+/*
+Description:
+	Timer callback
+
+	you should add index: m_Obj_Tool_Map
+
+	When timer triggered, then new tool position is assigned.
+	And you will see tool moving with your tracking device.
+*/
+void TimerCallbackFunction2(
+	vtkObject* caller,
+	long unsigned int eventId,
+	void* clientData,
+	void* callData
+	)
+{
+	vtkSmartPointer<vtkTracking3D> tracking = static_cast<vtkTracking3D*> (clientData);
+
+	for (auto it = tracking->m_Obj_Tool_Map.begin(); it != tracking->m_Obj_Tool_Map.end(); ++it)
+	{
+		//QIN_Transform_Type trans;
+		QIN_Transform_Type* temp;
+		//memset(&trans, 0, sizeof(QIN_Transform_Type));
+		temp = tracking->m_tracker->GetTransform(it->second);
+		if (temp != NULL)
+		{
+			// construct transform
+			double* coor = tracking->GetRegisterTransform()->TransformPoint(temp->x, temp->y, temp->z);
+			//double* temp = m_LandMarkTransform->TransformVector(trans->x, trans->y, trans->z);
+
+			// put out
+			tracking->m_marker_tobe_set[0] = coor[0];
+			tracking->m_marker_tobe_set[1] = coor[1];
+			tracking->m_marker_tobe_set[2] = coor[2];
+			//this emit a signal to connect qt signal, to reslice 2D views
+			tracking->InvokeEvent(QIN_S_VTK_EVENT, tracking);
+			std::cout << it->first << ":" << temp->x << " " << temp->y << " " << temp->z << std::endl;
+		}
+		else
+		{
+			std::cout << "transform invalid" << std::endl;
+		}
+	}
+
+}
 
 
 

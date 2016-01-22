@@ -7,7 +7,17 @@ Description:
 	add OrthogonalPlanes
 */
 
-
+/*
+Manual2:
+	1. Set Tracker
+	2. Configure Tracker
+		This class use a base class of tracker, you should add a 
+		tracker_configuration_class pointer by hand. This 
+		pointer is not managed here, just call some functions.
+	3. Connect actor and tracker tool; if no actor connected, let the index_actor = 0
+	4. Use signal an slot to access coordinate (Find3DIndex to get slice index)
+	6. Start Timer and tracking 
+*/
 
 #ifndef __VTKTRACKING3D_H__
 #define __VTKTRACKING3D_H__
@@ -103,7 +113,6 @@ public:
 	//tracking function
 	void StartTracking();
 	void StopTracking();
-	void SetTrackerType(){};
 
 	// Add Functions
 	int AddObject( vtkSmartPointer< vtkActor > );
@@ -137,6 +146,8 @@ public:
 	vtkRenderer* GetDefaultRenderer();
 	vtkSmartPointer<vtkRenderWindow> GetRenderWindow();
 	vtkSmartPointer<vtkRenderWindowInteractor> GetInteractor();
+	vtkSmartPointer<vtkTransform> GetRegisterTransform();
+
 	void GetResliceIndex(int*);
 	void EnablePick();
 	void DisablePick();
@@ -148,6 +159,7 @@ public:
 	//marker control function
 	int ValidMarker();
 	int ClearMarkers();
+	int SetMarkerList(std::vector<double*>);
 	std::vector<double*> GetMarkerList();
 
 	//static function to find point 3d index from world coordinate
@@ -160,7 +172,6 @@ public:
 	std::map<int, int> m_Obj_Tool_Map;   //map: link index of actor and trackingTool
 
 	double m_marker_tobe_set[3];
-	//int m_index_tobe_set[3];
 
 	int m_SliceX;  
 	int m_SliceY;  
@@ -230,7 +241,12 @@ static void TimerCallbackFunction(
 	void* clientData,
 	void* callData
 	);
-
+static void TimerCallbackFunction2(
+	vtkObject* caller,
+	long unsigned int eventId,
+	void* clientData,
+	void* callData
+	);
 
 #endif
 

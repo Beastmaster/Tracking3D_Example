@@ -158,6 +158,7 @@ public:
 
 	//marker control function
 	int ValidMarker();
+	int ValidMarker(double* out);
 	int ClearMarkers();
 	int SetMarkerList(std::vector<double*>);
 	std::vector<double*> GetMarkerList();

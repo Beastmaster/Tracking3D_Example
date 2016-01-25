@@ -557,6 +557,25 @@ void TestPolaris()
 	auto polaris_tracker = new PloarisVicraConfiguration;
 }
 
+void TestTrack3D()
+{
+	auto track = vtkTracking3D::New();
+	auto interact = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+	auto style = vtkSmartPointer<vtkInteractorStyleImage>::New();
+	interact->SetInteractorStyle(style);
+	auto win = vtkSmartPointer<vtkRenderWindow>::New();
+	auto render = vtkSmartPointer<vtkRenderer>::New();
+	//win->AddRenderer(render);
+	interact->SetRenderWindow(win);
+	interact->Initialize();
+
+	track->SetInteractor(interact);
+
+	track->StartTracking();
+
+	//interact->Start();
+}
+
 int main(int argc, char** argv)
 {
 	//TestMesh();
@@ -565,6 +584,7 @@ int main(int argc, char** argv)
 	//TestOrthogonalPlane();
 	//TestTrackingMarkFunction();
 	//TestRegistration();
+	TestTrack3D();
 	//TestSliderWidget();
 
 	QApplication Reg_main_app(argc, argv);

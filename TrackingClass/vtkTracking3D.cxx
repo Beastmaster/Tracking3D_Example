@@ -65,7 +65,10 @@ int vtkTracking3D::AddPolySource(vtkSmartPointer<vtkPolyData> poly)
 {
 	vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
 	mapper->ScalarVisibilityOff();
+#if VTK_MAJOR_VERSION <= 5	mapper->SetInput(poly);
+#else
 	mapper->SetInputData(poly);
+#endif
 	vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
 	actor->SetMapper(mapper);
 	this->AddObject(actor);
@@ -185,6 +188,17 @@ int vtkTracking3D::ValidMarker()
 	std::cout << "The "<<m_marker_list.size() << " marker is set" << std::endl;
 	return 0;
 }
+int vtkTracking3D::ValidMarker(double* out)
+{
+	double* mar;
+	mar = new double[3];
+	memcpy(mar, m_marker_tobe_set, 3 * sizeof(double));
+	memcpy(mar, out, 3 * sizeof(double));
+	m_marker_list.push_back(mar);
+
+	std::cout << "The " << m_marker_list.size() << " marker is set" << std::endl;
+	return 0;
+}
 
 int vtkTracking3D::ClearMarkers()
 {
@@ -241,9 +255,14 @@ int vtkTracking3D::SetImage(vtkSmartPointer<vtkImageData> in)
 	m_Image = vtkSmartPointer<vtkImageData>::New();
 	m_Image = in;
 
+#if VTK_MAJOR_VERSION <= 5	m_PlaneX->SetInput(m_Image);
+	m_PlaneY->SetInput(m_Image);
+	m_PlaneZ->SetInput(m_Image);
+#else
 	m_PlaneX->SetInputData(m_Image);
 	m_PlaneY->SetInputData(m_Image);
 	m_PlaneZ->SetInputData(m_Image);
+#endif
 	m_PlaneX->SetPlaneOrientationToXAxes();
 	m_PlaneY->SetPlaneOrientationToYAxes();
 	m_PlaneZ->SetPlaneOrientationToZAxes();
@@ -498,7 +517,7 @@ Description:
 void vtkTracking3D::StartTracking()
 {
 	m_TimerCallBack->SetClientData(this);
-	m_TimerCallBack->SetCallback(TimerCallbackFunction);
+	m_TimerCallBack->SetCallback(TimerCallbackFunction2);
 	m_Interactor->AddObserver(vtkCommand::TimerEvent, m_TimerCallBack);
 	m_TimerID = m_Interactor->CreateRepeatingTimer(m_interval);
 }
@@ -632,6 +651,7 @@ void TimerCallbackFunction2(
 	void* callData
 	)
 {
+	std::cout << "callback function2 called" << std::endl;
 	vtkSmartPointer<vtkTracking3D> tracking = static_cast<vtkTracking3D*> (clientData);
 
 	for (auto it = tracking->m_Obj_Tool_Map.begin(); it != tracking->m_Obj_Tool_Map.end(); ++it)

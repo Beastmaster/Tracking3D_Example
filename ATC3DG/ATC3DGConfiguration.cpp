@@ -112,14 +112,53 @@ Input:
 	index: index of sensor to check, count from 0
 Return:
 	0: valid
-	1: invalid
+	others: invalid
 */
-int ATC3DGConfiguration::GetToolValidation(int index) 
+int ATC3DGConfiguration::GetToolValidation(int sensorID) 
 { 
+	unsigned int status = GetSensorStatus(sensorID);
 
+	switch (status)
+	{	
+		case VALID_STATUS :
+		{
+			return 0;
+		}
+		case  GLOBAL_ERROR: 
+		{
+			return 1;
+		}
+		case  NOT_ATTACHED: 
+		{
+			return 2;
+		}
+		case  SATURATED:	  
+		{
+			return 3;
+		}
+		case  BAD_EEPROM:	 
+		{
+			return 4;
+		}
+		case  HARDWARE:	 
+		{
+			return 5;
+		}
+		case  NON_EXISTENT: 
+		{
+			return 6;
+		}
+		case  UNINITIALIZED:
+		{
+			return 7;
+		}
+		default:
+		{ 
+			return 8;
+		}
+	}
 
-	return 0; 
-};
+}
 
 /*
 Description:
@@ -132,8 +171,7 @@ Return:
 */
 int ATC3DGConfiguration::GetTransformValidation(int index)
 {
-
-	return 0;
+	return GetToolValidation(index);
 }
 
 
@@ -155,7 +193,6 @@ int ATC3DGConfiguration::GetTrackingStatus()
 	{
 		//if the status is tracking, then check device status
 		//1. Check Transmitter status
-
 		return 0;
 	}
 	//If the global status is not Tracking,
@@ -192,7 +229,7 @@ Return:
 	0:     success
 	other: fail
 */
-int ATC3DGConfiguration£º£ºGetTransformValidation(int)
+int ATC3DGConfiguration£º£ºGetTransformValidation(int sensorID)
 {
 	return 0; 
 }

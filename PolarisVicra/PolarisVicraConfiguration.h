@@ -111,6 +111,7 @@ private:
 	std::string
 		m_szSystemMode,			/* system operating mode */
 		m_szSerialNo,			/* serial number */
+		m_szTypeOfSystem,		/* system type */
 		m_szToolRev,			/* tool reversion */
 		m_szToolType,			/* tool type */
 		m_szPartNumber,			/* part number */

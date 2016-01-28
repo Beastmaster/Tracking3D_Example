@@ -40,8 +40,9 @@ PloarisVicraConfiguration::PloarisVicraConfiguration()
 	m_nTrackingMode = 0;		    //used in getdatafunction
 	m_szFrameNumber = 0;		    //display frame number;
 	//device information		    
-	m_szSystemMode = "";		    	/* system operating mode */
+	m_szSystemMode = "";		    /* system operating mode */
 	m_szSerialNo = "";			    /* serial number */
+	m_szTypeOfSystem = "";			/* system type */
 	m_szToolRev = "";			    /* tool reversion */
 	m_szToolType = "";			    /* tool type */
 	m_szPartNumber = "";		    	/* part number */
@@ -87,10 +88,21 @@ int PloarisVicraConfiguration::StartTracking()
 		m_szSystemMode = "System Tracking";
 
 		SetMode(MODE_TRACKING);
+
+		//Get data onece to refresh the buffs
+		nGetSystemTransformData();
+		std::cout << "Tracker Device Information:"  << std::endl;
+		std::cout << "SystemMode" << m_szSystemMode << std::endl;
+		std::cout << "SerialNo"   << m_szSerialNo   << std::endl;
+		std::cout << "ToolRev"    << m_szToolRev    << std::endl;
+		std::cout << "ToolType"   << m_szToolType   << std::endl;
+		std::cout << "PartNumber" << m_szPartNumber << std::endl;
+		std::cout << "ManufID"    << m_szManufID    << std::endl;
 		return 0;
 	}
 	else
 	{
+		std::cout << "Cannot Start Tracking: Device ERROR! " << std::endl;
 		return 1;
 	}
 }
@@ -218,36 +230,42 @@ int  PloarisVicraConfiguration::ConfigureTracker()
 				/*
 				Post a message here to indicate system type
 				*/
-				std::cout << "System Type is:";
+				std::cout << "System Type is: ";
 				switch (this->m_dtSystemInformation.nTypeofSystem)
 				{
 					case		POLARIS_SYSTEM:
 					{
+						m_szTypeOfSystem = "Polaris system";
 						std::cout << "Polaris system" << std::endl;
 						break;
 					}
 					case		AURORA_SYSTEM:
 					{
+						m_szTypeOfSystem = "Aurora system";
 						std::cout << "Aurora system" << std::endl;
 						break;
 					}
 					case		ACCEDO_SYSTEM:
 					{
+						m_szTypeOfSystem = "Accedo system";
 						std::cout << "Accedo system" << std::endl;
 						break;
 					}
 					case		VICRA_SYSTEM:
 					{
+						m_szTypeOfSystem = "Polaris Vicra system";
 						std::cout << "Polaris Vicra system" << std::endl;
 						break;
 					}
 					case		SPECTRA_SYSTEM:
 					{
+						m_szTypeOfSystem = "Spectra system";
 						std::cout << "Spectra system" << std::endl;
 						break;
 					}
 					default:
 					{
+						m_szTypeOfSystem = "Unknown system";
 						std::cout << "Unknown system" << std::endl;
 						break;
 					}
@@ -398,7 +416,7 @@ int PloarisVicraConfiguration::GetToolValidation( int index)
 	if (m_PortID.size()<1)
 	{
 		std::cout << "No tool loaded" << std::endl;
-		return 0;
+		return 1;
 	}
 	if (this->m_dtHandleInformation[ m_PortID[index] ].HandleInfo.bInitialized > 0 &&
 		this->m_dtHandleInformation[ m_PortID[index] ].szToolType[1] != '8')

@@ -162,12 +162,13 @@ int ATC3DGConfiguration::GetToolValidation(int sensorID)
 
 /*
 Description:
-	Get the validation status of transform by index
-Input:
-	index: index of sensor to check, count from 0
+	This function is for checking the validation of the transform
+	information from a sensor. In EM tracking system, you can always
+	get a valid transform, so we set the flag to 0 (success)
+
 Return:
-	0: valid
-	1: invalid
+	0:     success
+	other: fail
 */
 int ATC3DGConfiguration::GetTransformValidation(int index)
 {
@@ -217,21 +218,6 @@ int ATC3DGConfiguration::GetTrackingStatus()
 	{
 		return 5;
 	}
-}
-
-/*
-Description:
-	This function is for checking the validation of the transform
-	information from a sensor. In EM tracking system, you can always
-	get a valid transform, so we set the flag to 0 (success)
-
-Return:
-	0:     success
-	other: fail
-*/
-int ATC3DGConfiguration£º£ºGetTransformValidation(int sensorID)
-{
-	return 0; 
 }
 
 

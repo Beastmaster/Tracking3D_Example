@@ -63,6 +63,9 @@ public:
 	// Returns human-readable description of the error occurred (non-empty if ComputePivotCalibration returns with failure)
 	vtkGetMacro(ErrorText, std::string);
 
+
+	static void QuaternionToMatrix(vtkMatrix4x4*, double*);
+	static void MatrixToQuaternion(vtkMatrix4x4*, double*);
 protected:
 	PivotCalibration();
 	~PivotCalibration();
@@ -86,6 +89,7 @@ private:
 	double PivotRMSE;
 	double SpinRMSE;
 	std::string ErrorText;
+
 
 };
 

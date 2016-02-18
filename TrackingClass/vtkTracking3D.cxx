@@ -34,6 +34,8 @@ vtkTracking3D::vtkTracking3D()
 	m_Transform = vtkSmartPointer<vtkTransform>::New();
 	m_Transform->PostMultiply(); //this is the key line
 
+	m_ToolTipCalibrationMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+
 	//m_tracker = new TrackerType;
 	m_tracker = NULL;
 
@@ -434,7 +436,14 @@ void vtkTracking3D::SetTracker(TrackerType* in)
 	m_tracker = in; 
 };
 
-
+/*
+Description:
+	Set up tool tip to tool calibration matrix	
+*/
+void vtkTracking3D::SetToolTipCalibrationMatrix(vtkMatrix4x4* matrix)
+{
+	m_ToolTipCalibrationMatrix = matrix;
+}
 
 
 /*
@@ -517,7 +526,7 @@ Description:
 void vtkTracking3D::StartTracking()
 {
 	m_TimerCallBack->SetClientData(this);
-	m_TimerCallBack->SetCallback(TimerCallbackFunction2);
+	m_TimerCallBack->SetCallback(TimerCallbackFunction);
 	m_Interactor->AddObserver(vtkCommand::TimerEvent, m_TimerCallBack);
 	m_TimerID = m_Interactor->CreateRepeatingTimer(m_interval);
 }

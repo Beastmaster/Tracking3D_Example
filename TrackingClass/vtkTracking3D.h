@@ -139,6 +139,7 @@ public:
 	void SetInteractor(vtkSmartPointer<vtkRenderWindowInteractor> inct);
 	void SetInteractorStyle( vtkInteractorStyle* );
 	void SetTracker(TrackerType* in);
+	void SetToolTipCalibrationMatrix(vtkMatrix4x4*);
 	//int SetLandMarks(std::vector<double*>src, std::vector<double*> tgt);//test function
 
 	// Get Functions
@@ -192,13 +193,15 @@ protected:
 	std::vector<double*> m_marker_list;
 
 private:
+	// image to display
 	vtkSmartPointer<vtkImageData> m_Image;
-	/*
-	This Transform is used to transform raw tracking device position to
-	registered coordinate.
-	*/
+	
+	//This Transform is used to transform raw tracking device position to registered coordinate.
 	vtkSmartPointer<vtkTransform> m_Transform;
-	//vtkSmartPointer<vtkLandmarkTransform> m_LandMarkTransform;  //test
+	
+	// Tooltip to tool calibration matrix
+	vtkSmartPointer<vtkMatrix4x4> m_ToolTipCalibrationMatrix;
+
 	//
 	vtkSmartPointer<vtkRenderer> m_CurrentRenderer;
 	// renderer collections

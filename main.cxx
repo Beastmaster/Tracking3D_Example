@@ -584,7 +584,7 @@ int main(int argc, char** argv)
 	//TestOrthogonalPlane();
 	//TestTrackingMarkFunction();
 	//TestRegistration();
-	TestTrack3D();
+	//TestTrack3D();
 	//TestSliderWidget();
 
 	QApplication Reg_main_app(argc, argv);

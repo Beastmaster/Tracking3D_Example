@@ -37,7 +37,7 @@ PloarisVicraConfiguration::PloarisVicraConfiguration()
 	m_bUse0x0800Option = false;     // use 0x0800opetion
 
 	m_nCOMPort = 0;				    /* the current com port number */
-	m_nTrackingMode = 0;		    //used in getdatafunction
+	m_nTrackingMode = 0;		    //used in getdatafunction (TX/BX mode)
 	m_szFrameNumber = 0;		    //display frame number;
 	//device information		    
 	m_szSystemMode = "";		    /* system operating mode */
@@ -328,6 +328,8 @@ Return:
 */
 int PloarisVicraConfiguration::GetTrackingStatus()
 {
+	nGetSystemTransformData();
+
 	if (m_OperatingStatus == "Tracking Mode")
 		return 0;
 	else if (m_OperatingStatus == "Pre Init Mode")
@@ -346,15 +348,22 @@ int PloarisVicraConfiguration::GetTrackingStatus()
 Description:
 	Get Transform from tracker sensor
 	If cannot get transform, you will get a transform full of 0 value
+Input:
+	index: the index of the tool count from 0. By order in ini file parameters
 Return:
 	If the transform is valid, return a pointer
 	Else return a pointer to a 0 transform
 	(for ease of use)
+	If index out of range
 */
 QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 {
 	nGetSystemTransformData();
-
+	
+	if (m_Transform == NULL)
+	{
+		m_Transform = new QIN_Transform_Type;
+	}
 	if (!m_bIsTracking)  // not tracking
 	{
 		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
@@ -372,12 +381,28 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 	auto it = std::find(m_PortID.begin(), m_PortID.end(), index2);
 	if (it != m_PortID.end())
 	{
-		//return m_Transform[index];
-		if (m_Transform == NULL)
+		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		// check transform validation
+		if (this->m_dtHandleInformation[index2].Xfrms.ulFlags != TRANSFORM_VALID )
 		{
-			m_Transform = new QIN_Transform_Type;
+			std::cout << "Transform Invalid!" << std::endl;
+			return m_Transform;
 		}
-		memset(m_Transform,0,sizeof(QIN_Transform_Type));
+		if (this->m_dtHandleInformation[index2].HandleInfo.bPartiallyOutOfVolume)
+		{
+			std::cout << "Tool " << index << " Partially out of volume" << std::endl;
+			return m_Transform;
+		}
+		else if (this->m_dtHandleInformation[index2].HandleInfo.bOutOfVolume)
+		{
+			std::cout << "Tool " << index << " Out of volume" << std::endl;
+			return m_Transform;
+		}
+		else
+		{
+			std::cout << "Tool " << index << " Within volume" << std::endl;
+		}
+			
 		
 		m_Transform->x  = m_Transform_Map[index2]->translation.x;
 		m_Transform->y  = m_Transform_Map[index2]->translation.y;
@@ -387,16 +412,10 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 		m_Transform->qy = m_Transform_Map[index2]->rotation.qy;
 		m_Transform->qz = m_Transform_Map[index2]->rotation.qz;
 		m_Transform->error = m_Transform_Map[index2]->fError;
-
 		return m_Transform;
 	}
 	else
 	{
-		//return m_Transform[index];
-		if (m_Transform == NULL)
-		{
-			m_Transform = new QIN_Transform_Type;
-		}
 		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
 		return m_Transform;
 	}
@@ -432,22 +451,41 @@ int PloarisVicraConfiguration::GetToolValidation( int index)
 /*
 Description:
 	Check validation of a certain transform
+	Transform is still avaliable when partially/fully missed
 Input:
 	Index of certain handle, count from 0
 Return:
 	0: Success
-	1: Fail
+	1: Partially out of volume
+	2: Out of volume
+	4: Transform invalid
 */
 int PloarisVicraConfiguration::GetTransformValidation(int index)
 {
+	nGetSystemTransformData();
 	if (this->m_dtHandleInformation[ m_PortID[index] ].Xfrms.ulFlags == TRANSFORM_VALID)
 	{
+		if (this->m_dtHandleInformation[m_PortID[index]].HandleInfo.bPartiallyOutOfVolume)
+		{
+			std::cout << "Tool " << index << " Partially out of volume" << std::endl;
+			return 1;
+		}
+		else if (this->m_dtHandleInformation[m_PortID[index]].HandleInfo.bOutOfVolume)
+		{
+			std::cout << "Tool " << index << " Out of volume" << std::endl;
+			return 2;
+		}
+		else
+		{
+			std::cout << "Tool " << index << " Within volume" << std::endl;
+			return 0;
+		}
 		return 0;
 	}
 	else
 	{
-		std::cout << "Transform " << index << " In valid" << std::endl;
-		return 1;
+		std::cout << "Transform" << index << "Invalid" << std::endl;
+		return 4;
 	}
 }
 
@@ -735,7 +773,15 @@ void PloarisVicraConfiguration::SetMode(int nMode)
 	}
 }
 
-
+/*
+Return:
+	0: success
+	1: not tracking
+	2: Tx mode transform failed
+	3: Bx mode transform failed
+	4: transformStatus is "Not Tracking"
+	5: Port is occupied
+*/
 int PloarisVicraConfiguration::nGetSystemTransformData()
 {
 	char
@@ -750,9 +796,8 @@ int PloarisVicraConfiguration::nGetSystemTransformData()
 	if (!m_bIsTracking)
 	{
 		m_TransformStatus = "Not Tracking";
-		return 0;
+		return 1;
 	}
-	
 
 
 	/*
@@ -762,18 +807,17 @@ int PloarisVicraConfiguration::nGetSystemTransformData()
 	if (m_nTrackingMode == 0)
 	{
 		if (!this->nGetTXTransforms(m_bUse0x0800Option ? true : false))
-			return 0;
+			return 2;
 	} /* if */
 	else if (m_nTrackingMode == 1)
 	{
 		if (!this->nGetBXTransforms(m_bUse0x0800Option ? true : false))
-			return 0;
+			return 3;
 	} /* else if */
 
 	/* check for system flags */
 	m_TempetureStatus  = this->m_dtSystemInformation.bTemperatureOutOfRange ? "Temperature out of range" : "Temperature within range";
 	m_DiagnosticStatus = this->m_dtSystemInformation.bDiagnosticsPending;
-
 
 	/*
 	* if a new port has become occupied we do the following:
@@ -788,7 +832,7 @@ int PloarisVicraConfiguration::nGetSystemTransformData()
 			this->nStartTracking())
 		{
 			m_TransformStatus = "Not Tracking";
-			return 1;
+			return 4;
 		}/* if */
 
 		/*
@@ -797,7 +841,7 @@ int PloarisVicraConfiguration::nGetSystemTransformData()
 		*/
 		m_bStopTracking = true;
 		m_bIsTracking = FALSE;
-		return 0;
+		return 5;
 	} 
 
 	for (auto it = m_PortID.begin(); it != m_PortID.end(); ++it)//for (int i = 0; i < NO_HANDLES; i++)
@@ -835,11 +879,11 @@ int PloarisVicraConfiguration::nGetSystemTransformData()
 				memcpy(m_Transform_Map[i], &(this->m_dtHandleInformation[i].Xfrms), sizeof(TransformInformation));
 
 				//====== this block get 3d position  ======//
-				sprintf(pszTemp, "%.2f", this->m_dtHandleInformation[i].Xfrms.translation.x); std::cout << pszTemp << std::endl;
-				sprintf(pszTemp, "%.2f", this->m_dtHandleInformation[i].Xfrms.translation.y); std::cout << pszTemp << std::endl;
-				sprintf(pszTemp, "%.2f", this->m_dtHandleInformation[i].Xfrms.translation.z); std::cout << pszTemp << std::endl;
+				sprintf(pszTemp, "%.2f", this->m_dtHandleInformation[i].Xfrms.translation.x); //std::cout << pszTemp << std::endl;
+				sprintf(pszTemp, "%.2f", this->m_dtHandleInformation[i].Xfrms.translation.y); //std::cout << pszTemp << std::endl;
+				sprintf(pszTemp, "%.2f", this->m_dtHandleInformation[i].Xfrms.translation.z); //std::cout << pszTemp << std::endl;
 
-				// use Euler angles display
+				//========= use Euler angles display =========//
 				if (!m_bUseEulerAngles)
 				{
 					sprintf(pszTemp, "%.4f", this->m_dtHandleInformation[i].Xfrms.rotation.q0);
@@ -847,8 +891,7 @@ int PloarisVicraConfiguration::nGetSystemTransformData()
 					sprintf(pszTemp, "%.4f", this->m_dtHandleInformation[i].Xfrms.rotation.qy);
 					sprintf(pszTemp, "%.4f", this->m_dtHandleInformation[i].Xfrms.rotation.qz);
 				}
-				// use normal angles format
-				else
+				else    // use normal angles format
 				{
 					CvtQuatToEulerRotation(&this->m_dtHandleInformation[i].Xfrms.rotation, &dtEulerRot);
 					sprintf(pszTemp, "%.4f", dtEulerRot.fYaw);
@@ -856,15 +899,16 @@ int PloarisVicraConfiguration::nGetSystemTransformData()
 					sprintf(pszTemp, "%.4f", dtEulerRot.fRoll);
 					sprintf(pszTemp, "");
 				}
+
 				//======= transorm error ========//
 				sprintf(pszTemp, "%.4f", this->m_dtHandleInformation[i].Xfrms.fError);
 
-				if (this->m_dtHandleInformation[i].HandleInfo.bPartiallyOutOfVolume)
-					std::cout << "Tool " << i << " Partially out of volume" << std::endl;
-				else if (this->m_dtHandleInformation[i].HandleInfo.bOutOfVolume)
-					std::cout << "Tool "<< i <<" Out of volume" << std::endl;
-				else
-					std::cout << "Tool " << i << " Within volume" << std::endl;
+				//if (this->m_dtHandleInformation[i].HandleInfo.bPartiallyOutOfVolume)
+				//	std::cout << "Tool " << i << " Partially out of volume" << std::endl;
+				//else if (this->m_dtHandleInformation[i].HandleInfo.bOutOfVolume)
+				//	std::cout << "Tool "<< i <<" Out of volume" << std::endl;
+				//else
+				//	std::cout << "Tool " << i << " Within volume" << std::endl;
 			}
 			//============= transform invalid  ====================//
 			else   

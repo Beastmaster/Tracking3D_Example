@@ -67,7 +67,7 @@ public:
 	1. Configure Tracker
 	2. StartTracking
 	3. StopTracking
-	*/
+	*/ 
 	virtual int  StartTracking();
 	virtual int  StopTracking();
 	virtual int  GetTrackingStatus();
@@ -81,7 +81,7 @@ public:
 	std::string GetSerialNo(){ return m_szSerialNo; };			    /* serial number */
 	std::string GetTypeOfSystem(){ return m_szTypeOfSystem; };		/* system type */
 	std::string GetToolReversion(){ return m_szToolRev; };			/* tool reversion */
-	std::string GetToolType(){return m_szToolType};			        /* tool type */
+	std::string GetToolType(){ return m_szToolType; };			    /* tool type */
 	std::string GetPartNumber(){ return m_szPartNumber; };			/* part number */
 	std::string GetManufID(){ return m_szManufID; };			    /* manufacturer ID */
 
@@ -109,13 +109,13 @@ private:
 		m_bPortEnabled,			/* port enable status */
 		m_bPortInitialized,		/* port initialization flag */
 		
-		m_bUseEulerAngles,   // display euler mode
-		m_bUse0x0800Option;  // use 0x0800opetion
+		m_bUseEulerAngles,		// display euler mode
+		m_bUse0x0800Option;		// use 0x0800opetion
 
 	int
 		m_nCOMPort,				/* the current com port number */
-		m_nTrackingMode,//used in getdatafunction
-		m_szFrameNumber;//display purpose
+		m_nTrackingMode,		// 0: TX mode,   1: BX mode
+		m_szFrameNumber;		//display purpose
 	//device information
 	std::string
 		m_szSystemMode,			/* system operating mode */

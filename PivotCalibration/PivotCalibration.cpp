@@ -1,418 +1,349 @@
 /*
 Author: QIN Shuo
-Date: 2015/01/20
 Organization: RC-MIC (CUHK)
+Date: 2016/01/18
 
 Description:
-	Pivot Calibration lib
+This file is copied from PlusLib project
 
-Calibration the tool and the trakcer data
-
+Copyright: See below
 */
 
+
+
+/*=Plus=header=begin======================================================
+  Program: Plus
+  Copyright (c) Laboratory for Percutaneous Surgery. All rights reserved.
+  See License.txt for details.
+=========================================================Plus=header=end*/ 
 
 #include "PivotCalibration.h"
 
-// VNL includes
-#include "vnl/algo/vnl_symmetric_eigensystem.h"
-#include "vnl/vnl_vector.h"
-#include "vnl/algo/vnl_svd.h"
-#include "vnl/algo/vnl_determinant.h"
+#include "vtkObjectFactory.h"
+#include "vtkTransform.h"
+#include "vtkXMLUtilities.h"
+#include "vtkMath.h"
+#include "vtksys/SystemTools.hxx"
 
 
 
+vtkStandardNewMacro(PivotCalibration);
 
-static const double PARALLEL_ANGLE_THRESHOLD_DEGREES = 20.0;
-
+//-----------------------------------------------------------------------------
 PivotCalibration::PivotCalibration()
 {
-	this->ToolTipToToolMatrix = vtkMatrix4x4::New();
-	this->MinimumOrientationDifferenceDeg = 15.0;
+  this->PivotPointToMarkerTransformMatrix = NULL;
+  this->CalibrationError = -1.0;
+  this->ObjectMarkerCoordinateFrame = NULL;
+  this->ReferenceCoordinateFrame = NULL;
+  this->ObjectPivotPointCoordinateFrame = NULL;
+
+  this->PivotPointPosition_Reference[0] = 0.0;
+  this->PivotPointPosition_Reference[1] = 0.0;
+  this->PivotPointPosition_Reference[2] = 0.0;
+  this->PivotPointPosition_Reference[3] = 1.0;
 }
 
+//-----------------------------------------------------------------------------
 PivotCalibration::~PivotCalibration()
 {
-	this->ClearToolToReferenceMatrices();
-	this->ToolTipToToolMatrix->Delete();
+  this->SetPivotPointToMarkerTransformMatrix(NULL);
+  this->RemoveAllCalibrationPoints();
 }
 
-void PivotCalibration::AddToolToReferenceMatrix(vtkMatrix4x4* transformMatrix)
+//-----------------------------------------------------------------------------
+void PivotCalibration::RemoveAllCalibrationPoints()
 {
-	this->ToolToReferenceMatrices.push_back(transformMatrix);
-}
-
-
-
-void PivotCalibration::ClearToolToReferenceMatrices()
-{
-	std::vector< vtkSmartPointer<vtkMatrix4x4> >::const_iterator it;
-	std::vector< vtkSmartPointer<vtkMatrix4x4> >::const_iterator matricesEnd = this->ToolToReferenceMatrices.end();
-	this->ToolToReferenceMatrices.clear();
-}
-
-
-
-double PivotCalibration::GetOrientationDifferenceDeg(vtkMatrix4x4* aMatrix, vtkMatrix4x4* bMatrix)
-{
-	vtkSmartPointer<vtkMatrix4x4> diffMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
-	vtkSmartPointer<vtkMatrix4x4> invBmatrix = vtkSmartPointer<vtkMatrix4x4>::New();
-
-	vtkMatrix4x4::Invert(bMatrix, invBmatrix);
-
-	vtkMatrix4x4::Multiply4x4(aMatrix, invBmatrix, diffMatrix);
-
-	vtkSmartPointer<vtkTransform> diffTransform = vtkSmartPointer<vtkTransform>::New();
-	diffTransform->SetMatrix(diffMatrix);
-
-	double angleDiff_rad = vtkMath::RadiansFromDegrees(diffTransform->GetOrientationWXYZ()[0]);
-
-	double normalizedAngleDiff_rad = atan2(sin(angleDiff_rad), cos(angleDiff_rad)); // normalize angle to domain -pi, pi 
-
-	return vtkMath::DegreesFromRadians(normalizedAngleDiff_rad);
-}
-
-
-double PivotCalibration::GetMaximumToolOrientationDifferenceDeg()
-{
-	// this will store the maximum difference in orientation between the first transform and all the other transforms
-	double maximumOrientationDifferenceDeg = 0;
-
-	std::vector<vtkSmartPointer<vtkMatrix4x4> >::const_iterator it;
-	std::vector<vtkSmartPointer<vtkMatrix4x4> >::const_iterator matricesEnd = this->ToolToReferenceMatrices.end();
-	unsigned int currentRow;
-	vtkMatrix4x4* referenceOrientationMatrix = this->ToolToReferenceMatrices.front();
-	for (currentRow = 0, it = this->ToolToReferenceMatrices.begin(); it != matricesEnd; it++, currentRow += 3)
-	{
-		double orientationDifferenceDeg = GetOrientationDifferenceDeg(referenceOrientationMatrix, (*it));
-		if (maximumOrientationDifferenceDeg < orientationDifferenceDeg)
-		{
-			maximumOrientationDifferenceDeg = orientationDifferenceDeg;
-		}
-	}
-	return maximumOrientationDifferenceDeg;
+  for (std::list< vtkMatrix4x4* >::iterator it=this->MarkerToReferenceTransformMatrixArray.begin();
+    it!=this->MarkerToReferenceTransformMatrixArray.end(); ++it)
+  {
+    (*it)->Delete();
+  }
+  this->MarkerToReferenceTransformMatrixArray.clear();
+  this->OutlierIndices.clear();
 }
 
 /*
-Description:
-	
+Return:
+	0: success
+	1: fail
 */
-bool PivotCalibration::ComputePivotCalibration()
+int PivotCalibration::InsertNextCalibrationPoint(vtkMatrix4x4* aMarkerToReferenceTransformMatrix)
 {
-	if (this->ToolToReferenceMatrices.size() < 10)
-	{
-		this->ErrorText = "Not enough input transforms are available";
-		return false;
-	}
-
-	if (this->GetMaximumToolOrientationDifferenceDeg() < this->MinimumOrientationDifferenceDeg)
-	{
-		this->ErrorText = "Not enough variation in the input transforms";
-		return false;
-	}
-
-	unsigned int rows = 3 * this->ToolToReferenceMatrices.size();
-	unsigned int columns = 6;
-
-
-	vnl_matrix<double> A(rows, columns);
-
-	vnl_matrix<double> minusI(3, 3, 0);
-	minusI(0, 0) = -1;
-	minusI(1, 1) = -1;
-	minusI(2, 2) = -1;
-
-	vnl_matrix<double> R(3, 3);
-	vnl_vector<double> b(rows);
-	vnl_vector<double> x(columns);
-	vnl_vector<double> t(3);
-
-	std::vector<vtkSmartPointer<vtkMatrix4x4> >::const_iterator it;
-	std::vector<vtkSmartPointer<vtkMatrix4x4> >::const_iterator matricesEnd = this->ToolToReferenceMatrices.end();
-	unsigned int currentRow;
-	vtkMatrix4x4* referenceOrientationMatrix = this->ToolToReferenceMatrices.front();
-	for (currentRow = 0, it = this->ToolToReferenceMatrices.begin(); it != matricesEnd; it++, currentRow += 3)
-	{
-		for (int i = 0; i < 3; i++)
-		{
-			t(i) = (*it)->GetElement(i, 3);
-		}
-		t *= -1;
-		b.update(t, currentRow);
-
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < 3; j++)
-			{
-				R(i, j) = (*it)->GetElement(i, j);
-			}
-		}
-		A.update(R, currentRow, 0);
-		A.update(minusI, currentRow, 3);
-	}
-
-	vnl_svd<double> svdA(A);
-	svdA.zero_out_absolute(1e-1);
-	x = svdA.solve(b);
-
-	//set the RMSE
-	this->PivotRMSE = (A * x - b).rms();
-
-	//set the transformation
-	this->ToolTipToToolMatrix->SetElement(0, 3, x[0]);
-	this->ToolTipToToolMatrix->SetElement(1, 3, x[1]);
-	this->ToolTipToToolMatrix->SetElement(2, 3, x[2]);
-
-	this->ErrorText.empty();
-	return true;
+  vtkMatrix4x4* markerToReferenceTransformMatrixCopy = vtkMatrix4x4::New();
+  markerToReferenceTransformMatrixCopy->DeepCopy(aMarkerToReferenceTransformMatrix);
+  this->MarkerToReferenceTransformMatrixArray.push_back(markerToReferenceTransformMatrixCopy);  
+  return 0; 
 }
 
-bool PivotCalibration::ComputeSpinCalibration(bool snapRotation)
-{
-	if (this->ToolToReferenceMatrices.size() < 10)
-	{
-		this->ErrorText = "Not enough input transforms are available";
-		return false;
-	}
-
-	if (this->GetMaximumToolOrientationDifferenceDeg() < this->MinimumOrientationDifferenceDeg)
-	{
-		this->ErrorText = "Not enough variation in the input transforms";
-		return false;
-	}
-
-	// Setup our system to find the axis of rotation
-	unsigned int rows = 3, columns = 3;
-
-	vnl_matrix<double> A(rows, columns, 0);
-
-	vnl_matrix<double> I(3, 3, 0);
-	I.set_identity();
-
-	vnl_matrix<double> RI(rows, columns);
-
-
-	// this will store the maximum difference in orientation between the first transform and all the other transforms
-	double maximumOrientationDifferenceDeg = 0;
-
-	std::vector< vtkSmartPointer<vtkMatrix4x4> >::const_iterator previt = this->ToolToReferenceMatrices.end();
-	for (std::vector< vtkSmartPointer<vtkMatrix4x4> >::const_iterator it = this->ToolToReferenceMatrices.begin(); it != this->ToolToReferenceMatrices.end(); it++)
-	{
-		if (previt == this->ToolToReferenceMatrices.end())
-		{
-			previt = it;
-			continue; // No comparison to make for the first matrix
-		}
-
-		vtkSmartPointer< vtkMatrix4x4 > itinverse = vtkSmartPointer< vtkMatrix4x4 >::New();
-		vtkMatrix4x4::Invert((*it), itinverse);
-
-		vtkSmartPointer< vtkMatrix4x4 > instRotation = vtkSmartPointer< vtkMatrix4x4 >::New();
-		vtkMatrix4x4::Multiply4x4(itinverse, (*previt), instRotation);
-
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < 3; j++)
-			{
-				RI(i, j) = instRotation->GetElement(i, j);
-			}
-		}
-
-		RI = RI - I;
-		A = A + RI.transpose() * RI;
-
-		previt = it;
-	}
-
-	// Note: If the needle orientation protocol changes, only the definitions of shaftAxis and secondaryAxes need to be changed
-	// Define the shaft axis and the secondary shaft axis
-	// Current needle orientation protocol dictates: shaft axis -z, orthogonal axis +x
-	// If StylusX is parallel to ShaftAxis then: shaft axis -z, orthogonal axis +y
-	vnl_vector<double> shaftAxis_Shaft(columns, 0); shaftAxis_Shaft(0) = 0; shaftAxis_Shaft(1) = 0; shaftAxis_Shaft(2) = -1;
-	vnl_vector<double> orthogonalAxis_Shaft(columns, 0); orthogonalAxis_Shaft(0) = 1; orthogonalAxis_Shaft(1) = 0; orthogonalAxis_Shaft(2) = 0;
-	vnl_vector<double> backupAxis_Shaft(columns, 0); backupAxis_Shaft(0) = 0; backupAxis_Shaft(1) = 1; backupAxis_Shaft(2) = 0;
-
-	// Find the eigenvector associated with the smallest eigenvalue
-	// This is the best axis of rotation over all instantaneous rotations
-	vnl_matrix<double> eigenvectors(columns, columns, 0);
-	vnl_vector<double> eigenvalues(columns, 0);
-	vnl_symmetric_eigensystem_compute(A, eigenvectors, eigenvalues);
-	// Note: eigenvectors are ordered in increasing eigenvalue ( 0 = smallest, end = biggest )
-	vnl_vector<double> shaftAxis_ToolTip(columns, 0);
-	shaftAxis_ToolTip(0) = eigenvectors(0, 0);
-	shaftAxis_ToolTip(1) = eigenvectors(1, 0);
-	shaftAxis_ToolTip(2) = eigenvectors(2, 0);
-	shaftAxis_ToolTip.normalize();
-
-	// Snap the direction vector to be exactly aligned with one of the coordinate axes
-	// This is if the sensor is known to be parallel to one of the axis, just not which one
-	if (snapRotation)
-	{
-		int closestCoordinateAxis = element_product(shaftAxis_ToolTip, shaftAxis_ToolTip).arg_max();
-		shaftAxis_ToolTip.fill(0);
-		shaftAxis_ToolTip.put(closestCoordinateAxis, 1); // Doesn't matter the direction, will be sorted out in the next step
-	}
-
-	// Make sure it is in the correct direction (opposite the StylusTipToStylus translation)
-	vnl_vector<double> toolTipToToolTranslation(3);
-	toolTipToToolTranslation(0) = this->ToolTipToToolMatrix->GetElement(0, 3);
-	toolTipToToolTranslation(1) = this->ToolTipToToolMatrix->GetElement(1, 3);
-	toolTipToToolTranslation(2) = this->ToolTipToToolMatrix->GetElement(2, 3);
-	if (dot_product(shaftAxis_ToolTip, toolTipToToolTranslation) > 0)
-	{
-		shaftAxis_ToolTip = shaftAxis_ToolTip * (-1);
-	}
-
-	//set the RMSE
-	this->SpinRMSE = (A * shaftAxis_ToolTip).rms();
-
-
-	// If the secondary axis 1 is parallel to the shaft axis in the tooltip frame, then use secondary axis 2
-	vnl_vector<double> orthogonalAxis_ToolTip;
-	double angle = acos(dot_product(shaftAxis_ToolTip, orthogonalAxis_Shaft));
-	// Force angle to be between -pi/2 and +pi/2
-	if (angle > vtkMath::Pi() / 2)
-	{
-		angle -= vtkMath::Pi();
-	}
-	if (angle < -vtkMath::Pi() / 2)
-	{
-		angle += vtkMath::Pi();
-	}
-	if (fabs(angle) > vtkMath::RadiansFromDegrees(PARALLEL_ANGLE_THRESHOLD_DEGREES)) // If shaft axis and orthogonal axis are not parallel
-	{
-		orthogonalAxis_ToolTip = orthogonalAxis_Shaft;
-	}
-	else
-	{
-		orthogonalAxis_ToolTip = backupAxis_Shaft;
-	}
-
-	// Do the registration find the appropriate rotation
-	orthogonalAxis_ToolTip = orthogonalAxis_ToolTip - dot_product(orthogonalAxis_ToolTip, shaftAxis_ToolTip) * shaftAxis_ToolTip;
-	orthogonalAxis_ToolTip.normalize();
-
-	// Register X,Y,O points in the two coordinate frames (only spherical registration - since pure rotation)
-	vnl_matrix<double> ToolTipPoints(3, 3, 0.0);
-	vnl_matrix<double> ShaftPoints(3, 3, 0.0);
-
-	ToolTipPoints.put(0, 0, shaftAxis_ToolTip(0));
-	ToolTipPoints.put(0, 1, shaftAxis_ToolTip(1));
-	ToolTipPoints.put(0, 2, shaftAxis_ToolTip(2));
-	ToolTipPoints.put(1, 0, orthogonalAxis_ToolTip(0));
-	ToolTipPoints.put(1, 1, orthogonalAxis_ToolTip(1));
-	ToolTipPoints.put(1, 2, orthogonalAxis_ToolTip(2));
-	ToolTipPoints.put(2, 0, 0);
-	ToolTipPoints.put(2, 1, 0);
-	ToolTipPoints.put(2, 2, 0);
-
-	ShaftPoints.put(0, 0, shaftAxis_Shaft(0));
-	ShaftPoints.put(0, 1, shaftAxis_Shaft(1));
-	ShaftPoints.put(0, 2, shaftAxis_Shaft(2));
-	ShaftPoints.put(1, 0, orthogonalAxis_Shaft(0));
-	ShaftPoints.put(1, 1, orthogonalAxis_Shaft(1));
-	ShaftPoints.put(1, 2, orthogonalAxis_Shaft(2));
-	ShaftPoints.put(2, 0, 0);
-	ShaftPoints.put(2, 1, 0);
-	ShaftPoints.put(2, 2, 0);
-
-	vnl_svd<double> ShaftToToolTipRegistrator(ShaftPoints.transpose() * ToolTipPoints);
-	vnl_matrix<double> V = ShaftToToolTipRegistrator.V();
-	vnl_matrix<double> U = ShaftToToolTipRegistrator.U();
-	vnl_matrix<double> Rotation = V * U.transpose();
-
-	// Make sure the determinant is positve (i.e. +1)
-	double determinant = vnl_determinant(Rotation);
-	if (determinant < 0)
-	{
-		// Switch the sign of the third column of V if the determinant is not +1
-		// This is the recommended approach from Huang et al. 1987
-		V.put(0, 2, -V.get(0, 2));
-		V.put(1, 2, -V.get(1, 2));
-		V.put(2, 2, -V.get(2, 2));
-		Rotation = V * U.transpose();
-	}
-
-	// Set the elements of the output matrix
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			this->ToolTipToToolMatrix->SetElement(i, j, Rotation[i][j]);
-		}
-	}
-
-	this->ErrorText.empty();
-	return true;
-}
-
-
-
-
+//----------------------------------------------------------------------------
 /*
-Description:
-	Conversion method from matrix to double array
+In homogeneous coordinates:
+ PivotPoint_Reference = MarkerToReferenceTransformMatrix * PivotPoint_Marker
 
-Input:
-	matrix: destination matrix
-	arr:    source double array (length: 4)
+MarkerToReferenceTransformMatrix decomosed to rotation matrix and translation vector:
+ PivotPoint_Reference = MarkerToReferenceTransformRotationMatrix * PivotPoint_Marker + MarkerToReferenceTransformTranslationVector
+rearranged:
+ MarkerToReferenceTransformRotationMatrix * PivotPoint_Marker - PivotPoint_Reference = -MarkerToReferenceTransformTranslationVector
+in a matrix form:
+ [ MarkerToReferenceTransformRotationMatrix | -Identity3x3 ] * [ PivotPoint_Marker    ] = [ -MarkerToReferenceTransformTranslationVector ]
+                                                               [ PivotPoint_Reference ]
+
+It's an Ax=b linear problem that can be solved with robust LSQR:
+ Ai = [ MarkerToReferenceTransformRotationMatrix | -Identity3x3 ]
+ xi = [ PivotPoint_Marker    ]
+      [ PivotPoint_Reference ]
+ bi = [ -MarkerToReferenceTransformTranslationVector ]
 */
-void PivotCalibration::QuaternionToMatrix(vtkMatrix4x4* matrix, double* arr)
+/*
+Return: 
+	0: success
+	1: fail
+*/
+int PivotCalibration::GetPivotPointPosition(double* pivotPoint_Marker, double* pivotPoint_Reference)
 {
-	double q0 = arr[0];
-	double qx = arr[1];
-	double qy = arr[2];
-	double qz = arr[3];
+  std::vector<vnl_vector<double> > aMatrix; 
+  std::vector<double> bVector;  
+  vnl_vector<double> xVector(6,0); // result vector
 
-	
-	// Determine some calculations done more than once.
-	
-	double fQ0Q0 = q0 * q0;
-	double fQxQx = qx * qx;
-	double fQyQy = qy * qy;
-	double fQzQz = qz * qz;
-	double fQ0Qx = q0 * qx;
-	double fQ0Qy = q0 * qy;
-	double fQ0Qz = q0 * qz;
-	double fQxQy = qx * qy;
-	double fQxQz = qx * qz;
-	double fQyQz = qy * qz;
+  vnl_vector<double> aMatrixRow(6);
+  for (std::list< vtkMatrix4x4* >::iterator markerToReferenceTransformIt=this->MarkerToReferenceTransformMatrixArray.begin();
+    markerToReferenceTransformIt!=this->MarkerToReferenceTransformMatrixArray.end(); ++markerToReferenceTransformIt)
+  {    
+    for (int i=0; i<3; i++)
+    {
+      aMatrixRow(0)=(*markerToReferenceTransformIt)->Element[i][0];
+      aMatrixRow(1)=(*markerToReferenceTransformIt)->Element[i][1];
+      aMatrixRow(2)=(*markerToReferenceTransformIt)->Element[i][2];
+      aMatrixRow(3)= (i==0?-1:0);
+      aMatrixRow(4)= (i==1?-1:0);
+      aMatrixRow(5)= (i==2?-1:0);
+      aMatrix.push_back(aMatrixRow);
+    }
+    bVector.push_back(-(*markerToReferenceTransformIt)->Element[0][3]);
+    bVector.push_back(-(*markerToReferenceTransformIt)->Element[1][3]);
+    bVector.push_back(-(*markerToReferenceTransformIt)->Element[2][3]);
+  }
 
-	// Determine the rotation matrix elements.
-	
-	double Qmatrix[3][3];
-	Qmatrix[0][0] = fQ0Q0 + fQxQx - fQyQy - fQzQz;
-	Qmatrix[0][1] = 2.0 * (-fQ0Qz + fQxQy);
-	Qmatrix[0][2] = 2.0 * (fQ0Qy + fQxQz);
-	Qmatrix[1][0] = 2.0 * (fQ0Qz + fQxQy);
-	Qmatrix[1][1] = fQ0Q0 - fQxQx + fQyQy - fQzQz;
-	Qmatrix[1][2] = 2.0 * (-fQ0Qx + fQyQz);
-	Qmatrix[2][0] = 2.0 * (-fQ0Qy + fQxQz);
-	Qmatrix[2][1] = 2.0 * (fQ0Qx + fQyQz);
-	Qmatrix[2][2] = fQ0Q0 - fQxQx - fQyQy + fQzQz;
+  double mean = 0;
+  double stdev = 0;
+  vnl_vector<unsigned int> notOutliersIndices;
+  notOutliersIndices.clear();
+  notOutliersIndices.set_size(bVector.size());
+  for ( unsigned int i = 0; i < bVector.size(); ++i )
+  {
+    notOutliersIndices.put(i,i);
+  }
+  if ( LSQRMinimize(aMatrix, bVector, xVector, &mean, &stdev, &notOutliersIndices) != 0 )
+  {
+    std::cout<<"vtkPivotCalibrationAlgo failed: LSQRMinimize error"<<std::endl; 
+    return 1;
+  }
 
-	// put to matrix
-	matrix->Identity();
-	int length = 3;
-	for (int i = 0; i < length; i++)
-	{
-		for (int j = 0; j < length; j++)
-		{
-			matrix->SetElement(i, j, Qmatrix[i][j]);
-		}
-	}
+  // Note: Outliers are detected and rejected for each row (each coordinate axis). Although most frequently
+  // an outlier sample's every component is an outlier, it may be possible that only certain components of an
+  // outlier sample are removed, which may be desirable for some cases (e.g., when the point is an outlier because
+  // temporarily it was flipped around one axis) and not desirable for others (when the point is completely randomly
+  // corrupted), but there would be no measurable difference anyway if the only a few percent of the points are
+  // outliers.
+
+  this->OutlierIndices.clear();
+  unsigned int processFromRowIndex=0;
+  for (int i=0; i<notOutliersIndices.size(); i++)
+  {
+    unsigned int nextNotOutlierRowIndex=notOutliersIndices[i];
+    if (nextNotOutlierRowIndex>processFromRowIndex)
+    {
+      // samples were missed, so they are outliers
+      for (unsigned int outlierRowIndex=processFromRowIndex; outlierRowIndex<nextNotOutlierRowIndex; outlierRowIndex++)
+      {
+        int sampleIndex=outlierRowIndex/3;  // 3 rows are generated per sample
+        this->OutlierIndices.insert(sampleIndex);
+      }
+    }
+    processFromRowIndex=nextNotOutlierRowIndex+1;
+  }
+
+  pivotPoint_Marker[0]=xVector[0];
+  pivotPoint_Marker[1]=xVector[1];
+  pivotPoint_Marker[2]=xVector[2];
+
+  pivotPoint_Reference[0]=xVector[3];
+  pivotPoint_Reference[1]=xVector[4];
+  pivotPoint_Reference[2]=xVector[5];
+
+  return 0;
 }
 
 /*
-Description:
-	Conversion method from  double array to matrix
-Input:
-	matrix: source matrix  (length: 4)
-	arr:    destination array
+Return:
+	0: success
+	1: fail: cannot get pivot point position
 */
-void PivotCalibration::MatrixToQuaternion(vtkMatrix4x4*, double*)
+int PivotCalibration::DoPivotCalibration()
 {
-	
+  if (this->MarkerToReferenceTransformMatrixArray.empty())
+  {
+	std::cout << "No points are available for pivot calibration" << std::endl;
+	return 0;
+  }
+
+  double pivotPoint_Marker[4]={0,0,0,1};
+  double pivotPoint_Reference[4]={0,0,0,1};
+  if (GetPivotPointPosition(pivotPoint_Marker, pivotPoint_Reference)!= 0)
+  {
+	std::cout << "ERROR: Cannot get pivot point position" << std::endl;
+	return 1 ;
+  }    
+
+  // Get the result (tooltip to tool transform)
+  double x = pivotPoint_Marker[0];
+  double y = pivotPoint_Marker[1];
+  double z = pivotPoint_Marker[2];
+
+  vtkSmartPointer<vtkMatrix4x4> pivotPointToMarkerTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+  pivotPointToMarkerTransformMatrix->SetElement(0,3,x);
+  pivotPointToMarkerTransformMatrix->SetElement(1,3,y);
+  pivotPointToMarkerTransformMatrix->SetElement(2,3,z);
+
+  // Compute tool orientation
+  // Z axis: from the pivot point to the marker is on the -Z axis of the tool
+  double pivotPointToMarkerTransformZ[3]={x,y,z};
+  vtkMath::Normalize(pivotPointToMarkerTransformZ);
+  pivotPointToMarkerTransformMatrix->SetElement(0,2,pivotPointToMarkerTransformZ[0]);
+  pivotPointToMarkerTransformMatrix->SetElement(1,2,pivotPointToMarkerTransformZ[1]);
+  pivotPointToMarkerTransformMatrix->SetElement(2,2,pivotPointToMarkerTransformZ[2]);
+
+  // Y axis: orthogonal to tool's Z axis and the marker's X axis
+  double pivotPointToMarkerTransformY[3]={0,0,0};
+  // Use the unitX vector as pivotPointToMarkerTransformX vector, unless unitX is parallel to pivotPointToMarkerTransformZ.
+  // If unitX is parallel to pivotPointToMarkerTransformZ then use the unitY vector as pivotPointToMarkerTransformX.
+
+  double unitX[3]={1,0,0};  
+  double angle = acos(vtkMath::Dot(pivotPointToMarkerTransformZ,unitX));
+  // Normalize between -pi/2 .. +pi/2
+  if (angle>vtkMath::Pi()/2)
+  {
+    angle -= vtkMath::Pi();
+  }
+  else if (angle<-vtkMath::Pi()/2)
+  {
+    angle += vtkMath::Pi();
+  }
+  if (fabs(angle)*180.0/vtkMath::Pi()>20.0) 
+  {
+    // unitX is not parallel to pivotPointToMarkerTransformZ
+    vtkMath::Cross(pivotPointToMarkerTransformZ, unitX, pivotPointToMarkerTransformY);
+	std::cout << "Use unitX" << std::endl;
+  }
+  else
+  {
+    // unitX is parallel to pivotPointToMarkerTransformZ
+    // use the unitY instead
+    double unitY[3]={0,1,0};
+    vtkMath::Cross(pivotPointToMarkerTransformZ, unitY, pivotPointToMarkerTransformY);
+	std::cout << "Use unitY" << std::endl ;
+  }
+  vtkMath::Normalize(pivotPointToMarkerTransformY);
+  pivotPointToMarkerTransformMatrix->SetElement(0,1,pivotPointToMarkerTransformY[0]);
+  pivotPointToMarkerTransformMatrix->SetElement(1,1,pivotPointToMarkerTransformY[1]);
+  pivotPointToMarkerTransformMatrix->SetElement(2,1,pivotPointToMarkerTransformY[2]);
+
+  // X axis: orthogonal to tool's Y axis and Z axis
+  double pivotPointToMarkerTransformX[3]={0,0,0};
+  vtkMath::Cross(pivotPointToMarkerTransformY, pivotPointToMarkerTransformZ, pivotPointToMarkerTransformX);
+  vtkMath::Normalize(pivotPointToMarkerTransformX);
+  pivotPointToMarkerTransformMatrix->SetElement(0,0,pivotPointToMarkerTransformX[0]);
+  pivotPointToMarkerTransformMatrix->SetElement(1,0,pivotPointToMarkerTransformX[1]);
+  pivotPointToMarkerTransformMatrix->SetElement(2,0,pivotPointToMarkerTransformX[2]);
+
+  this->SetPivotPointToMarkerTransformMatrix(pivotPointToMarkerTransformMatrix);
+
+  this->PivotPointPosition_Reference[0]=pivotPoint_Reference[0];
+  this->PivotPointPosition_Reference[1]=pivotPoint_Reference[1];
+  this->PivotPointPosition_Reference[2]=pivotPoint_Reference[2];
+
+  ComputeCalibrationError();
+
+  // Save result
+  /*
+  to be continued
+
+  Transform(pivotPointToMarkerTransformName, this->PivotPointToMarkerTransformMatrix);
+  TransformPersistent(pivotPointToMarkerTransformName, true);
+  TransformError(pivotPointToMarkerTransformName, this->CalibrationError);
+
+  */
+
+  return 0;
 }
 
+//-----------------------------------------------------------------------------
+std::string PivotCalibration::GetPivotPointToMarkerTranslationString(double aPrecision/*=3*/)
+{
+  if (this->PivotPointToMarkerTransformMatrix == NULL) {
+	  std::cout << "Tooltip to tool transform is not initialized!" << std::endl;
+    return "";
+  }
 
+  std::ostringstream s;
+  s << std::fixed << std::setprecision(aPrecision)
+    << this->PivotPointToMarkerTransformMatrix->GetElement(0,3) 
+    << " x " << this->PivotPointToMarkerTransformMatrix->GetElement(1,3)
+    << " x " << this->PivotPointToMarkerTransformMatrix->GetElement(2,3)
+    << std::ends;  
+    
+  return s.str();
+}
 
+//-----------------------------------------------------------------------------
+int PivotCalibration::ReadConfiguration()//(vtkXMLDataElement* aConfig)
+{
+  //XML_FIND_NESTED_ELEMENT_REQUIRED(pivotCalibrationElement, aConfig, "vtkPivotCalibrationAlgo");
+  //XML_READ_STRING_ATTRIBUTE_REQUIRED(ObjectMarkerCoordinateFrame, pivotCalibrationElement);
+  //XML_READ_STRING_ATTRIBUTE_REQUIRED(ReferenceCoordinateFrame, pivotCalibrationElement);
+  //XML_READ_STRING_ATTRIBUTE_REQUIRED(ObjectPivotPointCoordinateFrame, pivotCalibrationElement);
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+void PivotCalibration::ComputeCalibrationError()
+{
+  double* pivotPoint_Reference=this->PivotPointPosition_Reference;
+  
+  vtkSmartPointer<vtkMatrix4x4> pivotPointToReferenceMatrix=vtkSmartPointer<vtkMatrix4x4>::New();
+
+  // Compute the error for each sample as distance between the mean pivot point position and the pivot point position computed from each sample
+  std::vector<double> errorValues;
+  double currentPivotPoint_Reference[4]={0,0,0,1};
+  unsigned int sampleIndex=0;
+  for (std::list< vtkMatrix4x4* >::iterator markerToReferenceTransformIt=this->MarkerToReferenceTransformMatrixArray.begin();
+    markerToReferenceTransformIt!=this->MarkerToReferenceTransformMatrixArray.end(); ++markerToReferenceTransformIt, ++sampleIndex)
+  {
+    if (this->OutlierIndices.find(sampleIndex)!=this->OutlierIndices.end())
+    {
+      // outlier, so skip from the error computation
+      continue;
+    }
+
+    vtkMatrix4x4::Multiply4x4((*markerToReferenceTransformIt),this->PivotPointToMarkerTransformMatrix,pivotPointToReferenceMatrix);
+    for (int i=0; i<3; i++)
+    {
+      currentPivotPoint_Reference[i] = pivotPointToReferenceMatrix->Element[i][3];
+    }
+    double errorValue = sqrt(vtkMath::Distance2BetweenPoints(currentPivotPoint_Reference, pivotPoint_Reference));
+    errorValues.push_back(errorValue);
+  }
+
+  double mean=0;
+  double stdev=0;
+  ComputeMeanAndStdev(errorValues, mean, stdev);
+
+  this->CalibrationError = mean;
+}
+
+//-----------------------------------------------------------------------------
+int PivotCalibration::GetNumberOfDetectedOutliers()
+{
+  return this->OutlierIndices.size();
+}

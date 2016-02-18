@@ -16,11 +16,13 @@ include(${GDCM_USE_FILE})
 
 set( HEAD
 PivotCalibration.h
+PivotCalibration2.h
 )
 
 
 SET( SRC
 PivotCalibration.cpp
+PivotCalibration2.cpp
 test.cpp
 )
 

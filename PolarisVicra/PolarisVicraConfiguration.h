@@ -72,10 +72,19 @@ public:
 	virtual int  StopTracking();
 	virtual int  GetTrackingStatus();
 	virtual int  ConfigureTracker();
-	virtual int GetToolValidation(int);
-	virtual int GetTransformValidation(int);
+	virtual int  GetToolValidation(int);
+	virtual int  GetTransformValidation(int);
 	virtual QIN_Transform_Type* GetTransform(int index);
 	
+	// manual GET functions for system parameters
+	std::string GetSystemMode(){ return m_szSystemMode; };			/* system operating mode */
+	std::string GetSerialNo(){ return m_szSerialNo; };			    /* serial number */
+	std::string GetTypeOfSystem(){ return m_szTypeOfSystem; };		/* system type */
+	std::string GetToolReversion(){ return m_szToolRev; };			/* tool reversion */
+	std::string GetToolType(){return m_szToolType};			        /* tool type */
+	std::string GetPartNumber(){ return m_szPartNumber; };			/* part number */
+	std::string GetManufID(){ return m_szManufID; };			    /* manufacturer ID */
+
 	// manual specified parameters
 	void SetBaudRate(int);	
 	void SetnDataBits(int);

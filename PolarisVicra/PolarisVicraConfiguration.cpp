@@ -344,7 +344,8 @@ int PloarisVicraConfiguration::GetTrackingStatus()
 
 /*
 Description:
-	Get Transform from
+	Get Transform from tracker sensor
+	If cannot get transform, you will get a transform full of 0 value
 Return:
 	If the transform is valid, return a pointer
 	Else return a pointer to a 0 transform
@@ -354,17 +355,16 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 {
 	nGetSystemTransformData();
 
+	if (!m_bIsTracking)  // not tracking
+	{
+		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		return m_Transform;
+	}
+
 	//check is the index in the portID list
 	if (m_PortID.end() == std::find(m_PortID.begin(), m_PortID.end(),index))
 	{
-		m_Transform->x = 0;
-		m_Transform->y = 0; 
-		m_Transform->z = 0; 
-		m_Transform->q0 =0; 
-		m_Transform->qx =0; 
-		m_Transform->qy =0; 
-		m_Transform->qz =0; 
-		m_Transform->error = 0;
+		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
 		return m_Transform;
 	}
 

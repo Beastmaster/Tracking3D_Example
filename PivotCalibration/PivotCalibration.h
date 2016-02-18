@@ -94,7 +94,7 @@ public:
     \return Calibration result (e.g. stylus tip to stylus translation) string
   */
   std::string GetPivotPointToMarkerTranslationString(double aPrecision=3);
-
+  void GetToolTipToToolMatrix(vtkMatrix4x4* matrix);
   /*!
     Get the number of outlier points. It is recommended to display a warning to the user
     if the percentage of outliers vs total number of points is larger than a few percent.
@@ -158,6 +158,9 @@ protected:
 
 
   //====== static math function =========//
+  /*
+  
+  */
   static int LSQRMinimize(
 	  std::vector< vnl_vector<double> > aMatrix, 
 	  std::vector<double>              bVector, 
@@ -169,6 +172,9 @@ protected:
 	  
 	  return 0;
   };
+  /*
+  
+  */
   static int ComputeMeanAndStdev(std::vector<double> errorValues, double mean, double stdev)
   {
 

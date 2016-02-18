@@ -343,6 +343,37 @@ bool PivotCalibration2::ComputeSpinCalibration(bool snapRotation)
 	this->ErrorText.empty();
 	return true;
 }
+//---------------------------------------------------------------------------
+void PivotCalibration2::GetToolTipToToolTranslation(vtkMatrix4x4* translationMatrix)
+{
+	translationMatrix->Identity();
+
+	translationMatrix->SetElement(0, 3, this->ToolTipToToolMatrix->GetElement(0, 3));
+	translationMatrix->SetElement(1, 3, this->ToolTipToToolMatrix->GetElement(1, 3));
+	translationMatrix->SetElement(2, 3, this->ToolTipToToolMatrix->GetElement(2, 3));
+}
+
+//---------------------------------------------------------------------------
+void PivotCalibration2::GetToolTipToToolRotation(vtkMatrix4x4* rotationMatrix)
+{
+	rotationMatrix->Identity();
+
+	rotationMatrix->SetElement(0, 0, this->ToolTipToToolMatrix->GetElement(0, 0));
+	rotationMatrix->SetElement(0, 1, this->ToolTipToToolMatrix->GetElement(0, 1));
+	rotationMatrix->SetElement(0, 2, this->ToolTipToToolMatrix->GetElement(0, 2));
+	rotationMatrix->SetElement(1, 0, this->ToolTipToToolMatrix->GetElement(1, 0));
+	rotationMatrix->SetElement(1, 1, this->ToolTipToToolMatrix->GetElement(1, 1));
+	rotationMatrix->SetElement(1, 2, this->ToolTipToToolMatrix->GetElement(1, 2));
+	rotationMatrix->SetElement(2, 0, this->ToolTipToToolMatrix->GetElement(2, 0));
+	rotationMatrix->SetElement(2, 1, this->ToolTipToToolMatrix->GetElement(2, 1));
+	rotationMatrix->SetElement(2, 2, this->ToolTipToToolMatrix->GetElement(2, 2));
+}
+
+//---------------------------------------------------------------------------
+void PivotCalibration2::GetToolTipToToolMatrix(vtkMatrix4x4* matrix)
+{
+	matrix->DeepCopy(this->ToolTipToToolMatrix);
+}
 
 
 

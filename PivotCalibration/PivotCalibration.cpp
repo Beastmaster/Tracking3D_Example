@@ -295,6 +295,12 @@ std::string PivotCalibration::GetPivotPointToMarkerTranslationString(double aPre
     
   return s.str();
 }
+void PivotCalibration::GetToolTipToToolMatrix(vtkMatrix4x4* matrix)
+{
+	matrix->DeepCopy(this->PivotPointToMarkerTransformMatrix);
+}
+
+
 
 //-----------------------------------------------------------------------------
 int PivotCalibration::ReadConfiguration()//(vtkXMLDataElement* aConfig)

@@ -27,10 +27,12 @@ include_directories(PivotCalibration)
 
 set( UI_FILES
 mainWindow.ui
+CalibrationWindow.ui
 )
 
 set( QT_HEAD
 mainWindow.h
+CalibrationWindow.h
 )
 
 
@@ -38,6 +40,7 @@ set(
 SRC
 main.cxx
 mainWindow.cpp
+CalibrationWindow.cpp
 )
 
 set(

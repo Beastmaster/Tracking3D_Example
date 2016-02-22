@@ -35,8 +35,6 @@ See License.txt for details.
 #include "vnl/algo/vnl_svd.h"
 #include "vnl/algo/vnl_determinant.h"
 
-
-
 //-----------------------------------------------------------------------------
 
 /*!

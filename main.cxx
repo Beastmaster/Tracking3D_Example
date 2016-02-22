@@ -8,6 +8,7 @@ Description:
 */
 
 #include "mainWindow.h"
+#include "CalibrationWindow.h"
 #include <QApplication>
 #include <QMainWindow>
 
@@ -590,8 +591,9 @@ int main(int argc, char** argv)
 	QApplication Reg_main_app(argc, argv);
 
 	MainWindow main_window;
-
-	main_window.show();
+	CalibrationWindow caliWin;
+	caliWin.show();
+	//main_window.show();
 
 	return Reg_main_app.exec();
 

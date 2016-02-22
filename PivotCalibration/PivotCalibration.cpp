@@ -26,7 +26,6 @@ Copyright: See below
 #include "vtksys/SystemTools.hxx"
 
 
-
 vtkStandardNewMacro(PivotCalibration);
 
 //-----------------------------------------------------------------------------

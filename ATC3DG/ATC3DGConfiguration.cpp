@@ -187,6 +187,7 @@ Return:
 	3. "System Ready"
 	4. "Sensors Ready"
 	5. "Transmitters Ready"
+	6. Unknow state
 */
 int ATC3DGConfiguration::GetTrackingStatus()
 {
@@ -217,6 +218,10 @@ int ATC3DGConfiguration::GetTrackingStatus()
 	if (m_Status == "Transmitters Ready")
 	{
 		return 5;
+	}
+	else
+	{
+		return 6;
 	}
 }
 

@@ -24,18 +24,19 @@ This file refer to IGSTK
 #include "vtkMatrix4x4.h" 
 #include "vtkMath.h"
 
+#include "TrackerBase.h"
 
 /*
 IGSTK Method
 */
-class PivotCalibration2 : vtkObject
+class PivotCalibration2 : public vtkObject
 {
 public:
-	static PivotCalibration2* New()
-	{
-		return new PivotCalibration2;
-	};
 	vtkTypeMacro(PivotCalibration2, vtkObject);
+	static PivotCalibration2* New();
+	//{
+	//	return new PivotCalibration2;
+	//};
 
 	// Clears all previously acquired tool transforms.
 	// Call this before start adding transforms.
@@ -69,6 +70,26 @@ public:
 
 	static void QuaternionToMatrix(vtkMatrix4x4*, double*);
 	static void MatrixToQuaternion(vtkMatrix4x4*, double*);
+
+	static void TransformToMatrix(vtkMatrix4x4* matrix, QIN_Transform_Type* )
+	{
+	//	igstk::Transform::VersorType::MatrixType matrix = m_Rotation.GetMatrix();
+	//
+	//	for (unsigned int i = 0; i<3; i++)
+	//	{
+	//		for (unsigned int j = 0; j<3; j++)
+	//		{
+	//			matrix.GetVnlMatrix().put(i, j, inmatrix.GetElement(i, j));
+	//		}
+	//	}
+	//
+	//	m_Rotation.Set(matrix);
+	//
+	//	m_Translation[0] = inmatrix.GetElement(0, 3);
+	//	m_Translation[1] = inmatrix.GetElement(1, 3);
+	//	m_Translation[2] = inmatrix.GetElement(2, 3);
+	}
+
 protected:
 	PivotCalibration2();
 	~PivotCalibration2();

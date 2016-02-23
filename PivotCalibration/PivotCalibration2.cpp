@@ -23,6 +23,7 @@ This file refer to IGSTK
 
 static const double PARALLEL_ANGLE_THRESHOLD_DEGREES = 20.0;
 
+vtkStandardNewMacro(PivotCalibration2);
 PivotCalibration2::PivotCalibration2()
 {
 	this->ToolTipToToolMatrix = vtkMatrix4x4::New();

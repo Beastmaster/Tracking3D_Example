@@ -9,6 +9,9 @@ project(${PRJ})
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
+find_package(ITK REQUIRED)
+include(${ITK_USE_FILE})
+
 find_package(Qt5Widgets REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
@@ -55,6 +58,7 @@ add_executable(${PRJ} ${SRC} ${HEAD} ${UISrcs} ${QT_HEAD} ${MOCSrcs} )
 qt5_use_modules(${PRJ} Core Gui)
 
 target_link_libraries(${PRJ} ${VTK_LIBRARIES})
+target_link_libraries(${PRJ} ITKReview  ${ITK_LIBRARIES})
 target_link_libraries(${PRJ} Polaris_Vicra_lib)
 target_link_libraries(${PRJ} ATC3DG_lib)
 target_link_libraries(${PRJ} vtkTracking3D)

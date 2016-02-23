@@ -33,7 +33,7 @@ CalibrationWindow:: ~CalibrationWindow()
 void CalibrationWindow::sys_Init()
 {
 	m_Polaris = new PloarisVicraConfiguration;
-	m_ATC = new ATC3DGConfiguration;
+	m_ATC = new ATC3DGConfiguration; 
 
 	m_Tool_Transform = new QIN_Transform_Type;
 	m_Tool2TipTransform = vtkSmartPointer<vtkTransform>::New();

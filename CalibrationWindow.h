@@ -34,6 +34,7 @@ Module:
 #include "vtkSphereSource.h"
 #include "vtkSTLReader.h"
 #include "vtkXMLPolyDataReader.h"
+#include "vtkSmartPointer.h"
 
 #include "PolarisVicraConfiguration.h"
 #include "ATC3DGConfiguration.h"

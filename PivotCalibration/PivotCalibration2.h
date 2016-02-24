@@ -71,6 +71,14 @@ public:
 	static void QuaternionToMatrix(vtkMatrix4x4*, double*);
 	static void MatrixToQuaternion(vtkMatrix4x4*, double*);
 
+	/*
+	Description:
+	Convert raw transform to an matrix
+	Parameters:
+	index count from 0
+	*/
+	static void TransformToMatrix(QIN_Transform_Type* trans_in, QIN_Matrix_Type trans_out);
+
 	static void TransformToMatrix(vtkMatrix4x4* matrix, QIN_Transform_Type* )
 	{
 	//	igstk::Transform::VersorType::MatrixType matrix = m_Rotation.GetMatrix();
@@ -88,6 +96,15 @@ public:
 	//	m_Translation[0] = inmatrix.GetElement(0, 3);
 	//	m_Translation[1] = inmatrix.GetElement(1, 3);
 	//	m_Translation[2] = inmatrix.GetElement(2, 3);
+
+
+		for (unsigned int i = 0; i < 3; i++)
+		{
+			for (unsigned int j = 0; j < 3;j++)
+			{
+				matrix[i][j] = 
+			}
+		}
 	}
 
 protected:

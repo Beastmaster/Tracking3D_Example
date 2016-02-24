@@ -381,10 +381,10 @@ void PivotCalibration2::GetToolTipToToolMatrix(vtkMatrix4x4* matrix)
 
 /*
 Description:
-Conversion method from matrix to double array
+	Conversion method from matrix to double array
 Input:
-matrix: destination matrix
-arr:    source double array (length: 4)
+	matrix: destination matrix
+	arr:    source double array (length: 4)
 */
 void PivotCalibration2::QuaternionToMatrix(vtkMatrix4x4* matrix, double* arr)
 {
@@ -436,10 +436,73 @@ void PivotCalibration2::QuaternionToMatrix(vtkMatrix4x4* matrix, double* arr)
 Description:
 Conversion method from  double array to matrix
 Input:
-matrix: source matrix  (length: 4)
-arr:    destination array
+	matrix: source matrix  (length: 4)
+	arr:    destination array
 */
-void PivotCalibration2::MatrixToQuaternion(vtkMatrix4x4*, double*)
+void PivotCalibration2::MatrixToQuaternion(vtkMatrix4x4* src_matrix, double* arr)
 {
 
 }
+
+
+
+/*
+Description:
+Convert raw transform to an matrix
+Parameters:
+index count from 0
+*/
+void PivotCalibration2::TransformToMatrix(QIN_Transform_Type* trans_in, QIN_Matrix_Type trans_out)
+{
+	auto tem_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+	// convert quaternion to matrix
+	QuaternionToMatrix(tem_matrix,&(trans_in->q0));
+
+	trans_out[3][0] = 0;
+	trans_out[3][1] = 0;
+	trans_out[3][2] = 0;
+	trans_out[3][3] = 1;
+
+	for (unsigned int i = 0; i<3; i++)
+	{
+		for (unsigned int j = 0; j<3; j++)
+		{
+			trans_out[i][j] = tem_matrix->GetElement(i,j);
+			//outmatrix.SetElement(i, j, inmatrix.GetVnlMatrix().get(i, j));
+		}
+	}
+	trans_out[0][3] = trans_in->x;
+	trans_out[1][3] = trans_in->y;
+	trans_out[2][3] = trans_in->z;
+	trans_out[3][3] = 1;
+}
+
+
+
+void PivotCalibration2::TransformToMatrix(QIN_Transform_Type* trans_in, vtkMatrix4x4* outmatrix)
+{
+	auto rot_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+	// convert quaternion to matrix
+	QuaternionToMatrix(rot_matrix, &(trans_in->q0));
+
+	outmatrix->SetElement(3, 0, 0);
+	outmatrix->SetElement(3, 1, 0);
+	outmatrix->SetElement(3, 2, 0);
+	outmatrix->SetElement(3, 3, 1);
+	
+
+	for (unsigned int i = 0; i<3; i++)
+	{
+		for (unsigned int j = 0; j<3; j++)
+		{
+			outmatrix->SetElement(i, j, rot_matrix->GetElement(i, j));
+		}
+	}
+	outmatrix->SetElement(0,3,trans_in->x);
+	outmatrix->SetElement(1,3,trans_in->y);
+	outmatrix->SetElement(2,3,trans_in->z);
+	outmatrix->SetElement(3,3,1);
+}
+
+
+

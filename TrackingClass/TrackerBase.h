@@ -84,16 +84,6 @@ public:
 	*/
 	virtual QIN_Transform_Type* GetTransform( int index ) = 0;
 
-	/*
-	Description:
-		Convert raw transform to an matrix
-	Parameters:
-		index count from 0
-	*/
-	static void TransformToMatrix(QIN_Transform_Type*, QIN_Matrix_Type)
-	{
-
-	}
 
 protected:
 	int m_ToolIndex;

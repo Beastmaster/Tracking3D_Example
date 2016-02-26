@@ -22,6 +22,7 @@ Module:
 #include <QFileDialog>
 #include <QWheelEvent>
 #include <QMessageBox>
+#include <QTimer>
 
 #include "vtkNIFTIImageReader.h"
 
@@ -64,6 +65,8 @@ public:
 
 
 	void sys_Init();
+	void GetCalibrationMatrix(vtkMatrix4x4*);
+
 
 	public slots:
 
@@ -72,19 +75,41 @@ public:
 	void On_Capture();
 	void On_Calculate1();
 	void On_Calculate2();
+	void Act_LoadSTL();
+	void Act_CreateDefault();
+	void On_Move();
+	void On_Close();
+	void On_Timer();
 
+protected:
+	void CreateCoordinate();
+	
 private:
 	Ui::CalibrationWindow *ui;
+	QTimer*					m_Timer;
+
+	vtkSmartPointer<vtkRenderWindow>			m_View;
+	vtkSmartPointer<vtkRenderWindowInteractor>  m_Interactor;
+	vtkSmartPointer<vtkRenderer>				m_Renderer;
+
+	vtkSmartPointer<vtkActor>					m_Actor;
+	vtkSmartPointer<vtkProp3D>					m_Actor2;
+	vtkSmartPointer<vtkActor>					m_Tra_Actor;
+
 
 	PloarisVicraConfiguration*  m_Polaris;
 	ATC3DGConfiguration*        m_ATC;
 
 
 	QIN_Transform_Type*         m_Tool_Transform; // tool position and orientation
+	vtkSmartPointer<vtkMatrix4x4>	m_Tool_Matrix;
 	vtkSmartPointer<vtkTransform>   m_Tool2TipTransform;  // tool to tooltip transformation
+	vtkSmartPointer<vtkMatrix4x4>	m_Tool2TipMatrix;
 
 	vtkSmartPointer<PivotCalibration>           m_CalibrationHandle1;
 	vtkSmartPointer<PivotCalibration2>			m_CalibrationHandle2;
+
+	
 
 };
 

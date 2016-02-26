@@ -30,10 +30,19 @@ vtkTracking3D::vtkTracking3D()
 	m_TimerCallBack = vtkSmartPointer<vtkCallbackCommand>::New();
 	m_MouseCallback = vtkSmartPointer<vtkCallbackCommand>::New();
 
-	//
-	m_Transform = vtkSmartPointer<vtkTransform>::New();
-	m_Transform->PostMultiply(); //this is the key line
+	// Raw Transform from tracker device
+	m_RawTransform = vtkSmartPointer<vtkTransform>::New();
+	m_RawTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+	
+	// Registration matrix/transform
+	m_RegisterTransform = vtkSmartPointer<vtkTransform>::New();;
+	m_RegisterTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();;
 
+	// Final transform after calibration and registration
+	m_FinTransform = vtkSmartPointer<vtkTransform>::New();
+	m_FinTransform->PostMultiply(); //this is the key line
+
+	// Tool Calibration Matrix
 	m_ToolTipCalibrationMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 
 	//m_tracker = new TrackerType;
@@ -324,21 +333,35 @@ Description:
 */
 int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 {
+	// convert trans to vtkTransform and vtkMatrix first
+	PivotCalibration2::TransformToMatrix(trans,m_RawTransformMatrix);
+	m_RawTransform->SetMatrix(m_RawTransformMatrix);
 
+	m_FinTransform->Concatenate(m_RawTransformMatrix);
+	m_FinTransform->Concatenate(m_ToolTipCalibrationMatrix);
+	m_FinTransform->Concatenate(m_RegisterTransformMatrix);
+	m_FinTransformMatrix = m_FinTransform->GetMatrix();
+
+
+	/*
+	*
+	*To be Continued:  Tracker Marker process + calibration
+	*
+	*/
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
 	{
-		// construct transform
-		double* temp = m_Transform->TransformPoint(trans->x, trans->y, trans->z);
-		//double* temp = m_LandMarkTransform->TransformVector(trans->x, trans->y, trans->z);
-		
-		// put out
-		m_marker_tobe_set[0] = temp[0];
-		m_marker_tobe_set[1] = temp[1];
-		m_marker_tobe_set[2] = temp[2];
-
-		//move actor here
-		GetActorPointer(m_ActorCollection, index)->SetPosition(temp[0], temp[1], temp[2]);
-		GetActorPointer(m_ActorCollection, index)->SetOrientation(trans->qx, trans->qy, trans->qz);
+		//// construct transform
+		//double* temp = m_Transform->TransformPoint(trans->x, trans->y, trans->z);
+		////double* temp = m_LandMarkTransform->TransformVector(trans->x, trans->y, trans->z);
+		//
+		//// put out
+		//m_marker_tobe_set[0] = temp[0];
+		//m_marker_tobe_set[1] = temp[1];
+		//m_marker_tobe_set[2] = temp[2];
+		////move actor here
+		//GetActorPointer(m_ActorCollection, index)->SetPosition(temp[0], temp[1], temp[2]);
+		//GetActorPointer(m_ActorCollection, index)->SetOrientation(trans->qx, trans->qy, trans->qz);
+		GetActorPointer(m_ActorCollection, index)->SetUserTransform(m_FinTransform);
 		//this emit a signal to connect qt signal, to reslice 2D views
 		this->InvokeEvent(QIN_S_VTK_EVENT, this);
 		return 0;
@@ -355,8 +378,14 @@ Description:
 */
 int vtkTracking3D::SetRegisterTransform(vtkMatrix4x4* in)
 {
-	m_Transform->SetMatrix(in);
-	m_Transform->PreMultiply();
+	m_RegisterTransform = vtkSmartPointer<vtkTransform>::New();
+	m_RegisterTransform->SetMatrix(in);
+
+	m_RegisterTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+	m_RegisterTransformMatrix->DeepCopy(in);
+
+	//m_Transform->SetMatrix(in);
+	//m_Transform->PreMultiply();
 	return 0;
 }/*
 
@@ -413,10 +442,11 @@ void vtkTracking3D::SetInteractorStyle( vtkInteractorStyle* style)
 /*
 Description:
 	Get output of registration transform (vtkTransform)
+	Final transform after registration and calibration process
 */
 vtkSmartPointer<vtkTransform> vtkTracking3D:: GetRegisterTransform()
 {
-	return m_Transform;
+	return m_FinTransform;
 }
 
 

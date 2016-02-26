@@ -116,8 +116,9 @@ private:
 		m_nCOMPort,				/* the current com port number */
 		m_nTrackingMode,		// 0: TX mode,   1: BX mode
 		m_szFrameNumber;		//display purpose
-	//device information
+	//handle information
 	std::string
+		m_szVersionInfo,		// Tracking device info
 		m_szSystemMode,			/* system operating mode */
 		m_szSerialNo,			/* serial number */
 		m_szTypeOfSystem,		/* system type */

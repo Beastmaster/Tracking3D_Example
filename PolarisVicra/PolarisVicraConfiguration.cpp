@@ -92,12 +92,12 @@ int PloarisVicraConfiguration::StartTracking()
 		//Get data onece to refresh the buffs
 		nGetSystemTransformData();
 		std::cout << "Tracker Device Information:"  << std::endl;
-		std::cout << "SystemMode" << m_szSystemMode << std::endl;
-		std::cout << "SerialNo"   << m_szSerialNo   << std::endl;
-		std::cout << "ToolRev"    << m_szToolRev    << std::endl;
-		std::cout << "ToolType"   << m_szToolType   << std::endl;
-		std::cout << "PartNumber" << m_szPartNumber << std::endl;
-		std::cout << "ManufID"    << m_szManufID    << std::endl;
+		std::cout << "SystemMode:\t" << m_szSystemMode << std::endl;
+		std::cout << "SerialNo:\t"   << m_szSerialNo   << std::endl;
+		std::cout << "ToolRev:\t"    << m_szToolRev    << std::endl;
+		std::cout << "ToolType:\t"   << m_szToolType   << std::endl;
+		std::cout << "PartNumber:\t" << m_szPartNumber << std::endl;
+		std::cout << "ManufID:\t"    << m_szManufID    << std::endl;
 		return 0;
 	}
 	else
@@ -129,6 +129,7 @@ int PloarisVicraConfiguration::StopTracking()
 
 		m_szSystemMode = "System Initialized";
 		SetMode(MODE_INIT);
+		this->nCloseComPorts();
 		return 0;
 	}
 	return 1;
@@ -272,6 +273,21 @@ int  PloarisVicraConfiguration::ConfigureTracker()
 				}
 
 				/*
+				Tracking device version information
+				*/
+				m_szVersionInfo = m_dtSystemInformation.szVersionInfo;
+				std::cout << "Device Version Info:\t"<<m_szVersionInfo << std::endl;
+
+				/*
+				Post message of system informations
+				*/
+				m_szSerialNo = m_dtHandleInformation[1].szSerialNo;
+				m_szToolRev = m_dtHandleInformation[1].szRev;
+				m_szToolType = m_dtHandleInformation[1].szToolType;
+				m_szPartNumber = m_dtHandleInformation[1].szPartNumber;
+				m_szManufID = m_dtHandleInformation[1].szManufact;
+
+				/*
 				* Set firing rate if system type is Polaris or Polaris Accedo.
 				*/
 				if (this->m_dtSystemInformation.nTypeofSystem != AURORA_SYSTEM)
@@ -371,7 +387,7 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 	}
 
 	//check is the index in the portID list
-	if (m_PortID.end() == std::find(m_PortID.begin(), m_PortID.end(),index))
+	if ( m_PortID.size()<=index )
 	{
 		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
 		return m_Transform;
@@ -385,7 +401,7 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 		// check transform validation
 		if (this->m_dtHandleInformation[index2].Xfrms.ulFlags != TRANSFORM_VALID )
 		{
-			std::cout << "Transform Invalid!" << std::endl;
+			std::cout << "Transform"<< index <<" Invalid!" << std::endl;
 			return m_Transform;
 		}
 		if (this->m_dtHandleInformation[index2].HandleInfo.bPartiallyOutOfVolume)
@@ -402,8 +418,16 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 		{
 			std::cout << "Tool " << index << " Within volume" << std::endl;
 		}
-			
 		
+		m_Transform_Map[index2]->translation.x = m_dtHandleInformation[index2].Xfrms.translation.x;
+		m_Transform_Map[index2]->translation.y = m_dtHandleInformation[index2].Xfrms.translation.y;
+		m_Transform_Map[index2]->translation.z = m_dtHandleInformation[index2].Xfrms.translation.z;
+		m_Transform_Map[index2]->rotation.q0 = m_dtHandleInformation[index2].Xfrms.rotation.q0;
+		m_Transform_Map[index2]->rotation.qx = m_dtHandleInformation[index2].Xfrms.rotation.	qx;
+		m_Transform_Map[index2]->rotation.qy = m_dtHandleInformation[index2].Xfrms.rotation.qy;
+		m_Transform_Map[index2]->rotation.qz = m_dtHandleInformation[index2].Xfrms.rotation.qz;
+		m_Transform_Map[index2]->fError = m_dtHandleInformation[index2].Xfrms.fError;
+
 		m_Transform->x  = m_Transform_Map[index2]->translation.x;
 		m_Transform->y  = m_Transform_Map[index2]->translation.y;
 		m_Transform->z  = m_Transform_Map[index2]->translation.z;

@@ -14,7 +14,7 @@ Description:
 #define _TRACKERBASE_H_
 
 #include <stdlib.h> //NULL
-
+#include <stdio.h>
 typedef struct
 {
 	// 3D position
@@ -28,6 +28,12 @@ typedef struct
 	double   qz;
 
 	double error;
+
+	void PrintSelf()
+	{
+		printf("%5f,%5f,%5f\n",x,y,z);
+	};
+
 } QIN_Transform_Type;
 
 typedef  double** QIN_Matrix_Type;

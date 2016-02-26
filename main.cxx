@@ -592,8 +592,8 @@ int main(int argc, char** argv)
 
 	MainWindow main_window;
 	CalibrationWindow caliWin;
-	caliWin.show();
-	//main_window.show();
+	//caliWin.show();
+	main_window.show();
 
 	return Reg_main_app.exec();
 

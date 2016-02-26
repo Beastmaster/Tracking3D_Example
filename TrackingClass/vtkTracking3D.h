@@ -52,6 +52,8 @@ Manual2:
 #include <vector>
 #include <map>
 #include "TrackerBase.h"
+#include "PivotCalibration\PivotCalibration2.h"
+#include "PivotCalibration\PivotCalibration.h"
 //#include "PolarisVicraConfiguration.h"
 //#include "ATC3DGConfiguration.h"
 
@@ -196,9 +198,18 @@ private:
 	// image to display
 	vtkSmartPointer<vtkImageData> m_Image;
 	
-	//This Transform is used to transform raw tracking device position to registered coordinate.
-	vtkSmartPointer<vtkTransform> m_Transform;
+	// Raw Transform: Directly get from tracker device
+	vtkSmartPointer<vtkTransform> m_RawTransform;
+	vtkSmartPointer<vtkMatrix4x4> m_RawTransformMatrix;
+
+	// Final transform result, Done all the registration and calibration process
+	vtkSmartPointer<vtkTransform> m_FinTransform;
+	vtkSmartPointer<vtkMatrix4x4> m_FinTransformMatrix;
 	
+	// Registration Transform and matrix
+	vtkSmartPointer<vtkTransform> m_RegisterTransform;
+	vtkSmartPointer<vtkMatrix4x4> m_RegisterTransformMatrix;
+
 	// Tooltip to tool calibration matrix
 	vtkSmartPointer<vtkMatrix4x4> m_ToolTipCalibrationMatrix;
 

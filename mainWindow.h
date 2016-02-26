@@ -42,7 +42,7 @@ Date: 2016/1/10
 #include "vtkTrackingMarkCapture.h"
 #include "vtkTrackingRegistration.h"
 #include "QtWrapvtkTracking3D.h"
-
+#include "CalibrationWindow.h"
 
 
 namespace Ui {
@@ -72,6 +72,7 @@ public slots:
 	void on_Config_Tracker();
 	void on_Sel_Markers();
 	void on_Cap_Btn();
+	void on_Calibration_Btn();
 	void on_CapDone_Btn();
 	void on_StartTracking();
 	void on_StopTracking();
@@ -104,7 +105,8 @@ private:
 	vtkSmartPointer<QtWrapvtkTracking3D>  m_3d_View;
 	ATC3DGConfiguration* m_TrackerATC3DG;
 	PloarisVicraConfiguration* m_TrackerPolaris;
-
+	vtkSmartPointer<vtkMatrix4x4>		m_ToolTipCalibration_Matrix;
+	CalibrationWindow*					m_Calibration_Win;
 
 	vtkSmartPointer< vtkTrackingMarkCapture<TrackerBase> > m_Marker_Capture;
 

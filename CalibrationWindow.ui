@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>CalibrationWindow</class>
  <widget class="QMainWindow" name="CalibrationWindow">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -79,6 +82,42 @@
      <string>Calculate2</string>
     </property>
    </widget>
+   <widget class="QVTKWidget" name="view_Widget">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>20</y>
+      <width>571</width>
+      <height>501</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="move_Btn">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>440</y>
+      <width>112</width>
+      <height>34</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Move</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="close_Btn">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>490</y>
+      <width>112</width>
+      <height>34</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Close Port</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -89,9 +128,34 @@
      <height>30</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuLoad_STL">
+    <property name="title">
+     <string>Option</string>
+    </property>
+    <addaction name="actionLoad_STL"/>
+    <addaction name="actionCreate_Default"/>
+   </widget>
+   <addaction name="menuLoad_STL"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionLoad_STL">
+   <property name="text">
+    <string>Load STL</string>
+   </property>
+  </action>
+  <action name="actionCreate_Default">
+   <property name="text">
+    <string>Create Default</string>
+   </property>
+  </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header>QVTKWidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

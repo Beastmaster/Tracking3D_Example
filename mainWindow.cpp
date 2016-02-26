@@ -34,6 +34,7 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	connect(ui->sel_Tracker_Combo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_Sel_Tracker(int)));
 	connect(ui->sel_Marker_Btn, SIGNAL(clicked()),this,SLOT(on_Sel_Markers()));
 	connect(ui->cap_Marker_Btn, SIGNAL(clicked()), this, SLOT(on_Cap_Btn()));
+	connect(ui->calib_Btn, SIGNAL(clicked()), this, SLOT(on_Calibration_Btn()));
 	connect(ui->ok_Sel_Btn, SIGNAL(clicked()), this, SLOT(on_CapDone_Btn()));
 	connect(ui->start_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StartTracking()));
 	connect(ui->stop_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StopTracking()));
@@ -64,6 +65,8 @@ MainWindow:: ~MainWindow()
 
 void MainWindow::sys_Init()
 {
+	m_Calibration_Win = new CalibrationWindow();
+
 	m_ImageFileName = "";
 	m_AtlasFileName = "";
 	m_ToolModelFileName = "";
@@ -283,6 +286,18 @@ void MainWindow::on_Cap_Btn()
 	// marker capture get marker;
 	m_Marker_Capture->GetNextMarker();
 }
+
+/*
+Run Calibration process and get output the calibration transform
+*/
+void MainWindow::on_Calibration_Btn()
+{
+	m_Calibration_Win->setWindowModality(Qt::WindowModal);
+	m_Calibration_Win->show();
+
+	m_Calibration_Win->GetCalibrationMatrix(m_ToolTipCalibration_Matrix);
+}
+
 /*
 Finish capture and run registration
 */

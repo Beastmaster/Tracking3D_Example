@@ -72,7 +72,6 @@ public slots:
 	void on_Config_Tracker();
 	void on_Sel_Markers();
 	void on_Cap_Btn();
-	void on_Calibration_Btn();
 	void on_CapDone_Btn();
 	void on_StartTracking();
 	void on_StopTracking();

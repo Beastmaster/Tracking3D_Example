@@ -22,6 +22,7 @@ Note:
 #define _VTKTRACKINGMARKCAPTURE_H_
 
 #include "TrackerBase.h"
+#include "vtkTracking3D.h"
 
 #include "vtkSmartPointer.h"
 #include "vtkObject.h"
@@ -54,6 +55,7 @@ public:
 	void SetTracker(TrackerType* in) { m_Tracker = in; };
 	void SetToolIndex(int);
 	void SetReferIndex(int);
+	void SetCalibrationMatrix(vtkMatrix4x4* in) { m_CalibrationMatrix = in; };
 
 	void GetNextMarker();
 	void ClearMarkers();
@@ -64,6 +66,8 @@ private:
 
 	int m_ToolIndex;
 	int m_ReferIndex;
+
+	vtkSmartPointer<vtkMatrix4x4>	 m_CalibrationMatrix;
 
 	std::vector<QIN_Transform_Type*> m_ToolMarkers;
 	std::vector<QIN_Transform_Type*> m_ReferMarkers;
@@ -81,6 +85,9 @@ vtkTrackingMarkCapture<TrackerType>* vtkTrackingMarkCapture<TrackerType>::New()
 template<typename TrackerType>
 vtkTrackingMarkCapture<TrackerType>::vtkTrackingMarkCapture()
 {
+	m_CalibrationMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+	m_CalibrationMatrix->Identity();
+
 	m_ToolIndex = 0;
 	m_ReferIndex = 0;
 
@@ -166,9 +173,19 @@ std::vector<double*> vtkTrackingMarkCapture<TrackerType>::GetMarkerList()
 	{
 		double* coor;
 		coor = new double[3];
-		coor[0] = (*it)->x;
-		coor[1] = (*it)->y;
-		coor[2] = (*it)->z;
+
+		//auto trans = vtkSmartPointer<vtkTransform>::New();
+		//trans->SetMatrix(m_CalibrationMatrix);
+		//double* temp = trans->TransformPoint((*it)->x, (*it)->y, (*it)->z);
+		auto matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+		PivotCalibration2::TransformToMatrix((*it), matrix);
+		auto temp_transform = vtkSmartPointer<vtkTransform>::New();
+		temp_transform->SetMatrix(matrix);
+		temp_transform->Concatenate(m_CalibrationMatrix);
+
+		coor[0] = temp_transform->GetPosition()[0];
+		coor[1] = temp_transform->GetPosition()[1];
+		coor[2] = temp_transform->GetPosition()[2];
 		ret.push_back(coor);
 	}
 	return ret;

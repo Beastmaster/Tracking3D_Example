@@ -34,7 +34,6 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	connect(ui->sel_Tracker_Combo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_Sel_Tracker(int)));
 	connect(ui->sel_Marker_Btn, SIGNAL(clicked()),this,SLOT(on_Sel_Markers()));
 	connect(ui->cap_Marker_Btn, SIGNAL(clicked()), this, SLOT(on_Cap_Btn()));
-	connect(ui->calib_Btn, SIGNAL(clicked()), this, SLOT(on_Calibration_Btn()));
 	connect(ui->ok_Sel_Btn, SIGNAL(clicked()), this, SLOT(on_CapDone_Btn()));
 	connect(ui->start_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StartTracking()));
 	connect(ui->stop_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StopTracking()));
@@ -96,6 +95,37 @@ void MainWindow::sys_Init()
 	m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
 	m_Marker_Capture->SetToolIndex(0);
 
+	//apply calibration matrix
+	m_ToolTipCalibration_Matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+	double mat[4][4];
+	mat[0][0] = 1.0;
+	mat[0][1] = 0.0;
+	mat[0][2] = 0.0;
+	mat[0][3] = -18.0642;
+	mat[1][0] = 0.0;
+	mat[1][1] = 1.0;
+	mat[1][2] = 0.0;
+	mat[1][3] = 0.906081;
+	mat[2][0] = 0.0;
+	mat[2][1] = 0.0;
+	mat[2][2] = 1.0;
+	mat[2][3] = -159.345;
+	mat[3][0] = 0.0;
+	mat[3][1] = 0.0;
+	mat[3][2] = 0.0;
+	mat[3][3] = 1.0;
+	for (size_t i = 0; i < 4; i++)
+	{
+		for (size_t j = 0; j < 4; j++)
+		{
+			m_ToolTipCalibration_Matrix->SetElement(i,j,mat[i][j]);
+			std::cout << m_ToolTipCalibration_Matrix->GetElement(i, j) << " , ";
+		}
+		std::cout << std::endl;
+	}
+	m_Marker_Capture->SetCalibrationMatrix(m_ToolTipCalibration_Matrix);
+	m_3d_View->SetToolTipCalibrationMatrix(m_ToolTipCalibration_Matrix);
+
 }
 
 /*
@@ -106,6 +136,7 @@ void MainWindow::createActions()
 	connect(ui->actionCalibrate_Tool, SIGNAL(triggered()), this, SLOT(on_ActionCalibrate()));
 	connect(ui->actionSet_Tool, SIGNAL(triggered()), this, SLOT(on_ActionSetTool()));
 	connect(ui->actionLoad_Target_Model, SIGNAL(triggered()), this, SLOT(on_ActionLoadTarget()));
+	connect(ui->actionCalibrate_Tool, SIGNAL(clicked()), this, SLOT(on_ActionCalibrate()));
 }
 
 /*
@@ -290,12 +321,11 @@ void MainWindow::on_Cap_Btn()
 /*
 Run Calibration process and get output the calibration transform
 */
-void MainWindow::on_Calibration_Btn()
+
+void MainWindow::on_ActionCalibrate()
 {
 	m_Calibration_Win->setWindowModality(Qt::WindowModal);
 	m_Calibration_Win->show();
-
-	m_Calibration_Win->GetCalibrationMatrix(m_ToolTipCalibration_Matrix);
 }
 
 /*
@@ -380,11 +410,6 @@ void MainWindow::on_StopTracking()
 	m_3d_View->StopTracking();
 }
 
-
-void MainWindow::on_ActionCalibrate()
-{
-
-}
 
 /*
 Set Tracking Tool Model

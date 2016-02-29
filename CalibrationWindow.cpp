@@ -223,16 +223,57 @@ void CalibrationWindow::On_Close()
 
 void CalibrationWindow::On_Timer()
 {
-		m_Tool_Transform = m_Polaris->GetTransform(0);
-		auto matrix = vtkSmartPointer<vtkMatrix4x4>::New();
-		PivotCalibration2::TransformToMatrix(m_Tool_Transform, matrix);
+	double mat[4][4];
+	mat[0][0] = 0.0392916;
+	mat[0][1] = 0.87901;
+	mat[0][2] = -0.925426;
+	mat[0][3] = -544.782;
+	mat[1][0] = -0.173115;
+	mat[1][1] = 0.69974;
+	mat[1][2] = 0.791138;
+	mat[1][3] = 898.569;
+	mat[2][0] = 1.05681;
+	mat[2][1] = 0.145884;
+	mat[2][2] = -0.132635;
+	mat[2][3] = -103.639;
+	mat[3][0] = 0;
+	mat[3][1] = 0;
+	mat[3][2] = 0;
+	mat[3][3] = 1;
+	auto reg = vtkSmartPointer<vtkMatrix4x4>::New();
+	for (size_t i = 0; i < 4; i++)
+	{
+		for (size_t j = 0; j < 4; j++)
+		{
+			reg->SetElement(i, j, mat[i][j]);
+		}
+	}
+	// convert raw position and rotation information from sensor
+	m_Tool_Transform = m_Polaris->GetTransform(0);
+	auto matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+	PivotCalibration2::TransformToMatrix(m_Tool_Transform, matrix);
+	// calibrate the tool tip
+	auto temp_transform = vtkSmartPointer<vtkTransform>::New();
+	temp_transform->SetMatrix(matrix);
+	temp_transform->Concatenate(m_Tool2TipMatrix);
+	// transform with registration transform
+	auto temp_transform2 = vtkSmartPointer<vtkTransform>::New();
+	temp_transform2->SetMatrix(reg);
+	auto temp = temp_transform2->TransformPoint(temp_transform->GetPosition());
+	auto orientation = temp_transform->GetOrientation();
 
-		auto temp_transform = vtkSmartPointer<vtkTransform>::New();
-		temp_transform->SetMatrix(matrix);
-		temp_transform->Concatenate(m_Tool2TipMatrix);
+	temp_transform->Identity();
+	temp_transform->Translate(temp);
+	temp_transform->RotateX(orientation[0]);
+	temp_transform->RotateY(orientation[1]);
+	temp_transform->RotateZ(orientation[2]);
+	// convert orientation
 
-		m_Actor->SetUserTransform(temp_transform);
-		m_View->Render();
+
+	m_Actor->SetUserTransform(temp_transform);
+	//m_Actor->SetPosition(temp);
+	//m_Actor->SetOrientation(orientation);
+	m_View->Render();
 }
 
 

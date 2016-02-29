@@ -401,7 +401,7 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 		// check transform validation
 		if (this->m_dtHandleInformation[index2].Xfrms.ulFlags != TRANSFORM_VALID )
 		{
-			std::cout << "Transform"<< index <<" Invalid!" << std::endl;
+			std::cout << "Transform "<< index <<" Invalid!" << std::endl;
 			return m_Transform;
 		}
 		if (this->m_dtHandleInformation[index2].HandleInfo.bPartiallyOutOfVolume)

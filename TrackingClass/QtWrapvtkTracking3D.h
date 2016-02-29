@@ -84,7 +84,7 @@ public slots:
 			if (temp != NULL)
 			{
 				// construct transform
-				double* coor = this->GetRegisterTransform()->TransformPoint(temp->x, temp->y, temp->z);
+				double* coor = this->GetRegisteredTransform()->TransformPoint(temp->x, temp->y, temp->z);
 				//double* temp = m_LandMarkTransform->TransformVector(trans->x, trans->y, trans->z);
 
 				// put out
@@ -101,12 +101,13 @@ public slots:
 		}
 		emit on_timer_signal_index(this->m_SliceX, this->m_SliceY, this->m_SliceZ);
 		emit on_timer_signal_coor(m_marker_tobe_set[0], m_marker_tobe_set[1], m_marker_tobe_set[2]);
+		emit on_timer_signal_transform(this->GetRegisteredTransformMatrix());
 	}
 
 signals:
 	void on_timer_signal_index(int index_x,int index_y, int index_z);
 	void on_timer_signal_coor(double x, double y, double z);
-	
+	void on_timer_signal_transform(vtkMatrix4x4*);
 private:
 	vtkSmartPointer<vtkEventQtSlotConnect> m_TimerConnect;
 	vtkSmartPointer<vtkEventQtSlotConnect> m_MouseClickConnect;

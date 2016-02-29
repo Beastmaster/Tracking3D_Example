@@ -14,8 +14,9 @@ Manual2:
 		This class use a base class of tracker, you should add a 
 		tracker_configuration_class pointer by hand. This 
 		pointer is not managed here, just call some functions.
-	3. Connect actor and tracker tool; if no actor connected, let the index_actor = 0
-	4. Use signal an slot to access coordinate (Find3DIndex to get slice index)
+	3. Set Calibration and Registration matrix
+	4. Connect actor and tracker tool; if no actor connected, let the index_actor = 0
+	5. Use signal an slot to access coordinate (Find3DIndex to get slice index)
 	6. Start Timer and tracking 
 */
 
@@ -94,7 +95,7 @@ User Manual:
 	tracker_configuration_class pointer by hand. This 
 	pointer is not managed here, just call some functions.
 4. Connect tracker tool and actor
-5. Set Transform matrix. For generation of Transform matrix, refer to vtkTrackingRegistration class.
+5. Set Calibration and Registration matrix. For generation of Registration matrix, refer to vtkTrackingRegistration class.
 6. Start Timer and tracking
 
 Tips:
@@ -149,7 +150,8 @@ public:
 	vtkRenderer* GetDefaultRenderer();
 	vtkSmartPointer<vtkRenderWindow> GetRenderWindow();
 	vtkSmartPointer<vtkRenderWindowInteractor> GetInteractor();
-	vtkSmartPointer<vtkTransform> GetRegisterTransform();
+	vtkSmartPointer<vtkTransform> GetRegisteredTransform();
+	vtkSmartPointer<vtkMatrix4x4> GetRegisteredTransformMatrix();
 
 	void GetResliceIndex(int*);
 	void EnablePick();
@@ -202,16 +204,16 @@ private:
 	vtkSmartPointer<vtkTransform> m_RawTransform;
 	vtkSmartPointer<vtkMatrix4x4> m_RawTransformMatrix;
 
-	// Final transform result, Done all the registration and calibration process
-	vtkSmartPointer<vtkTransform> m_FinTransform;
-	vtkSmartPointer<vtkMatrix4x4> m_FinTransformMatrix;
-	
 	// Registration Transform and matrix
 	vtkSmartPointer<vtkTransform> m_RegisterTransform;
 	vtkSmartPointer<vtkMatrix4x4> m_RegisterTransformMatrix;
 
 	// Tooltip to tool calibration matrix
 	vtkSmartPointer<vtkMatrix4x4> m_ToolTipCalibrationMatrix;
+
+	// Final transform result, Done all the registration and calibration process
+	vtkSmartPointer<vtkTransform> m_FinTransform;
+	vtkSmartPointer<vtkMatrix4x4> m_FinTransformMatrix;
 
 	//
 	vtkSmartPointer<vtkRenderer> m_CurrentRenderer;

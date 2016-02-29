@@ -42,6 +42,8 @@ there is no tracker type specified functions to be called.
 Please be noted that, this class do not configure any tracker,
 you should pass a configured tracker in. Because this class 
 just call some get data functions.
+
+SetCalibrationMatrix() function is badly needed
 */
 template<typename TrackerType>
 class vtkTrackingMarkCapture : public vtkObject

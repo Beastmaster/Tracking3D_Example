@@ -136,7 +136,7 @@ void MainWindow::createActions()
 	connect(ui->actionCalibrate_Tool, SIGNAL(triggered()), this, SLOT(on_ActionCalibrate()));
 	connect(ui->actionSet_Tool, SIGNAL(triggered()), this, SLOT(on_ActionSetTool()));
 	connect(ui->actionLoad_Target_Model, SIGNAL(triggered()), this, SLOT(on_ActionLoadTarget()));
-	connect(ui->actionCalibrate_Tool, SIGNAL(clicked()), this, SLOT(on_ActionCalibrate()));
+	connect(ui->actionCalibrate_Tool, SIGNAL(triggered()), this, SLOT(on_ActionCalibrate()));
 }
 
 /*
@@ -353,6 +353,7 @@ void MainWindow::on_CapDone_Btn()
 	reg->GenerateTransform();
 	auto res2 = reg->GetTransformMatrix();
 	std::cout << "Result" << std::endl;
+	std::cout << "Error is: " << reg->EstimateRegistrationError() << std::endl;
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
@@ -362,8 +363,10 @@ void MainWindow::on_CapDone_Btn()
 
 	// a messagebox for user to accecpt or discard the error
 	QMessageBox msgBox;
-	msgBox.setText("Register Box");
-	msgBox.setInformativeText("Do you want to apply this matrix?");
+	msgBox.setWindowTitle("Register Box");
+	QString msg = "Accept the registration error:\n   ";
+	msg = msg + QString::number(reg->EstimateRegistrationError());
+	msgBox.setInformativeText(msg);
 	msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Discard);
 	msgBox.setDefaultButton(QMessageBox::Yes);
 	int ret = msgBox.exec();

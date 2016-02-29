@@ -343,6 +343,10 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 	// transform with registration matrix
 	auto temp_pos = m_RegisterTransform->TransformPoint(m_FinTransform->GetPosition());
 	auto temp_ori = m_FinTransform->GetOrientation();
+	auto temp_ori_r = m_RegisterTransform->GetOrientation();
+	for (size_t i = 0; i < 3; i++)
+		temp_ori[i] += temp_ori_r[i];
+	
 	//reset
 	m_FinTransform->Identity();
 	m_FinTransform->Translate(temp_pos);

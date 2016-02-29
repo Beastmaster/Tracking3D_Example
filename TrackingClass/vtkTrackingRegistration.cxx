@@ -151,7 +151,7 @@ void vtkTrackingRegistrationBase::EstimatingRegistrationError()
 
 	while ((src_iter != m_src_Points.end()) && (tgt_iter != m_target_Points.end()))
 	{
-		trans->TransformNormal(*src_iter,temp);
+		trans->TransformPoint(*src_iter,temp);
 		error += ((*tgt_iter)[0] - temp[0])*((*tgt_iter)[0] - temp[0]); 
 		error += ((*tgt_iter)[1] - temp[1])*((*tgt_iter)[1] - temp[1]);
 		error += ((*tgt_iter)[2] - temp[2])*((*tgt_iter)[2] - temp[2]);

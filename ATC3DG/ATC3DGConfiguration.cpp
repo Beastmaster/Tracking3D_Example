@@ -270,10 +270,10 @@ QIN_Transform_Type* ATC3DGConfiguration::GetTransform(int index)
 	m_Transform->x = m_TransformInformation[index]->x;
 	m_Transform->y = m_TransformInformation[index]->y;
 	m_Transform->z = m_TransformInformation[index]->z;
-	m_Transform->qx = m_TransformInformation[index]->a;
-	m_Transform->qy = m_TransformInformation[index]->e;
-	m_Transform->qz = m_TransformInformation[index]->r;
-	m_Transform->q0 = 0;
+	m_Transform->qx = m_TransformInformation[index]->q[1];
+	m_Transform->qy = m_TransformInformation[index]->q[2];
+	m_Transform->qz = m_TransformInformation[index]->q[3];
+	m_Transform->q0 = m_TransformInformation[index]->q[0];
 	m_Transform->error = m_TransformInformation[index]->quality;
 
 	return m_Transform;
@@ -500,9 +500,10 @@ int ATC3DGConfiguration::GetTransformInformation()
 				m_TransformInformation[sensorID]->x << "  " <<
 				m_TransformInformation[sensorID]->y << "  " <<
 				m_TransformInformation[sensorID]->z << "  " <<
-				m_TransformInformation[sensorID]->a << "  " <<
-				m_TransformInformation[sensorID]->e << "  " <<
-				m_TransformInformation[sensorID]->r << "  " <<
+				m_TransformInformation[sensorID]->q[0] << "  " <<
+				m_TransformInformation[sensorID]->q[1] << "  " <<
+				m_TransformInformation[sensorID]->q[2] << "  " <<
+				m_TransformInformation[sensorID]->q[3] << "  " <<
 				m_TransformInformation[sensorID]->time << "  " <<
 				m_TransformInformation[sensorID]->quality << "  " <<
 				std::endl;

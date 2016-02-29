@@ -3,6 +3,9 @@ Author: QIN Shuo
 Organization: RC-MIC (CUHK)
 Date: 2016/01/05
 
+
+Note:
+	For QUATERNION: q0, q1, q2, and q3, q0 is the scaler component
 */
 
 #ifndef _ATC3DGCONFIGURATION_H_
@@ -24,7 +27,8 @@ class ATC3DGConfiguration : public TrackerBase
 	typedef BOARD_CONFIGURATION		    ATC3DGBoardType;
 
 	typedef DOUBLE_POSITION_ANGLES_RECORD      DefaultTransformType; //useless
-	typedef DOUBLE_POSITION_ANGLES_TIME_Q_RECORD  DefinedTransformType;
+	typedef DOUBLE_POSITION_QUATERNION_TIME_Q_RECORD  DefinedTransformType;
+	
 
 public:
 	ATC3DGConfiguration();

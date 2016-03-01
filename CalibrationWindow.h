@@ -47,7 +47,7 @@ Module:
 #include "PivotCalibration.h"
 #include "PivotCalibration2.h"
 
-
+#include "QtWrapvtkTracking3D.h"
 
 namespace Ui {
 	class CalibrationWindow;
@@ -79,14 +79,14 @@ public:
 	void Act_CreateDefault();
 	void On_Move();
 	void On_Close();
-	void On_Timer();
+	void On_Timer(vtkMatrix4x4*);
 
 protected:
 	void CreateCoordinate();
 	
 private:
 	Ui::CalibrationWindow *ui;
-	QTimer*					m_Timer;
+	vtkSmartPointer<QtWrapvtkTracking3D>		m_Tracking3D;
 
 	vtkSmartPointer<vtkRenderWindow>			m_View;
 	vtkSmartPointer<vtkRenderWindowInteractor>  m_Interactor;

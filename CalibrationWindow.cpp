@@ -19,6 +19,7 @@ Module:
 #include "vtkAxesActor.h"
 #include "vtkCylinderSource.h"
 
+
 CalibrationWindow::CalibrationWindow(QWidget *parent) :
 QMainWindow(parent), ui(new Ui::CalibrationWindow)
 {
@@ -43,7 +44,6 @@ CalibrationWindow:: ~CalibrationWindow()
 
 void CalibrationWindow::sys_Init()
 {
-	m_Timer = new QTimer(this);
 
 	m_View = ui->view_Widget->GetRenderWindow();
 	m_Interactor = m_View->GetInteractor();
@@ -55,6 +55,40 @@ void CalibrationWindow::sys_Init()
 
 	m_Polaris = new PloarisVicraConfiguration;
 	m_ATC = new ATC3DGConfiguration; 
+
+	//configure tracker
+	m_Tracking3D = vtkSmartPointer<QtWrapvtkTracking3D>::New();
+	m_Tracking3D->SetTracker(m_Polaris);
+	m_Tracking3D->AddToolIndex(0);
+
+	double mat[4][4];
+	mat[0][0] = 0.0392916;
+	mat[0][1] = 0.87901;
+	mat[0][2] = -0.925426;
+	mat[0][3] = -544.782;
+	mat[1][0] = -0.173115;
+	mat[1][1] = 0.69974;
+	mat[1][2] = 0.791138;
+	mat[1][3] = 898.569;
+	mat[2][0] = 1.05681;
+	mat[2][1] = 0.145884;
+	mat[2][2] = -0.132635;
+	mat[2][3] = -103.639;
+	mat[3][0] = 0;
+	mat[3][1] = 0;
+	mat[3][2] = 0;
+	mat[3][3] = 1;
+	auto reg = vtkSmartPointer<vtkMatrix4x4>::New();
+	for (size_t i = 0; i < 4; i++)
+	{
+		for (size_t j = 0; j < 4; j++)
+		{
+			reg->SetElement(i, j, mat[i][j]);
+		}
+	}
+	m_Tracking3D->SetRegisterTransform(reg);
+
+
 
 	m_Tool_Transform = new QIN_Transform_Type;
 	m_Tool2TipTransform = vtkSmartPointer<vtkTransform>::New();
@@ -87,8 +121,6 @@ void CalibrationWindow::On_Config_Polaris()
 {
 	m_Polaris->ConfigureTracker();
 	m_Polaris->StartTracking();
-
-
 }
 
 
@@ -161,6 +193,8 @@ void CalibrationWindow::On_Calculate2()
 	m_Actor->SetUserTransform(m_Tool2TipTransform);
 	m_View->Render();
 	m_CalibrationHandle2->ClearToolToReferenceMatrices();
+
+	m_Tracking3D->SetToolTipCalibrationMatrix(m_Tool2TipMatrix);
 }
 
 
@@ -215,44 +249,25 @@ void CalibrationWindow::Act_CreateDefault()
 
 void CalibrationWindow::On_Move()
 {
-	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer()));
-	m_Timer->start(200);
+	connect(m_Tracking3D, SIGNAL(on_timer_signal_transform(vtkMatrix4x4*)), this, SLOT(On_Timer(vtkMatrix4x4*)));
+	m_Tracking3D->StartTracking2();
 }
 void CalibrationWindow::On_Close()
 {
-	m_Timer->stop();
+	m_Tracking3D->StopTracking2();
 	m_Polaris->StopTracking();
 	m_ATC->StopTracking();
 }
 
 
-void CalibrationWindow::On_Timer()
+void CalibrationWindow::On_Timer(vtkMatrix4x4* matrix)
 {
-	double mat[4][4];
-	mat[0][0] = 0.0392916;
-	mat[0][1] = 0.87901;
-	mat[0][2] = -0.925426;
-	mat[0][3] = -544.782;
-	mat[1][0] = -0.173115;
-	mat[1][1] = 0.69974;
-	mat[1][2] = 0.791138;
-	mat[1][3] = 898.569;
-	mat[2][0] = 1.05681;
-	mat[2][1] = 0.145884;
-	mat[2][2] = -0.132635;
-	mat[2][3] = -103.639;
-	mat[3][0] = 0;
-	mat[3][1] = 0;
-	mat[3][2] = 0;
-	mat[3][3] = 1;
-	auto reg = vtkSmartPointer<vtkMatrix4x4>::New();
-	for (size_t i = 0; i < 4; i++)
-	{
-		for (size_t j = 0; j < 4; j++)
-		{
-			reg->SetElement(i, j, mat[i][j]);
-		}
-	}
+	m_Actor->SetUserMatrix(matrix);
+	m_View->Render();
+}
+
+/*
+
 	// convert raw position and rotation information from sensor
 	m_Tool_Transform = m_Polaris->GetTransform(0);
 	auto matrix = vtkSmartPointer<vtkMatrix4x4>::New();
@@ -269,9 +284,7 @@ void CalibrationWindow::On_Timer()
 	m_Actor->SetUserTransform(registered);
 	//m_Actor->SetPosition(temp);
 	//m_Actor->SetOrientation(orientation);
-	m_View->Render();
-}
 
-
+*/
 
 

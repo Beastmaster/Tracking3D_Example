@@ -331,6 +331,9 @@ int vtkTracking3D::SetColor(int index, double* rgb)
 Description:
 	Private function
 	Apply certain transform to moving actor
+
+Input:
+	index:	index of actors, count from 0
 */
 int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 {

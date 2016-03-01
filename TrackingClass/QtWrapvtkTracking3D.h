@@ -44,27 +44,48 @@ public:
 	vtkTypeMacro(QtWrapvtkTracking3D, vtkTracking3D);
 
 	//explicit QtWrapvtkTracking3D(QWidget *parent = 0);
+	QtWrapvtkTracking3D()
+	{
+		m_Timer = new QTimer;
+
+		//   I have tested that, if you want to pass an
+		m_MouseClickConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();				   //   VTK User defined event to other object, for 
+		m_MouseClickConnect->Connect(this, QIN_S_VTK_EVENT,//vtkCommand::LeftButtonPressEvent, //   example Qt slot, you should define an unique 
+			this, SLOT(on_emit_callback(vtkObject*)));										   //   EVENT ID like QIN_S_VTK_EVENT(This ID is 
+	};																						   //   defined in vtkTracking3D.h), and then
+	//   connect in the way like left code block.
+	~QtWrapvtkTracking3D()
+	{
+		disconnect(m_Timer, SIGNAL(timeout()), this, SLOT(on_Timer()));
+		delete m_Timer;
+	};
+
 
 	void StartTracking2()
 	{
 		m_Timer->start(m_interval);
 		connect(m_Timer, SIGNAL(timeout()), this, SLOT(on_Timer()));
 	};
-
-	QtWrapvtkTracking3D()
-	{						
-		m_Timer = new QTimer;
-		
-		//   I have tested that, if you want to pass an
-		m_MouseClickConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();				   //   VTK User defined event to other object, for 
-		m_MouseClickConnect->Connect(this, QIN_S_VTK_EVENT,//vtkCommand::LeftButtonPressEvent, //   example Qt slot, you should define an unique 
-			this, SLOT(on_emit_callback(vtkObject*)));										   //   EVENT ID like QIN_S_VTK_EVENT(This ID is 
-	};																						   //   defined in vtkTracking3D.h), and then
-																							   //   connect in the way like left code block.
-	~QtWrapvtkTracking3D()
+	void StopTracking2()
 	{
+		m_Timer->stop();
 		disconnect(m_Timer, SIGNAL(timeout()), this, SLOT(on_Timer()));
-		delete m_Timer;
+	};
+	/*
+	Description:
+		Set the index of tool in the tracking system
+		This function actually add component to a map of actors and tools.
+
+	Input:
+		index:	Count from 0. In polaris vicra, the order is same as ROM files; in ATC, the order is as connector
+	*/
+	void AddToolIndex(int index)
+	{
+		m_Obj_Tool_Map[m_Obj_Tool_Map.size()] = index;
+	};
+	void DeleteToolIndex(int index)
+	{
+		// To be continued
 	};
 
 public slots:

@@ -464,10 +464,10 @@ Note:
 */
 void vtkTracking3D::SetTracker(TrackerType* in) 
 { 
-	if (m_tracker != NULL)
-	{
-		delete m_tracker;
-	}
+	//if (m_tracker != NULL)
+	//{
+	//	delete m_tracker;
+	//}
 	m_tracker = in; 
 };
 

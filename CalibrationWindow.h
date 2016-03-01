@@ -72,6 +72,8 @@ public:
 
 	void On_Config_Polaris();
 	void On_Config_ATC();
+	void Toggle_Polaris_Radio(bool);
+	void Toggle_ATC_Radio(bool);
 	void On_Capture();
 	void On_Calculate1();
 	void On_Calculate2();

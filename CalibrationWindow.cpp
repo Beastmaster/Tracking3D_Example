@@ -28,6 +28,8 @@ QMainWindow(parent), ui(new Ui::CalibrationWindow)
 
 	connect(ui->config_Polaris_Btn,SIGNAL(clicked()),this,SLOT(On_Config_Polaris()));
 	connect(ui->config_ATC_Btn, SIGNAL(clicked()), this, SLOT(On_Config_ATC()));
+	connect(ui->polaris_Radio, SIGNAL(toggled(bool)), this, SLOT(Toggle_Polaris_Radio(bool)));
+	connect(ui->ATC_Radio, SIGNAL(toggled(bool)), this, SLOT(Toggle_ATC_Radio(bool)));
 	connect(ui->capture_Btn, SIGNAL(clicked()), this, SLOT(On_Capture()));
 	connect(ui->cal1_Btn, SIGNAL(clicked()), this, SLOT(On_Calculate1()));
 	connect(ui->cal2_Btn, SIGNAL(clicked()), this, SLOT(On_Calculate2()));
@@ -58,7 +60,6 @@ void CalibrationWindow::sys_Init()
 
 	//configure tracker
 	m_Tracking3D = vtkSmartPointer<QtWrapvtkTracking3D>::New();
-	m_Tracking3D->SetTracker(m_Polaris);
 	m_Tracking3D->AddToolIndex(0);
 
 	double mat[4][4];
@@ -128,8 +129,21 @@ void CalibrationWindow::On_Config_ATC()
 {
 	m_ATC->ConfigureTracker();
 	m_ATC->StartTracking();
+}
 
-
+void CalibrationWindow::Toggle_Polaris_Radio(bool checked)
+{
+	if (checked)
+	{
+		m_Tracking3D->SetTracker(m_Polaris);
+	}
+}
+void CalibrationWindow::Toggle_ATC_Radio(bool checked)
+{
+	if (checked)
+	{
+		m_Tracking3D->SetTracker(m_ATC);
+	}
 }
 
 

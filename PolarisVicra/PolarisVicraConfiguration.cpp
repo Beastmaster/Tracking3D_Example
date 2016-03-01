@@ -319,7 +319,7 @@ int  PloarisVicraConfiguration::ConfigureTracker()
 		}
 		else
 		{
-			std::cout << "Cannot set comm parameters" << std::endl;
+			std::cout << "Cannot Set COM parameters" << std::endl;
 			return 1;
 		}
 	}

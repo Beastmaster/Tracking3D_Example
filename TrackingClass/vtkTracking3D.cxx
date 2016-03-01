@@ -338,20 +338,18 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 	PivotCalibration2::TransformToMatrix(trans,m_RawTransformMatrix);
 	m_RawTransform->SetMatrix(m_RawTransformMatrix);
 
-	m_FinTransform->Identity();
-	m_FinTransform->SetMatrix(m_RawTransformMatrix);
-	m_FinTransform->Concatenate(m_ToolTipCalibrationMatrix);
-	// transform with registration matrix
-	auto temp_pos = m_RegisterTransform->TransformPoint(m_FinTransform->GetPosition());
-	auto temp_ori = m_FinTransform->GetOrientation();
-	auto temp_ori_r = m_RegisterTransform->GetOrientation();
-	for (size_t i = 0; i < 3; i++)
-		temp_ori[i] += temp_ori_r[i];
-	
-	//reset
-	m_FinTransform->Identity();
-	m_FinTransform->Translate(temp_pos);
-	m_FinTransform->RotateX(temp_ori[0]); m_FinTransform->RotateY(temp_ori[1]); m_FinTransform->RotateZ(temp_ori[2]);
+	//0. Clear original data
+	auto temp_Transform = vtkSmartPointer<vtkTransform>::New();
+	//1. Set Raw transform matrix
+	temp_Transform->SetMatrix(m_RawTransformMatrix);
+	//2. Concatenate Calibration Matrix
+	temp_Transform->Concatenate(m_ToolTipCalibrationMatrix);
+	//3. Transform with registration matrix
+	m_RegisterTransform->Identity();
+	m_RegisterTransform->SetMatrix(m_RegisterTransformMatrix);
+	m_RegisterTransform->Concatenate(temp_Transform);
+	//4. Final transform copy the registered transform
+	m_FinTransform->DeepCopy(m_RegisterTransform);
 	m_FinTransformMatrix = m_FinTransform->GetMatrix();
 
 	// put out

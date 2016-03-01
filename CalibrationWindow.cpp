@@ -167,28 +167,28 @@ void CalibrationWindow::On_Calculate2()
 
 void CalibrationWindow::Act_LoadSTL()
 {
-	//QString fileName = QFileDialog::getOpenFileName(this,
-	//	tr("Open Image"), "E:/", tr("Image Files (*.stl)"));
-	//if (fileName.isEmpty())
-	//{
-	//	return;
-	//}
-	//auto reader = vtkSmartPointer<vtkSTLReader>::New();
-	//reader->SetFileName(fileName.toStdString().c_str());
-	//reader->Update();
-	//
-	//auto image = vtkSmartPointer<vtkPolyData>::New();
-	//image = reader->GetOutput();
-	//auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-	//mapper->SetInputData(image);
-	//m_Actor = vtkSmartPointer<vtkActor>::New();
-	//m_Actor->SetMapper(mapper);
-	//m_Actor->SetOrientation(0,0,0);
-	vtkSmartPointer<vtkAxesActor> axes =
-		vtkSmartPointer<vtkAxesActor>::New();
-	axes->SetTotalLength(200.0, 200.0, 200.0);
+	QString fileName = QFileDialog::getOpenFileName(this,
+		tr("Open Image"), "E:/", tr("Image Files (*.stl)"));
+	if (fileName.isEmpty())
+	{
+		return;
+	}
+	auto reader = vtkSmartPointer<vtkSTLReader>::New();
+	reader->SetFileName(fileName.toStdString().c_str());
+	reader->Update();
 	
-	m_Actor = axes;
+	auto image = vtkSmartPointer<vtkPolyData>::New();
+	image = reader->GetOutput();
+	auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->SetInputData(image);
+	m_Actor = vtkSmartPointer<vtkActor>::New();
+	m_Actor->SetMapper(mapper);
+	m_Actor->SetOrientation(0,0,0);
+	//vtkSmartPointer<vtkAxesActor> axes =
+	//	vtkSmartPointer<vtkAxesActor>::New();
+	//axes->SetTotalLength(200.0, 200.0, 200.0);
+	//
+	//m_Actor = axes;
 	m_Renderer->AddActor(m_Actor);
 	m_Renderer->ResetCamera();
 	m_View->Render();
@@ -258,24 +258,15 @@ void CalibrationWindow::On_Timer()
 	auto matrix = vtkSmartPointer<vtkMatrix4x4>::New();
 	PivotCalibration2::TransformToMatrix(m_Tool_Transform, matrix);
 	// calibrate the tool tip
-	auto temp_transform = vtkSmartPointer<vtkTransform>::New();
-	temp_transform->SetMatrix(matrix);
-	temp_transform->Concatenate(m_Tool2TipMatrix);
+	auto calibrated = vtkSmartPointer<vtkTransform>::New();
+	calibrated->SetMatrix(matrix);
+	calibrated->Concatenate(m_Tool2TipMatrix);
 	// transform with registration transform
-	auto temp_transform2 = vtkSmartPointer<vtkTransform>::New();
-	temp_transform2->SetMatrix(reg);
-	auto temp = temp_transform2->TransformPoint(temp_transform->GetPosition());
-	auto orientation = temp_transform->GetOrientation();
+	auto registered = vtkSmartPointer<vtkTransform>::New();
+	registered->SetMatrix(reg);
+	registered->Concatenate(calibrated);
 
-	temp_transform->Identity();
-	temp_transform->Translate(temp);
-	temp_transform->RotateX(orientation[0]);
-	temp_transform->RotateY(orientation[1]);
-	temp_transform->RotateZ(orientation[2]);
-	// convert orientation
-
-
-	m_Actor->SetUserTransform(temp_transform);
+	m_Actor->SetUserTransform(registered);
 	//m_Actor->SetPosition(temp);
 	//m_Actor->SetOrientation(orientation);
 	m_View->Render();

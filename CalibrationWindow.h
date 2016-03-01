@@ -92,7 +92,7 @@ private:
 	vtkSmartPointer<vtkRenderWindowInteractor>  m_Interactor;
 	vtkSmartPointer<vtkRenderer>				m_Renderer;
 
-	vtkSmartPointer<vtkProp3D>					m_Actor;
+	vtkSmartPointer<vtkActor>					m_Actor;
 	vtkSmartPointer<vtkProp3D>					m_Actor2;
 	vtkSmartPointer<vtkActor>					m_Tra_Actor;
 

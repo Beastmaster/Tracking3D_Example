@@ -377,7 +377,7 @@ int ATC3DGConfiguration::SensorSetup()
 		//Setup sensor data format
 		//See also: GetTransformInformation() / ATC3DG.h
 		//Output Data format is strictly related to this line.
-		DATA_FORMAT_TYPE format = DOUBLE_POSITION_ANGLES_TIME_Q;
+		DATA_FORMAT_TYPE format = DOUBLE_POSITION_QUATERNION_TIME_Q;
 		m_ErrorCode = SetSensorParameter(i,DATA_FORMAT,&format,sizeof(format));
 
 		m_ErrorCode = GetSensorConfiguration(i, m_SensorConfig + i);

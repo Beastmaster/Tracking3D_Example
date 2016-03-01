@@ -129,7 +129,7 @@ void vtkTrackingRegistrationBase::ComputeRMSDistanceLandmarksFromPrincipalAxes()
 /*
 Description:
 	Start computing the error between the source point and the target point
-
+	Compute RMSD of registration result
 Main functions:
 	1. Set/Get input markers
 	2. Set Iterate Steps
@@ -250,8 +250,8 @@ void vtkTrackingLandMarkRegistration::GenerateTransform()
 	m_landmarkTransform->SetSourceLandmarks(src_Points);
 	m_landmarkTransform->SetTargetLandmarks(target_Points);
 
-	//m_landmarkTransform->SetModeToRigidBody(); //This mode is tested but not good
-	m_landmarkTransform->SetModeToAffine(); // Please use this affine mode.
+	m_landmarkTransform->SetModeToRigidBody(); //This mode is tested but not good
+	//m_landmarkTransform->SetModeToAffine(); // Please use this affine mode.
 	m_landmarkTransform->Update(); //should this be here? YES
 
 	transform_matrix = m_landmarkTransform->GetMatrix();

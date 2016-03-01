@@ -125,18 +125,19 @@ Note:
 */
 int vtkTracking3D::ConnectObjectTracker(int obj_index, int tool_index)
 {
+	int return_value = 0;
 	if (obj_index >= m_ActorCollection->GetNumberOfItems())
 	{
 		std::cout << "actor index out of range" << std::endl;
-		return 1;
+		return_value =  1;
 	}
 	if (m_tracker->GetToolValidation(tool_index) != 0)
 	{
 		std::cout << "tool index out of range" << std::endl;
-		return 2;
+		return_value =  2;
 	}
 	m_Obj_Tool_Map[obj_index] = tool_index;
-	return 0;
+	return return_value;
 }
 
 /*
@@ -353,12 +354,13 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 	m_FinTransform->RotateX(temp_ori[0]); m_FinTransform->RotateY(temp_ori[1]); m_FinTransform->RotateZ(temp_ori[2]);
 	m_FinTransformMatrix = m_FinTransform->GetMatrix();
 
+	// put out
+	m_marker_tobe_set[0] = m_FinTransform->GetPosition()[0];
+	m_marker_tobe_set[1] = m_FinTransform->GetPosition()[1];
+	m_marker_tobe_set[2] = m_FinTransform->GetPosition()[2];
+
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
 	{
-		// put out
-		m_marker_tobe_set[0] = temp_pos[0];
-		m_marker_tobe_set[1] = temp_pos[1];
-		m_marker_tobe_set[2] = temp_pos[2];
 		//move actor here
 		GetActorPointer(m_ActorCollection, index)->SetUserTransform(m_FinTransform);
 		//this emit a signal to connect qt signal, to reslice 2D views
@@ -667,13 +669,6 @@ void TimerCallbackFunction(
 			std::cout << "transform invalid" << std::endl;
 		}
 	}
-
-	/*						   
-	Calculate index here!!!!!  
-	Not implemented			   
-							   
-	Manipulate m_index_tobe_set
-	*/
 
 	tracking->GetRenderWindow()->Render();
 }

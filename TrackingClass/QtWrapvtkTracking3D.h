@@ -81,18 +81,10 @@ public slots:
 			QIN_Transform_Type* temp;
 			//memset(&trans, 0, sizeof(QIN_Transform_Type));
 			temp = this->m_tracker->GetTransform(it->second);
+			
 			if (temp != NULL)
 			{
-				// construct transform
-				double* coor = this->GetRegisteredTransform()->TransformPoint(temp->x, temp->y, temp->z);
-				//double* temp = m_LandMarkTransform->TransformVector(trans->x, trans->y, trans->z);
-
-				// put out
-				this->m_marker_tobe_set[0] = coor[0];
-				this->m_marker_tobe_set[1] = coor[1];
-				this->m_marker_tobe_set[2] = coor[2];
-				//this emit a signal to connect qt signal, to reslice 2D views
-				std::cout << it->first << ":" << temp->x << " " << temp->y << " " << temp->z << std::endl;
+				this->SetTransform(it->first, temp);
 			}
 			else
 			{

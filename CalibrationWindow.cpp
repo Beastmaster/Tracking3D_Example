@@ -167,23 +167,28 @@ void CalibrationWindow::On_Calculate2()
 
 void CalibrationWindow::Act_LoadSTL()
 {
-	QString fileName = QFileDialog::getOpenFileName(this,
-		tr("Open Image"), "E:/", tr("Image Files (*.stl)"));
-	if (fileName.isEmpty())
-	{
-		return;
-	}
-	auto reader = vtkSmartPointer<vtkSTLReader>::New();
-	reader->SetFileName(fileName.toStdString().c_str());
-	reader->Update();
-
-	auto image = vtkSmartPointer<vtkPolyData>::New();
-	image = reader->GetOutput();
-	auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-	mapper->SetInputData(image);
-	m_Actor = vtkSmartPointer<vtkActor>::New();
-	m_Actor->SetMapper(mapper);
-	m_Actor->SetOrientation(0,-90,-90);
+	//QString fileName = QFileDialog::getOpenFileName(this,
+	//	tr("Open Image"), "E:/", tr("Image Files (*.stl)"));
+	//if (fileName.isEmpty())
+	//{
+	//	return;
+	//}
+	//auto reader = vtkSmartPointer<vtkSTLReader>::New();
+	//reader->SetFileName(fileName.toStdString().c_str());
+	//reader->Update();
+	//
+	//auto image = vtkSmartPointer<vtkPolyData>::New();
+	//image = reader->GetOutput();
+	//auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	//mapper->SetInputData(image);
+	//m_Actor = vtkSmartPointer<vtkActor>::New();
+	//m_Actor->SetMapper(mapper);
+	//m_Actor->SetOrientation(0,0,0);
+	vtkSmartPointer<vtkAxesActor> axes =
+		vtkSmartPointer<vtkAxesActor>::New();
+	axes->SetTotalLength(200.0, 200.0, 200.0);
+	
+	m_Actor = axes;
 	m_Renderer->AddActor(m_Actor);
 	m_Renderer->ResetCamera();
 	m_View->Render();

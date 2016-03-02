@@ -270,10 +270,10 @@ QIN_Transform_Type* ATC3DGConfiguration::GetTransform(int index)
 	m_Transform->x = m_TransformInformation[index]->x;
 	m_Transform->y = m_TransformInformation[index]->y;
 	m_Transform->z = m_TransformInformation[index]->z;
-	m_Transform->qx = m_TransformInformation[index]->q[1];
-	m_Transform->qy = m_TransformInformation[index]->q[2];
-	m_Transform->qz = m_TransformInformation[index]->q[3];
-	m_Transform->q0 = m_TransformInformation[index]->q[0];
+	m_Transform->qx = m_TransformInformation[index]->q[0];
+	m_Transform->qy = m_TransformInformation[index]->q[1];
+	m_Transform->qz = m_TransformInformation[index]->q[2];
+	m_Transform->q0 = m_TransformInformation[index]->q[3];
 	m_Transform->error = m_TransformInformation[index]->quality;
 
 	return m_Transform;

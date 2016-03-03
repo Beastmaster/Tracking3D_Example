@@ -203,10 +203,19 @@ void vtkTrackingICPRegistration::GenerateTransform()
 
 	//to accerlate calculation: convert to vertex
 	auto source_vertex = vtkSmartPointer<vtkVertexGlyphFilter>::New();
+#if VTK_MAJOR_VERSION <= 5
+	source_vertex->SetInput(source_poly);
+#else
 	source_vertex->SetInputData(source_poly);
+#endif
 	source_vertex->Update();
 	auto target_vertex = vtkSmartPointer<vtkVertexGlyphFilter>::New();
+
+#if VTK_MAJOR_VERSION <= 5
+	target_vertex->SetInput(target_poly);
+#else
 	target_vertex->SetInputData(target_poly);
+#endif
 	target_vertex->Update();
 
 	m_icp->SetSource(source_vertex->GetOutput());

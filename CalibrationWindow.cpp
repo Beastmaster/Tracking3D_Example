@@ -37,6 +37,7 @@ QMainWindow(parent), ui(new Ui::CalibrationWindow)
 	connect(ui->close_Btn, SIGNAL(clicked()), this, SLOT(On_Close()));
 	// connect actions here	
 	connect(ui->actionLoad_STL, SIGNAL(triggered()), this, SLOT(Act_LoadSTL()));
+	connect(ui->actionLoad_nii, SIGNAL(triggered()), this, SLOT(Act_Load_nii()));
 }
 
 CalibrationWindow:: ~CalibrationWindow()
@@ -80,6 +81,7 @@ void CalibrationWindow::sys_Init()
 	mat[3][2] = 0;
 	mat[3][3] = 1;
 	auto reg = vtkSmartPointer<vtkMatrix4x4>::New();
+	std::cout << "Setting Registration transform:" << std::endl;
 	for (size_t i = 0; i < 4; i++)
 	{
 		for (size_t j = 0; j < 4; j++)
@@ -231,7 +233,6 @@ void CalibrationWindow::Act_LoadSTL()
 	mapper->SetInputData(image);
 	m_Actor = vtkSmartPointer<vtkActor>::New();
 	m_Actor->SetMapper(mapper);
-	m_Actor->SetOrientation(0,0,0);
 	//vtkSmartPointer<vtkAxesActor> axes =
 	//	vtkSmartPointer<vtkAxesActor>::New();
 	//axes->SetTotalLength(200.0, 200.0, 200.0);
@@ -255,7 +256,36 @@ void CalibrationWindow::Act_CreateDefault()
 	mapper->SetInputData(image);
 	auto axes = vtkSmartPointer<vtkAxesActor>::New();
 	axes->SetTotalLength(300, 300, 300);
-	m_Actor2 = axes;
+	//m_Actor2 = axes;
+	m_Renderer->AddActor(m_Actor2);
+	m_Renderer->ResetCamera();
+	m_View->Render();
+}
+
+void CalibrationWindow::Act_Load_nii()
+{
+	QString fileName = QFileDialog::getOpenFileName(this,
+		tr("Open Image"), "E:/", tr("Image Files (*.nii)"));
+	if (fileName.isEmpty())
+	{
+		return;
+	}
+	
+	auto reader = vtkSmartPointer<vtkNIFTIImageReader>::New();
+	reader->SetFileName(fileName.toStdString().c_str());
+	reader->Update();
+
+	//extract 3d model
+	auto marchingCubes = vtkSmartPointer<vtkMarchingCubes>::New();
+	marchingCubes->SetInputData(reader->GetOutput());
+	marchingCubes->SetValue(0, 500);
+	marchingCubes->Update();
+
+	auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->SetInputData(marchingCubes->GetOutput());
+
+	m_Actor2 = vtkSmartPointer<vtkActor>::New();
+	m_Actor2->SetMapper(mapper);
 	m_Renderer->AddActor(m_Actor2);
 	m_Renderer->ResetCamera();
 	m_View->Render();

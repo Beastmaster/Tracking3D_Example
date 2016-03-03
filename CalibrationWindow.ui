@@ -160,6 +160,7 @@
     </property>
     <addaction name="actionLoad_STL"/>
     <addaction name="actionCreate_Default"/>
+    <addaction name="actionLoad_nii"/>
    </widget>
    <addaction name="menuLoad_STL"/>
   </widget>
@@ -172,6 +173,11 @@
   <action name="actionCreate_Default">
    <property name="text">
     <string>Create Default</string>
+   </property>
+  </action>
+  <action name="actionLoad_nii">
+   <property name="text">
+    <string>Load nii</string>
    </property>
   </action>
  </widget>

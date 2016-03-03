@@ -34,6 +34,7 @@ Module:
 #include "vtkMarchingCubes.h"
 #include "vtkSphereSource.h"
 #include "vtkSTLReader.h"
+#include "vtkNIFTIImageReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkSmartPointer.h"
 
@@ -79,6 +80,7 @@ public:
 	void On_Calculate2();
 	void Act_LoadSTL();
 	void Act_CreateDefault();
+	void Act_Load_nii();
 	void On_Move();
 	void On_Close();
 	void On_Timer(vtkMatrix4x4*);
@@ -95,7 +97,7 @@ private:
 	vtkSmartPointer<vtkRenderer>				m_Renderer;
 
 	vtkSmartPointer<vtkActor>					m_Actor;
-	vtkSmartPointer<vtkProp3D>					m_Actor2;
+	vtkSmartPointer<vtkActor>					m_Actor2;
 	vtkSmartPointer<vtkActor>					m_Tra_Actor;
 
 

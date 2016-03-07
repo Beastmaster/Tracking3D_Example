@@ -48,6 +48,7 @@ Attention:
 
 #define POLARIS_SROM "POLARIS SROM Image Files"
 
+#define EN_INFO_POLARIS 1			// enable output information
 
 /*
 User Manual:

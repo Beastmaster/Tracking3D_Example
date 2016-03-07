@@ -84,18 +84,20 @@ public:
 	void On_Move();
 	void On_Close();
 	void On_Timer(vtkMatrix4x4*);
-
+	void On_Timer1();
 protected:
 	void CreateCoordinate();
 	
 private:
 	Ui::CalibrationWindow *ui;
 	vtkSmartPointer<QtWrapvtkTracking3D>		m_Tracking3D;
+	QTimer*										m_Timer;
 
 	vtkSmartPointer<vtkRenderWindow>			m_View;
 	vtkSmartPointer<vtkRenderWindowInteractor>  m_Interactor;
 	vtkSmartPointer<vtkRenderer>				m_Renderer;
 
+	//vtkSmartPointer<vtkActor>					m_Actor;
 	vtkSmartPointer<vtkActor>					m_Actor;
 	vtkSmartPointer<vtkActor>					m_Actor2;
 	vtkSmartPointer<vtkActor>					m_Tra_Actor;

@@ -195,8 +195,8 @@ int  PloarisVicraConfiguration::ConfigureTracker()
 	//if you are supposed to reset, call the reset now
 	if (m_bResetHardware)
 	{
-		if (!this->nHardWareReset(m_bWireless));
-		return 1;
+		if (!this->nHardWareReset(m_bWireless))
+			return 1;
 	}
 
 	/*
@@ -401,17 +401,23 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 		// check transform validation
 		if (this->m_dtHandleInformation[index2].Xfrms.ulFlags != TRANSFORM_VALID )
 		{
+#if EN_INFO_POLARIS
 			std::cout << "Transform "<< index <<" Invalid!" << std::endl;
+#endif
 			return m_Transform;
 		}
 		if (this->m_dtHandleInformation[index2].HandleInfo.bPartiallyOutOfVolume)
 		{
+#if EN_INFO_POLARIS ==1
 			std::cout << "Tool " << index << " Partially out of volume" << std::endl;
+#endif
 			return m_Transform;
 		}
 		else if (this->m_dtHandleInformation[index2].HandleInfo.bOutOfVolume)
 		{
+#if EN_INFO_POLARIS
 			std::cout << "Tool " << index << " Out of volume" << std::endl;
+#endif
 			return m_Transform;
 		}
 		else

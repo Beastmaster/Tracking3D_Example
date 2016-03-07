@@ -311,10 +311,20 @@ int CCommandHandling::nSetSystemComParms( int nBaudRate,
 											nStopBits,
 											nHardware );
 	if (nSendMessage( m_szCommand, TRUE ))
+	{
 		if (nGetResponse( ))
 			return nCheckResponse( nVerifyResponse(m_szLastReply, TRUE) );
-
-	return 0;
+		else
+		{
+			printf("Cannot Get RESPONSE \n");
+			return 0;
+		}
+	}
+	else
+	{
+		printf("SendMessage ERROR\n");
+		return 0;
+	}
 } /* nSetSystemComParms */
 /*****************************************************************
 Name:				nSetSystemComParms

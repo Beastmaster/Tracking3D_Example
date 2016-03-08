@@ -101,6 +101,7 @@ public:
 		}
 		m_Status = "Tracking";
 	}
+	//Transpose the rotation matrix!!!!!
 	void  GetTransform(TestType* temp)
 	{
 		m_ErrorCode = GetAsynchronousRecord(0, temp , sizeof(TestType));

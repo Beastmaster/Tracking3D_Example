@@ -385,6 +385,10 @@ Description:
 Input:
 	matrix: destination matrix
 	arr:    source double array (length: 4)
+Note:
+	This conversion is based on left-handed coordinate,
+	So there will be some problems in right-handed coordinate
+	The solution is revert the w/q0 direct(multiply by -1)
 */
 void PivotCalibration2::QuaternionToMatrix(vtkMatrix4x4* matrix, double* arr)
 {

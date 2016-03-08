@@ -123,8 +123,8 @@ void MainWindow::sys_Init()
 		}
 		std::cout << std::endl;
 	}
-	m_Marker_Capture->SetCalibrationMatrix(m_ToolTipCalibration_Matrix);
-	m_3d_View->SetToolTipCalibrationMatrix(m_ToolTipCalibration_Matrix);
+	//m_Marker_Capture->SetCalibrationMatrix(m_ToolTipCalibration_Matrix);
+	//m_3d_View->SetToolTipCalibrationMatrix(m_ToolTipCalibration_Matrix);
 
 }
 

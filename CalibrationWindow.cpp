@@ -129,8 +129,8 @@ void CalibrationWindow::On_Config_Polaris()
 
 void CalibrationWindow::On_Config_ATC()
 {
-	m_ATC->Config2();
-	//m_ATC->ConfigureTracker();
+	//m_ATC->Config2();
+	m_ATC->ConfigureTracker();
 	//m_ATC->StartTracking();
 }
 
@@ -154,35 +154,36 @@ void CalibrationWindow::On_Capture()
 {
 	// Capture and convert to vtkMatrix4X4
 	auto matrix = vtkSmartPointer<vtkMatrix4x4>::New();
-
-	TestType* temp = new TestType;
-	m_ATC->GetTransform(temp);
-
-	for (size_t i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-			matrix->SetElement(i,j,temp->s[i][j]);
-	}
-	matrix->SetElement(0, 3, temp->x);
-	matrix->SetElement(1, 3, temp->y);
-	matrix->SetElement(2, 3, temp->z);
-
-
-
-	//std::cout << "Tool 0: " << std::endl;
-	////m_Tool_Transform = m_Polaris->GetTransform(0);
-	//m_Tool_Transform = m_ATC->GetTransform(0);
+	
+	
+	//TestType* temp = new TestType;
+	//m_ATC->GetTransform(temp);
 	//
-	//m_Tool_Transform->PrintSelf();
-	//
-	//if (m_Tool_Transform->x!=0.0)
+	//for (size_t i = 0; i < 3; i++)
 	//{
-	//	PivotCalibration2::TransformToMatrix(m_Tool_Transform, matrix);
-	//	//=== Pivot Calibration method1, from PLUS_Lib ===//
-	//	m_CalibrationHandle1->InsertNextCalibrationPoint(matrix);
-	//	//=== Pivot Calibration method2, from IGSTK ===//
-	//	m_CalibrationHandle2->AddToolToReferenceMatrix(matrix);
+	//	for (int j = 0; j < 3; j++)
+	//		matrix->SetElement(i,j,temp->s[i][j]);
 	//}
+	//matrix->SetElement(0, 3, temp->x);
+	//matrix->SetElement(1, 3, temp->y);
+	//matrix->SetElement(2, 3, temp->z);
+
+
+
+	std::cout << "Tool 0: " << std::endl;
+	m_Tool_Transform = m_Tracking3D->m_tracker->GetTransform(0);
+	//m_Tool_Transform = m_ATC->GetTransform(0);
+	
+	m_Tool_Transform->PrintSelf();
+	
+	if (m_Tool_Transform->x!=0.0)
+	{
+		PivotCalibration2::TransformToMatrix(m_Tool_Transform, matrix);
+		//=== Pivot Calibration method1, from PLUS_Lib ===//
+		m_CalibrationHandle1->InsertNextCalibrationPoint(matrix);
+		//=== Pivot Calibration method2, from IGSTK ===//
+		m_CalibrationHandle2->AddToolToReferenceMatrix(matrix);
+	}
 
 }
 
@@ -310,12 +311,13 @@ void CalibrationWindow::Act_Load_nii()
 
 void CalibrationWindow::On_Move()
 {
-	//connect(m_Tracking3D, SIGNAL(on_timer_signal_transform(vtkMatrix4x4*)), this, SLOT(On_Timer(vtkMatrix4x4*)));
+	connect(m_Tracking3D, SIGNAL(on_timer_signal_transform(vtkMatrix4x4*)), this, SLOT(On_Timer(vtkMatrix4x4*)));
+	m_Tracking3D->StartTracking2();
 	
-	m_Timer = new QTimer();
-	m_Timer->start(50);
-	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
-	//m_Tracking3D->StartTracking2();
+	//m_Timer = new QTimer();
+	//m_Timer->start(50);
+	//connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
+	
 }
 void CalibrationWindow::On_Close()
 {

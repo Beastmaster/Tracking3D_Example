@@ -1991,7 +1991,7 @@ int CCommandHandling::nGetAlerts(bool bNewAlerts)
 int CCommandHandling::nLookupTimeout(char *szCommand)
 {
 	std::string sCommand( szCommand );
-	int nTimeoutValue = 0 ;
+	//int nTimeoutValue = 0 ;
 
 	/*
 	 * Please note that the Get Info.Timeout.* functionality is
@@ -2012,9 +2012,9 @@ int CCommandHandling::nLookupTimeout(char *szCommand)
 
 	//if (!m_dtTimeoutValues.Lookup( sCommand, nTimeoutValue ))
 	if (m_dtTimeoutValues.find(sCommand) == m_dtTimeoutValues.end())
+		return m_dtTimeoutValues[sCommand];
+	else
 		return m_nDefaultTimeout;
-
-	return nTimeoutValue;
 }
 
 
@@ -2166,7 +2166,7 @@ int CCommandHandling::nGetResponse()
 		bDone = FALSE;
 	int
 		nCount = 0,
-		nRet = 0,
+		nRet = ERROR_TIMEOUT_CONT,
 		nRetry = 0;
 
 	/*

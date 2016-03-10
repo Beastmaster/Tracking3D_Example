@@ -171,6 +171,7 @@ int  PloarisVicraConfiguration::ConfigureTracker()
 		m_bWireless,
 		m_bResetHardware;
 
+
 	/*
 	* read the COM port parameters from the ini file
 	*/

@@ -129,21 +129,22 @@ public:
 	int RemoveObject(int index);
 	int RemoveObject(vtkActor*);
 
-	// Set Functions
-	int SetImage(vtkSmartPointer<vtkImageData>);
-	int SetOpacity(int index , float opacity);
-	int SetEnableOutline(int index,bool en);
-	int SetColor(int index, double r, double g, double b);
-	int SetColor(int index, double* rgb);
-	int SetTransform(int index, QIN_Transform_Type* in);
-	int SetRegisterTransform(vtkMatrix4x4*);
+	// Set Functions: for view purpose
+	int  SetImage(vtkSmartPointer<vtkImageData>);
+	int  SetOpacity(int index , float opacity);
+	int  SetEnableOutline(int index,bool en);
+	int  SetColor(int index, double r, double g, double b);
+	int  SetColor(int index, double* rgb);
+	int  SetTransform(int index, QIN_Transform_Type* in);
 	void SetInterval(unsigned long xx) { m_interval = xx; };
 	void SetWindow( vtkRenderWindow* );
 	void SetInteractor(vtkSmartPointer<vtkRenderWindowInteractor> inct);
 	void SetInteractorStyle( vtkInteractorStyle* );
+	// Set functions: for tracker purpose
 	void SetTracker(TrackerType* in);
 	void SetToolTipCalibrationMatrix(vtkMatrix4x4*);
-	//int SetLandMarks(std::vector<double*>src, std::vector<double*> tgt);//test function
+	int  SetRegisterTransform(vtkMatrix4x4*);
+	int  SetReferenceIndex(int);
 
 	// Get Functions
 	static vtkActor* GetActorPointer(vtkPropCollection*, int);
@@ -152,7 +153,7 @@ public:
 	vtkSmartPointer<vtkRenderWindowInteractor> GetInteractor();
 	vtkSmartPointer<vtkTransform> GetRegisteredTransform();
 	vtkSmartPointer<vtkMatrix4x4> GetRegisteredTransformMatrix();
-
+	QIN_Transform_Type* GetTransform(int);
 	void GetResliceIndex(int*);
 	void EnablePick();
 	void DisablePick();
@@ -200,6 +201,11 @@ private:
 	// image to display
 	vtkSmartPointer<vtkImageData> m_Image;
 	
+	// Reference frame transform
+	int							  m_RefID;
+	vtkSmartPointer<vtkTransform> m_RefTransform;
+	vtkSmartPointer<vtkMatrix4x4> m_RefTransformMatrix;
+
 	// Raw Transform: Directly get from tracker device
 	vtkSmartPointer<vtkTransform> m_RawTransform;
 	vtkSmartPointer<vtkMatrix4x4> m_RawTransformMatrix;

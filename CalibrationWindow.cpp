@@ -62,6 +62,7 @@ void CalibrationWindow::sys_Init()
 	//configure tracker
 	m_Tracking3D = vtkSmartPointer<QtWrapvtkTracking3D>::New();
 	m_Tracking3D->AddToolIndex(0);
+	m_Tracking3D->SetReferenceIndex(1);
 
 	double mat[4][4];
 	mat[0][0] = 0.0392916;
@@ -154,24 +155,9 @@ void CalibrationWindow::On_Capture()
 {
 	// Capture and convert to vtkMatrix4X4
 	auto matrix = vtkSmartPointer<vtkMatrix4x4>::New();
-	
-	
-	//TestType* temp = new TestType;
-	//m_ATC->GetTransform(temp);
-	//
-	//for (size_t i = 0; i < 3; i++)
-	//{
-	//	for (int j = 0; j < 3; j++)
-	//		matrix->SetElement(i,j,temp->s[i][j]);
-	//}
-	//matrix->SetElement(0, 3, temp->x);
-	//matrix->SetElement(1, 3, temp->y);
-	//matrix->SetElement(2, 3, temp->z);
-
-
 
 	std::cout << "Tool 0: " << std::endl;
-	m_Tool_Transform = m_Tracking3D->m_tracker->GetTransform(0);
+	m_Tool_Transform = m_Tracking3D->GetTransform(0);
 	//m_Tool_Transform = m_ATC->GetTransform(0);
 	
 	m_Tool_Transform->PrintSelf();

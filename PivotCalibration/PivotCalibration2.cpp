@@ -445,7 +445,10 @@ Input:
 */
 void PivotCalibration2::MatrixToQuaternion(vtkMatrix4x4* src_matrix, double* arr)
 {
-
+	arr[0] = sqrt(1 + src_matrix->GetElement(0, 0) + src_matrix->GetElement(1, 1) + src_matrix->GetElement(2, 2)) / 2; // q0
+	arr[1] = (src_matrix->GetElement(2, 1) - src_matrix->GetElement(1, 2)) / (4 * arr[0]);  // qx
+	arr[2] = (src_matrix->GetElement(0, 2) - src_matrix->GetElement(2, 0)) / (4 * arr[0]);  // qy
+	arr[3] = (src_matrix->GetElement(1, 0) - src_matrix->GetElement(0, 1)) / (4 * arr[0]);  // qz
 }
 
 

@@ -101,15 +101,15 @@ void MainWindow::sys_Init()
 	mat[0][0] = 1.0;
 	mat[0][1] = 0.0;
 	mat[0][2] = 0.0;
-	mat[0][3] = -18.0642;
+	mat[0][3] = 139.35;
 	mat[1][0] = 0.0;
 	mat[1][1] = 1.0;
 	mat[1][2] = 0.0;
-	mat[1][3] = 0.906081;
+	mat[1][3] = 16.3441;
 	mat[2][0] = 0.0;
 	mat[2][1] = 0.0;
 	mat[2][2] = 1.0;
-	mat[2][3] = -159.345;
+	mat[2][3] = -7.92223;
 	mat[3][0] = 0.0;
 	mat[3][1] = 0.0;
 	mat[3][2] = 0.0;
@@ -123,8 +123,8 @@ void MainWindow::sys_Init()
 		}
 		std::cout << std::endl;
 	}
-	//m_Marker_Capture->SetCalibrationMatrix(m_ToolTipCalibration_Matrix);
-	//m_3d_View->SetToolTipCalibrationMatrix(m_ToolTipCalibration_Matrix);
+	m_Marker_Capture->SetCalibrationMatrix(m_ToolTipCalibration_Matrix);
+	m_3d_View->SetToolTipCalibrationMatrix(m_ToolTipCalibration_Matrix);
 
 }
 

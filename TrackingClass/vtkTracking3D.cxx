@@ -30,6 +30,11 @@ vtkTracking3D::vtkTracking3D()
 	m_TimerCallBack = vtkSmartPointer<vtkCallbackCommand>::New();
 	m_MouseCallback = vtkSmartPointer<vtkCallbackCommand>::New();
 
+	// reference frame transform
+	m_RefID = 0;
+	m_RefTransform = vtkSmartPointer<vtkTransform>::New();
+	m_RefTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+
 	// Raw Transform from tracker device
 	m_RawTransform = vtkSmartPointer<vtkTransform>::New();
 	m_RawTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
@@ -339,7 +344,9 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 {
 	// convert trans to vtkTransform and vtkMatrix first
 	PivotCalibration2::TransformToMatrix(trans,m_RawTransformMatrix);
+	m_RawTransform->Identity();
 	m_RawTransform->SetMatrix(m_RawTransformMatrix);
+	
 
 	//0. Clear original data
 	auto temp_Transform = vtkSmartPointer<vtkTransform>::New();
@@ -347,10 +354,15 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 	temp_Transform->SetMatrix(m_RawTransformMatrix);
 	//2. Concatenate Calibration Matrix
 	temp_Transform->Concatenate(m_ToolTipCalibrationMatrix);
+	//2.5  Contatenate reference matrix
+	auto temp = vtkSmartPointer<vtkTransform>::New();
+	temp->PostMultiply();
+	temp->SetMatrix(temp_Transform->GetMatrix());
+	temp->Concatenate(m_RefTransformMatrix);
 	//3. Transform with registration matrix
 	m_RegisterTransform->Identity();
 	m_RegisterTransform->SetMatrix(m_RegisterTransformMatrix);
-	m_RegisterTransform->Concatenate(temp_Transform);
+	m_RegisterTransform->Concatenate(temp);
 	//4. Final transform copy the registered transform
 	m_FinTransform->DeepCopy(m_RegisterTransform);
 	m_FinTransformMatrix = m_FinTransform->GetMatrix();
@@ -389,8 +401,18 @@ int vtkTracking3D::SetRegisterTransform(vtkMatrix4x4* in)
 	//m_Transform->SetMatrix(in);
 	//m_Transform->PreMultiply();
 	return 0;
-}/*
+}
 
+/*
+Description:
+	Set the index of the reference sensor
+	Count from 0;
+*/
+int vtkTracking3D::SetReferenceIndex(int id)
+{
+	m_RefID = id;
+	return 0;
+}
 
 /*
 Description:
@@ -455,6 +477,17 @@ vtkSmartPointer<vtkMatrix4x4> vtkTracking3D::GetRegisteredTransformMatrix()
 	return m_FinTransformMatrix;
 }
 
+QIN_Transform_Type* vtkTracking3D::GetTransform(int id)
+{
+	auto temp = m_tracker->GetTransform(m_RefID);
+	PivotCalibration2::TransformToMatrix(temp,m_RefTransformMatrix);
+	m_RefTransform->Identity();
+	m_RefTransform->SetMatrix(m_RefTransformMatrix);
+
+	return this->m_tracker->GetTransform(id);
+}
+
+
 /*
 Description:
 	Setup tracker device, check NULL point first
@@ -464,10 +497,6 @@ Note:
 */
 void vtkTracking3D::SetTracker(TrackerType* in) 
 { 
-	//if (m_tracker != NULL)
-	//{
-	//	delete m_tracker;
-	//}
 	m_tracker = in; 
 };
 

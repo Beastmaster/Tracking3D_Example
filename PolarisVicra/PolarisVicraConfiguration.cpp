@@ -379,10 +379,12 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 	if (m_Transform == NULL)
 	{
 		m_Transform = new QIN_Transform_Type;
+		m_Transform->q0 = 1;
 	}
 	if (!m_bIsTracking)  // not tracking
 	{
 		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		m_Transform->q0 = 1;
 		return m_Transform;
 	}
 
@@ -390,6 +392,7 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 	if ( m_PortID.size()<=index )
 	{
 		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		m_Transform->q0 = 1;
 		return m_Transform;
 	}
 
@@ -398,6 +401,7 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 	if (it != m_PortID.end())
 	{
 		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		m_Transform->q0 = 1;
 		// check transform validation
 		if (this->m_dtHandleInformation[index2].Xfrms.ulFlags != TRANSFORM_VALID )
 		{
@@ -447,6 +451,7 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 	else
 	{
 		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		m_Transform->q0 = 1;
 		return m_Transform;
 	}
 }

@@ -101,7 +101,7 @@ public slots:
 			//QIN_Transform_Type trans;
 			QIN_Transform_Type* temp;
 			//memset(&trans, 0, sizeof(QIN_Transform_Type));
-			temp = this->m_tracker->GetTransform(it->second);
+			temp = this->GetTransform(it->second);
 			
 			if (temp != NULL)
 			{

@@ -200,6 +200,7 @@ int  PloarisVicraConfiguration::ConfigureTracker()
 			return 1;
 	}
 
+
 	/*
 	* get the timeout values for the commands
 	* this will return an error with all other systems, other than Vicra
@@ -456,6 +457,102 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 		return m_Transform;
 	}
 }
+/*
+
+Return:
+	0: Success
+	1: Not tracking
+	2: Tool index outof range
+	3: Transform invalid
+	4: Tool Partialy out of volume
+	5: Tool outof volume
+	6: Index invalid
+*/
+int PloarisVicraConfiguration::GetTransform(int index, double** output)
+{
+	float temp[3][3] = {0};
+	//convert to identity
+	for (size_t i = 0; i < 4; i++)
+	{
+		output[i][i] = 1;
+	}
+
+	nGetSystemTransformData();
+	if (m_Transform == NULL)
+	{
+		m_Transform = new QIN_Transform_Type;
+		m_Transform->q0 = 1;
+	}
+	if (!m_bIsTracking)  // not tracking
+	{
+		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		m_Transform->q0 = 1;
+		return 1;
+	}
+	//check is the index in the portID list
+	if (m_PortID.size() <= index)
+	{
+		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		m_Transform->q0 = 1;
+		return 2;
+	}
+
+	int index2 = m_PortID[index];
+	auto it = std::find(m_PortID.begin(), m_PortID.end(), index2);
+	if (it != m_PortID.end())
+	{
+		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		m_Transform->q0 = 1;
+		// check transform validation
+		if (this->m_dtHandleInformation[index2].Xfrms.ulFlags != TRANSFORM_VALID)
+		{
+#if EN_INFO_POLARIS
+			std::cout << "Transform " << index << " Invalid!" << std::endl;
+#endif
+			return 3;
+		}
+		if (this->m_dtHandleInformation[index2].HandleInfo.bPartiallyOutOfVolume)
+		{
+#if EN_INFO_POLARIS
+			std::cout << "Tool " << index << " Partially out of volume" << std::endl;
+#endif
+			return 4;
+		}
+		else if (this->m_dtHandleInformation[index2].HandleInfo.bOutOfVolume)
+		{
+#if EN_INFO_POLARIS
+			std::cout << "Tool " << index << " Out of volume" << std::endl;
+#endif
+			return 5;
+		}
+		else
+		{
+			std::cout << "Tool " << index << " Within volume" << std::endl;
+		}
+
+		CvtQuatToRotationMatrix(&(m_dtHandleInformation[index2].Xfrms.rotation),temp);
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				output[i][j] = temp[i][j];
+			}
+		}
+		//translation
+		output[0][3] = m_dtHandleInformation[index2].Xfrms.translation.x;
+		output[1][3] = m_dtHandleInformation[index2].Xfrms.translation.y;
+		output[2][3] = m_dtHandleInformation[index2].Xfrms.translation.z;
+
+		return 0;
+	}
+	else
+	{
+		return 6; 
+	}
+}
+
+
+
 
 /*
 Description:

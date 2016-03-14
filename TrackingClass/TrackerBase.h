@@ -13,6 +13,22 @@ Description:
 #ifndef _TRACKERBASE_H_
 #define _TRACKERBASE_H_
 
+
+#define NEW2DARR(type,na)  	\
+	type** na = new type*[4];\
+	for (int i = 0; i < 4; i++)\
+		{na[i] = new type[4]; memset(na[i],0,sizeof(double)*4);}
+
+#define DEL2DARR(type,na)	\
+	for (int i = 0; i < 4; i++)\
+		delete na[i];\
+	delete na;
+
+#define SET2DARR(type,na)  \
+	for (int i = 0; i < 4; i++)\
+		memset(na[i],0,sizeof(double)*4);
+
+
 #include <stdlib.h> //NULL
 #include <stdio.h>
 typedef struct
@@ -80,7 +96,7 @@ public:
 	/*
 	
 	*/
-	virtual int GetTransformValidation(int) = 0;
+	virtual int GetTransformValidation(int)=0 ;
 
 	/*
 	Description:
@@ -88,8 +104,8 @@ public:
 	Parameters:
 		index count from 0
 	*/
-	virtual QIN_Transform_Type* GetTransform( int index ) = 0;
-
+	virtual QIN_Transform_Type* GetTransform( int index )=0;
+	virtual int GetTransform(int, double**)=0;
 
 protected:
 	int m_ToolIndex;

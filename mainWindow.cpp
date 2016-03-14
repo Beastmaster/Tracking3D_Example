@@ -101,15 +101,15 @@ void MainWindow::sys_Init()
 	mat[0][0] = 1.0;
 	mat[0][1] = 0.0;
 	mat[0][2] = 0.0;
-	mat[0][3] = 139.35;
+	mat[0][3] = -18.4389;
 	mat[1][0] = 0.0;
 	mat[1][1] = 1.0;
 	mat[1][2] = 0.0;
-	mat[1][3] = 16.3441;
+	mat[1][3] = 1.06259;
 	mat[2][0] = 0.0;
 	mat[2][1] = 0.0;
 	mat[2][2] = 1.0;
-	mat[2][3] = -7.92223;
+	mat[2][3] = -159.195;
 	mat[3][0] = 0.0;
 	mat[3][1] = 0.0;
 	mat[3][2] = 0.0;
@@ -394,6 +394,7 @@ void MainWindow::on_StartTracking()
 	//connect tracking object
 	m_3d_View->AddPolySource(m_Tool);
 	m_3d_View->ConnectObjectTracker(1,0);
+	m_3d_View->SetReferenceIndex(1);
 
 	//add target to view
 	if (!m_TargetFileName.empty())

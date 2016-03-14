@@ -14,7 +14,7 @@ Description:
 vtkStandardNewMacro(vtkTracking3D); //New() function
 vtkTracking3D::vtkTracking3D()
 {
-	m_interval = 100;
+	m_interval = 100; //ms
 	m_CurrentRenderer = vtkSmartPointer<vtkRenderer>::New();
 	m_CurrentRenderer->SetBackground(1,1,1);
 	m_RendererCollection = vtkSmartPointer<vtkRendererCollection>::New();

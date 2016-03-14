@@ -76,6 +76,7 @@ public:
 	virtual int  GetToolValidation(int);
 	virtual int  GetTransformValidation(int);
 	virtual QIN_Transform_Type* GetTransform(int index);
+	virtual int GetTransform(int, double**);
 	
 	// manual GET functions for system parameters
 	std::string GetSystemMode(){ return m_szSystemMode; };			/* system operating mode */

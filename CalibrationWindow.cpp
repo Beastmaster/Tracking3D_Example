@@ -297,12 +297,12 @@ void CalibrationWindow::Act_Load_nii()
 
 void CalibrationWindow::On_Move()
 {
-	connect(m_Tracking3D, SIGNAL(on_timer_signal_transform(vtkMatrix4x4*)), this, SLOT(On_Timer(vtkMatrix4x4*)));
-	m_Tracking3D->StartTracking2();
+	//connect(m_Tracking3D, SIGNAL(on_timer_signal_transform(vtkMatrix4x4*)), this, SLOT(On_Timer(vtkMatrix4x4*)));
+	//m_Tracking3D->StartTracking2();
 	
-	//m_Timer = new QTimer();
-	//m_Timer->start(50);
-	//connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
+	m_Timer = new QTimer();
+	m_Timer->start(50);
+	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
 	
 }
 void CalibrationWindow::On_Close()
@@ -320,34 +320,21 @@ void CalibrationWindow::On_Timer(vtkMatrix4x4* matrix)
 }
 void CalibrationWindow::On_Timer1()
 {
+	NEW2DARR(double, matrix);
+
+	m_ATC->GetTransform(0,matrix);
 	// Capture and convert to vtkMatrix4X4
-	auto matrix = vtkSmartPointer<vtkMatrix4x4>::New();
-
-	TestType* temp = new TestType;
-	m_ATC->GetTransform(temp);
-
-	for (size_t i = 0; i < 3; i++)
+	auto matrixx = vtkSmartPointer<vtkMatrix4x4>::New();
+	for (size_t i = 0; i < 4; i++)
 	{
-		for (int j = 0; j < 3; j++)
-			matrix->SetElement(i, j, temp->s[j][i]);
-	}
-	matrix->SetElement(0, 3, temp->x);
-	matrix->SetElement(1, 3, temp->y);
-	matrix->SetElement(2, 3, temp->z);
-	
-	for (size_t i = 0; i <3; i++)
-	{
-		for (int j = 0; j < 3; j++)
-			std::cout << matrix->GetElement(i, j) << ",";
-		std::cout << std::endl;
+		for (int j = 0; j < 4;j++)
+			matrixx->SetElement(i,j,matrix[i][j]);
 	}
 
-	auto trans = vtkSmartPointer<vtkTransform>::New();
-	trans->PostMultiply();
-	trans->Concatenate(matrix);
-
-	m_Actor->SetUserTransform(trans);
+	m_Actor->SetUserMatrix(matrixx);
 	m_View->Render();
+
+	DEL2DARR(double,matrix);
 }
 
 /*

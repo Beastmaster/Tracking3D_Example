@@ -2012,9 +2012,9 @@ int CCommandHandling::nLookupTimeout(char *szCommand)
 
 	//if (!m_dtTimeoutValues.Lookup( sCommand, nTimeoutValue ))
 	if (m_dtTimeoutValues.find(sCommand) == m_dtTimeoutValues.end())
-		return m_dtTimeoutValues[sCommand];
-	else
 		return m_nDefaultTimeout;
+	else
+		return m_dtTimeoutValues[sCommand]; 
 }
 
 
@@ -2257,7 +2257,7 @@ int CCommandHandling::nGetResponse()
 					 * if the user chooses to retry sending the command
 					 * handle that here.
 					 */
-					if ( nRet == ERROR_TIMEOUT_CONT )
+					if ( nRet != ERROR_TIMEOUT_CONT )
 					{
 						if ( strlen(m_szCommand) > 0 )
 						{

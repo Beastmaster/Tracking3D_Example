@@ -283,6 +283,74 @@ QIN_Transform_Type* ATC3DGConfiguration::GetTransform(int index)
 	return m_Transform;
 }
 
+/*
+Description:
+	Another function to get transform
+Input: 
+	index: index of sensors, count from 0
+	output:	output transform matrix
+
+Return:
+	0:	success
+	others:	fail
+*/
+int ATC3DGConfiguration::GetTransform(int index, double** output)
+{
+	int sz = sizeof(double[4][4]);
+	for (size_t i = 0; i < 4; i++)
+	{
+		output[i][i] = 1;
+	}
+	if (GetTransformInformation() != 0)
+	{
+		return 1;
+	}
+
+	memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+	if (m_TransformInformation[index] != NULL)
+	{
+		m_Transform->x = m_TransformInformation[index]->x;
+		m_Transform->y = m_TransformInformation[index]->y;
+		m_Transform->z = m_TransformInformation[index]->z;
+		m_Transform->qx = m_TransformInformation[index]->q[1];//[1];
+		m_Transform->qy = m_TransformInformation[index]->q[2];//[2];
+		m_Transform->qz = m_TransformInformation[index]->q[3];//[3];
+		m_Transform->q0 = -m_TransformInformation[index]->q[0];//[0];
+		m_Transform->error = m_TransformInformation[index]->quality;
+	}
+	else
+	{
+		m_Transform->q0 = 1;
+	}
+
+	// Convert quaternion to matrix
+	double sqw = m_Transform->q0*m_Transform->q0;
+	double sqx = m_Transform->qx*m_Transform->qx;
+	double sqy = m_Transform->qy*m_Transform->qy;
+	double sqz = m_Transform->qz*m_Transform->qz;
+	double invs = 1 / (sqx + sqy + sqz + sqw);
+	output[0][0] = (sqx - sqy - sqz + sqw)*invs; // since sqw + sqx + sqy + sqz =1/invs*invs
+	output[1][1] = (-sqx + sqy - sqz + sqw)*invs;
+	output[2][2] = (-sqx - sqy + sqz + sqw)*invs;
+	double tmp1 = m_Transform->qx*m_Transform->qy;
+	double tmp2 = m_Transform->qz*m_Transform->q0;
+	output[1][0] = 2.0 * (tmp1 + tmp2)*invs;
+	output[0][1] = 2.0 * (tmp1 - tmp2)*invs;
+	tmp1 = m_Transform->qx*m_Transform->qz;
+	tmp2 = m_Transform->qy*m_Transform->q0;
+	output[2][0] = 2.0 * (tmp1 - tmp2)*invs;
+	output[0][2] = 2.0 * (tmp1 + tmp2)*invs;
+	tmp1 = m_Transform->qy*m_Transform->qz;
+	tmp2 = m_Transform->qx*m_Transform->q0;
+	output[2][1] = 2.0 * (tmp1 + tmp2)*invs;
+	output[1][2] = 2.0 * (tmp1 - tmp2)*invs;
+	// put translation to matrix
+	output[0][3] = m_Transform->x;
+	output[1][3] = m_Transform->y;
+	output[2][3] = m_Transform->z;
+
+	return 0;
+}
 
 
 /*

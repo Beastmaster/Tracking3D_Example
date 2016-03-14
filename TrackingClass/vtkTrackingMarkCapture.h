@@ -91,7 +91,7 @@ vtkTrackingMarkCapture<TrackerType>::vtkTrackingMarkCapture()
 	m_CalibrationMatrix->Identity();
 
 	m_ToolIndex = 0;
-	m_ReferIndex = 0;
+	m_ReferIndex = 1;
 
 	m_ToolMarkers.clear();
 	m_ReferMarkers.clear();
@@ -171,23 +171,34 @@ template<typename TrackerType>
 std::vector<double*> vtkTrackingMarkCapture<TrackerType>::GetMarkerList()
 {
 	std::vector<double* > ret;
-	for (auto it = m_ToolMarkers.begin(); it != m_ToolMarkers.end(); ++it)
+	auto refer_iter = m_ReferMarkers.begin();
+	auto tool_iter = m_ToolMarkers.begin();
+	for (; (tool_iter != m_ToolMarkers.end())&&(refer_iter!=m_ReferMarkers.end()); ++refer_iter,++tool_iter)
 	{
 		double* coor;
 		coor = new double[3];
 
-		//auto trans = vtkSmartPointer<vtkTransform>::New();
-		//trans->SetMatrix(m_CalibrationMatrix);
-		//double* temp = trans->TransformPoint((*it)->x, (*it)->y, (*it)->z);
-		auto matrix = vtkSmartPointer<vtkMatrix4x4>::New();
-		PivotCalibration2::TransformToMatrix((*it), matrix);
-		auto temp_transform = vtkSmartPointer<vtkTransform>::New();
-		temp_transform->SetMatrix(matrix);
-		temp_transform->Concatenate(m_CalibrationMatrix);
+		// get raw matrix
+		auto raw_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+		PivotCalibration2::TransformToMatrix((*tool_iter), raw_matrix);
+		auto refer_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+		PivotCalibration2::TransformToMatrix((*refer_iter),refer_matrix);
 
-		coor[0] = temp_transform->GetPosition()[0];
-		coor[1] = temp_transform->GetPosition()[1];
-		coor[2] = temp_transform->GetPosition()[2];
+		// clear original data
+		auto temp_transform = vtkSmartPointer<vtkTransform>::New();
+		// set raw transform matrix
+		temp_transform->SetMatrix(raw_matrix);
+		// concatenate calibration matrix
+		temp_transform->Concatenate(m_CalibrationMatrix);
+		// contatenate reference matrix
+		auto temp = vtkSmartPointer<vtkTransform>::New();
+		temp->PostMultiply();
+		temp->SetMatrix(temp_transform->GetMatrix());
+		temp->Concatenate(refer_matrix);
+
+		coor[0] = temp->GetPosition()[0];
+		coor[1] = temp->GetPosition()[1];
+		coor[2] = temp->GetPosition()[2];
 		ret.push_back(coor);
 	}
 	return ret;

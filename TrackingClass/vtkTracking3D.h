@@ -136,6 +136,9 @@ public:
 	int  SetColor(int index, double r, double g, double b);
 	int  SetColor(int index, double* rgb);
 	int  SetTransform(int index, QIN_Transform_Type* in);
+	int  SetTransform(int index, vtkMatrix4x4*);
+	int  SetPosition(int index, double*);
+	int  SetPosition(int index, double, double, double);
 	void SetInterval(unsigned long xx) { m_interval = xx; };
 	void SetWindow( vtkRenderWindow* );
 	void SetInteractor(vtkSmartPointer<vtkRenderWindowInteractor> inct);

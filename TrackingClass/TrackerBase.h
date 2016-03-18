@@ -21,7 +21,7 @@ Description:
 
 #define DEL2DARR(type,na)	\
 	for (int i = 0; i < 4; i++)\
-		delete[] na[i];\
+		delete na[i];\
 	delete na;
 
 #define SET2DARR(type,na)  \

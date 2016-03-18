@@ -60,6 +60,7 @@ public:
 	void SetCalibrationMatrix(vtkMatrix4x4* in) { m_CalibrationMatrix = in; };
 
 	void GetNextMarker();
+	void DelLastMarker();
 	void ClearMarkers();
 	std::vector<double*> GetMarkerList();
 
@@ -141,6 +142,26 @@ void vtkTrackingMarkCapture<TrackerType>::GetNextMarker()
 	m_ToolMarkers.push_back(tem_tool);
 	m_ReferMarkers.push_back(tem_refer);
 }
+
+/*
+Delete the last marker
+*/
+template<typename TrackerType>
+void vtkTrackingMarkCapture<TrackerType>::DelLastMarker()
+{
+	if (m_ToolMarkers.size()>0)
+	{
+		delete m_ToolMarkers.back();
+		m_ToolMarkers.pop_back();
+	}
+	if (m_ReferMarkers.size()>0)
+	{
+		delete m_ReferMarkers.back();
+		m_ReferMarkers.pop_back();
+	}
+
+}
+
 
 /*
 Description:

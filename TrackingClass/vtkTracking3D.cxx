@@ -384,6 +384,44 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 		return 1;
 
 }
+int  vtkTracking3D::SetTransform(int index, vtkMatrix4x4* ma)
+{
+	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
+	{
+		//move actor here
+		GetActorPointer(m_ActorCollection, index)->SetUserMatrix(ma);
+		return 0;
+	}
+	else
+		return 1;
+}
+/*
+Description:
+	Set Object Position
+*/
+int  vtkTracking3D::SetPosition(int index, double* coor)
+{
+	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
+	{
+		//move actor here
+		GetActorPointer(m_ActorCollection, index)->SetPosition(coor);
+		return 0;
+	}
+	else
+		return 1;
+}
+int  vtkTracking3D::SetPosition(int index, double x, double y, double z)
+{
+	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
+	{
+		//move actor here
+		GetActorPointer(m_ActorCollection, index)->SetPosition(x,y,z);
+		return 0;
+	}
+	else
+		return 1;
+}
+
 
 /*
 Description:

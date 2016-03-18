@@ -24,6 +24,7 @@ TrackSRC
 vtkTracking3D.cxx
 vtkTrackingResliceView.cpp
 vtkTrackingRegistration.cxx
+ConfigurationParse.cpp
 )
 
 set(
@@ -33,6 +34,7 @@ vtkTrackingResliceView.h
 vtkTrackingRegistration.h
 vtkTrackingMarkCapture.h
 vtkTrackingMarkCapture.hxx
+ConfigurationParse.h
 )
 
 qt5_wrap_cpp(MOCSrcs ${TrackQtHeadFile})

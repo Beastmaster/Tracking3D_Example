@@ -14,7 +14,7 @@ Description:
 
 
 #include "vtkTracking3D.h"
-
+#include "ConfigurationParse.h"
 
 #include "vtkSmartPointer.h"
 #include "vtkPolyData.h"
@@ -577,8 +577,20 @@ void TestTrack3D()
 	//interact->Start();
 }
 
+void TestConfigParser()
+{
+	std::string file_name = "E:/WorkPlace/Cpp/vtk_solutions/tracking/SoftWareConfigure.xml";
+	ConfigurationParse* parser = new ConfigurationParse();
+
+	parser->SetFileName(file_name);
+	parser->ReadFile();
+
+	parser->UpdateFile();
+}
+
 int main(int argc, char** argv)
 {
+	//TestConfigParser();
 	//TestMesh();
 	//TestMousePick();
 	//TestTrackingDevice();

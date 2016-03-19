@@ -31,7 +31,7 @@ vtkTracking3D::vtkTracking3D()
 	m_MouseCallback = vtkSmartPointer<vtkCallbackCommand>::New();
 
 	// reference frame transform
-	m_RefID = 0;
+	m_RefID = 1;
 	m_RefTransform = vtkSmartPointer<vtkTransform>::New();
 	m_RefTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 
@@ -348,24 +348,27 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 	m_RawTransform->SetMatrix(m_RawTransformMatrix);
 	
 
-	//0. Clear original data
-	auto temp_Transform = vtkSmartPointer<vtkTransform>::New();
-	//1. Set Raw transform matrix
-	temp_Transform->SetMatrix(m_RawTransformMatrix);
-	//2. Concatenate Calibration Matrix
-	temp_Transform->Concatenate(m_ToolTipCalibrationMatrix);
-	//2.5  Contatenate reference matrix
-	auto temp = vtkSmartPointer<vtkTransform>::New();
-	temp->PostMultiply();
-	temp->SetMatrix(temp_Transform->GetMatrix());
-	temp->Concatenate(m_RefTransformMatrix);
-	//3. Transform with registration matrix
-	m_RegisterTransform->Identity();
-	m_RegisterTransform->SetMatrix(m_RegisterTransformMatrix);
-	m_RegisterTransform->Concatenate(temp);
-	//4. Final transform copy the registered transform
-	m_FinTransform->DeepCopy(m_RegisterTransform);
-	m_FinTransformMatrix = m_FinTransform->GetMatrix();
+#pragma region Core_ALGORITHM
+	auto invert_refer = vtkSmartPointer<vtkMatrix4x4>::New();
+	invert_refer->Identity();
+	vtkMatrix4x4::Invert(m_RefTransformMatrix, invert_refer);
+
+	auto refer_raw = vtkSmartPointer<vtkMatrix4x4>::New();
+	vtkMatrix4x4::Multiply4x4(invert_refer,m_RawTransformMatrix, refer_raw);
+
+	auto calibrate_raw = vtkSmartPointer<vtkMatrix4x4>::New();
+	vtkMatrix4x4::Multiply4x4(refer_raw,m_ToolTipCalibrationMatrix,calibrate_raw);
+	//vtkMatrix4x4::Multiply4x4(m_RawTransformMatrix, m_ToolTipCalibrationMatrix, calibrate_raw); // disable reference test
+
+	m_FinTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+	vtkMatrix4x4::Multiply4x4(m_RegisterTransformMatrix,calibrate_raw,m_FinTransformMatrix);
+
+
+	m_FinTransform->SetMatrix(m_FinTransformMatrix);
+	//m_FinTransformMatrix = m_RegisterTransform->GetMatrix();
+#pragma endregion Core_ALGORITHM
+
+
 
 	// put out
 	m_marker_tobe_set[0] = m_FinTransform->GetPosition()[0];
@@ -521,6 +524,8 @@ QIN_Transform_Type* vtkTracking3D::GetTransform(int id)
 	PivotCalibration2::TransformToMatrix(temp,m_RefTransformMatrix);
 	m_RefTransform->Identity();
 	m_RefTransform->SetMatrix(m_RefTransformMatrix);
+
+
 
 	return this->m_tracker->GetTransform(id);
 }
@@ -725,7 +730,7 @@ void TimerCallbackFunction(
 		//QIN_Transform_Type trans;
 		QIN_Transform_Type* temp;
 		//memset(&trans, 0, sizeof(QIN_Transform_Type));
-		temp = tracking->m_tracker->GetTransform(it->second);
+		temp = tracking->GetTransform(it->second);//m_tracker->
 		if (temp != NULL)
 		{
 			//memcpy(&trans, temp, sizeof(QIN_Transform_Type));

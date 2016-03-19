@@ -47,11 +47,11 @@ void vtkTrackingRegistrationBase::SetSourcePoints(std::vector<double*> xx2)
 	for (auto it = xx2.begin(); it != xx2.end(); ++it)
 	{
 		src_Points->InsertNextPoint((*it));
-		double temp[3];
-		memcpy(temp,*it,3*sizeof(double));
-		m_src_Points.push_back(temp);
+		//double* temp = new double[3];
+		//memcpy(temp,*it,3*sizeof(double));
+		//m_src_Points.push_back(temp);
 	}
-
+	m_src_Points = xx2;
 }
 
 void vtkTrackingRegistrationBase::SetTargetPoints(vtkPoints* input)
@@ -70,10 +70,11 @@ void vtkTrackingRegistrationBase::SetTargetPoints(std::vector<double*> xx2)
 	for (auto it = xx2.begin(); it != xx2.end(); ++it)
 	{
 		target_Points->InsertNextPoint((*it));
-		double temp[3];
-		memcpy(temp, *it, 3 * sizeof(double));
-		m_target_Points.push_back(temp);
+		//double* temp = new double[3];
+		//memcpy(temp, *it, 3 * sizeof(double));
+		//m_target_Points.push_back(temp);
 	}
+	m_target_Points = xx2;
 }
 
 /*

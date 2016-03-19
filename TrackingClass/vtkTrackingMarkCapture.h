@@ -131,15 +131,13 @@ void vtkTrackingMarkCapture<TrackerType>::GetNextMarker()
 	}
 
 	QIN_Transform_Type*  tool_trans = m_Tracker->GetTransform(m_ToolIndex);
-	QIN_Transform_Type*  refer_trans = m_Tracker->GetTransform(m_ReferIndex);
-
 	QIN_Transform_Type* tem_tool = new QIN_Transform_Type;
-	QIN_Transform_Type* tem_refer = new QIN_Transform_Type;
-
 	memcpy(tem_tool, tool_trans, sizeof(QIN_Transform_Type));
-	memcpy(tem_refer, refer_trans, sizeof(QIN_Transform_Type));
-
 	m_ToolMarkers.push_back(tem_tool);
+
+	QIN_Transform_Type*  refer_trans = m_Tracker->GetTransform(m_ReferIndex);
+	QIN_Transform_Type* tem_refer = new QIN_Transform_Type;
+	memcpy(tem_refer, refer_trans, sizeof(QIN_Transform_Type));	
 	m_ReferMarkers.push_back(tem_refer);
 }
 
@@ -205,17 +203,20 @@ std::vector<double*> vtkTrackingMarkCapture<TrackerType>::GetMarkerList()
 		auto refer_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
 		PivotCalibration2::TransformToMatrix((*refer_iter),refer_matrix);
 
-		// clear original data
-		auto temp_transform = vtkSmartPointer<vtkTransform>::New();
-		// set raw transform matrix
-		temp_transform->SetMatrix(raw_matrix);
-		// concatenate calibration matrix
-		temp_transform->Concatenate(m_CalibrationMatrix);
-		// contatenate reference matrix
+		auto invert_refer = vtkSmartPointer<vtkMatrix4x4>::New();
+		invert_refer->Identity();
+		vtkMatrix4x4::Invert(refer_matrix, invert_refer);
+
+		auto refer_raw = vtkSmartPointer<vtkMatrix4x4>::New();
+		vtkMatrix4x4::Multiply4x4(invert_refer, raw_matrix, refer_raw);
+
+		auto calibrate_raw = vtkSmartPointer<vtkMatrix4x4>::New();
+		vtkMatrix4x4::Multiply4x4(refer_raw, m_CalibrationMatrix, calibrate_raw);
+		//vtkMatrix4x4::Multiply4x4(raw_matrix, m_CalibrationMatrix, calibrate_raw);//test disable reference
+
 		auto temp = vtkSmartPointer<vtkTransform>::New();
-		temp->PostMultiply();
-		temp->SetMatrix(temp_transform->GetMatrix());
-		temp->Concatenate(refer_matrix);
+		temp->SetMatrix(calibrate_raw);
+
 
 		coor[0] = temp->GetPosition()[0];
 		coor[1] = temp->GetPosition()[1];

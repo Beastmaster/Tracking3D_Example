@@ -94,6 +94,7 @@ void MainWindow::sys_Init()
 	m_Marker_Capture = vtkSmartPointer< vtkTrackingMarkCapture<TrackerBase> >::New();
 	m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
 	m_Marker_Capture->SetToolIndex(0);
+	m_Marker_Capture->SetReferIndex(1);
 
 	//apply calibration matrix
 	m_ToolTipCalibration_Matrix = vtkSmartPointer<vtkMatrix4x4>::New();
@@ -101,15 +102,15 @@ void MainWindow::sys_Init()
 	mat[0][0] = 1.0;
 	mat[0][1] = 0.0;
 	mat[0][2] = 0.0;
-	mat[0][3] = -18.4389;
+	mat[0][3] = 142.965;//137.743
 	mat[1][0] = 0.0;
 	mat[1][1] = 1.0;
 	mat[1][2] = 0.0;
-	mat[1][3] = 1.06259;
+	mat[1][3] = 8.96629;
 	mat[2][0] = 0.0;
 	mat[2][1] = 0.0;
 	mat[2][2] = 1.0;
-	mat[2][3] = -159.195;
+	mat[2][3] = 30.725;//25.9801
 	mat[3][0] = 0.0;
 	mat[3][1] = 0.0;
 	mat[3][2] = 0.0;

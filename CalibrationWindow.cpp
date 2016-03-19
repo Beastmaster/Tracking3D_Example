@@ -297,12 +297,12 @@ void CalibrationWindow::Act_Load_nii()
 
 void CalibrationWindow::On_Move()
 {
-	//connect(m_Tracking3D, SIGNAL(on_timer_signal_transform(vtkMatrix4x4*)), this, SLOT(On_Timer(vtkMatrix4x4*)));
-	//m_Tracking3D->StartTracking2();
+	connect(m_Tracking3D, SIGNAL(on_timer_signal_transform(vtkMatrix4x4*)), this, SLOT(On_Timer(vtkMatrix4x4*)));
+	m_Tracking3D->StartTracking2();
 	
-	m_Timer = new QTimer();
-	m_Timer->start(50);
-	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
+	//m_Timer = new QTimer();
+	//m_Timer->start(50);
+	//connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
 	
 }
 void CalibrationWindow::On_Close()

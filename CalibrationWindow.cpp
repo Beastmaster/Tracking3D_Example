@@ -12,7 +12,8 @@ Module:
 #include "CalibrationWindow.h"
 #include "ui_CalibrationWindow.h"
 
-
+#include <QDateTime>
+#include <QTextStream>
 // private include 
 #include <vtkArrowSource.h>
 #include <vtkPolyData.h>
@@ -26,15 +27,20 @@ QMainWindow(parent), ui(new Ui::CalibrationWindow)
 	ui->setupUi(this);
 	sys_Init();
 
-	connect(ui->config_Polaris_Btn,SIGNAL(clicked()),this,SLOT(On_Config_Polaris()));
+	connect(ui->config_Polaris_Btn, SIGNAL(clicked()), this, SLOT(On_Config_Polaris()), Qt::QueuedConnection);
 	connect(ui->config_ATC_Btn, SIGNAL(clicked()), this, SLOT(On_Config_ATC()));
 	connect(ui->polaris_Radio, SIGNAL(toggled(bool)), this, SLOT(Toggle_Polaris_Radio(bool)));
 	connect(ui->ATC_Radio, SIGNAL(toggled(bool)), this, SLOT(Toggle_ATC_Radio(bool)));
 	connect(ui->capture_Btn, SIGNAL(clicked()), this, SLOT(On_Capture()));
+	connect(ui->record_Btn, SIGNAL(clicked()), this, SLOT(On_Record()));
 	connect(ui->cal1_Btn, SIGNAL(clicked()), this, SLOT(On_Calculate1()));
 	connect(ui->cal2_Btn, SIGNAL(clicked()), this, SLOT(On_Calculate2()));
 	connect(ui->move_Btn, SIGNAL(clicked()), this, SLOT(On_Move()));
+	connect(ui->mov3d_Btn, SIGNAL(clicked()), this, SLOT(On_Move3d()));
 	connect(ui->close_Btn, SIGNAL(clicked()), this, SLOT(On_Close()));
+	connect(ui->save_Btn, SIGNAL(clicked()), this, SLOT(On_Save()));
+
+
 	// connect actions here	
 	connect(ui->actionLoad_STL, SIGNAL(triggered()), this, SLOT(Act_LoadSTL()));
 	connect(ui->actionLoad_nii, SIGNAL(triggered()), this, SLOT(Act_Load_nii()));
@@ -47,6 +53,18 @@ CalibrationWindow:: ~CalibrationWindow()
 
 void CalibrationWindow::sys_Init()
 {
+	//load default tool
+	auto reader = vtkSmartPointer<vtkSTLReader>::New();
+	reader->SetFileName("E:/test/QinShuoTShapeM.stl");
+	reader->Update();
+
+	auto image = vtkSmartPointer<vtkPolyData>::New();
+	image = reader->GetOutput();
+	auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->SetInputData(image);
+	m_Actor = vtkSmartPointer<vtkActor>::New();
+	m_Actor->SetMapper(mapper);
+
 
 	m_View = ui->view_Widget->GetRenderWindow();
 	m_Interactor = m_View->GetInteractor();
@@ -63,36 +81,6 @@ void CalibrationWindow::sys_Init()
 	m_Tracking3D = vtkSmartPointer<QtWrapvtkTracking3D>::New();
 	m_Tracking3D->AddToolIndex(0);
 	m_Tracking3D->SetReferenceIndex(1);
-
-	double mat[4][4];
-	mat[0][0] = 0.0392916;
-	mat[0][1] = 0.87901;
-	mat[0][2] = -0.925426;
-	mat[0][3] = -544.782;
-	mat[1][0] = -0.173115;
-	mat[1][1] = 0.69974;
-	mat[1][2] = 0.791138;
-	mat[1][3] = 898.569;
-	mat[2][0] = 1.05681;
-	mat[2][1] = 0.145884;
-	mat[2][2] = -0.132635;
-	mat[2][3] = -103.639;
-	mat[3][0] = 0;
-	mat[3][1] = 0;
-	mat[3][2] = 0;
-	mat[3][3] = 1;
-	auto reg = vtkSmartPointer<vtkMatrix4x4>::New();
-	std::cout << "Setting Registration transform:" << std::endl;
-	for (size_t i = 0; i < 4; i++)
-	{
-		for (size_t j = 0; j < 4; j++)
-		{
-			reg->SetElement(i, j, mat[i][j]);
-		}
-	}
-	//m_Tracking3D->SetRegisterTransform(reg);
-
-
 
 	m_Tool_Transform = new QIN_Transform_Type;
 	m_Tool2TipTransform = vtkSmartPointer<vtkTransform>::New();
@@ -156,10 +144,17 @@ void CalibrationWindow::On_Capture()
 	// Capture and convert to vtkMatrix4X4
 	auto matrix = vtkSmartPointer<vtkMatrix4x4>::New();
 
-	std::cout << "Tool 0: " << std::endl;
 	m_Tool_Transform = m_Tracking3D->GetTransform(0);
-	//m_Tool_Transform = m_ATC->GetTransform(0);
 	
+	QString pos;
+	pos.append(QString::number(m_Tool_Transform->x));
+	pos.append(",");
+	pos.append(QString::number(m_Tool_Transform->y));
+	pos.append(",");
+	pos.append(QString::number(m_Tool_Transform->z));
+	pos.append(";");
+	m_calib_log.append(pos);
+
 	m_Tool_Transform->PrintSelf();
 	
 	if (m_Tool_Transform->x!=0.0)
@@ -173,12 +168,28 @@ void CalibrationWindow::On_Capture()
 
 }
 
+/*
+Record position when moving
+*/
+void CalibrationWindow::On_Record()
+{
+	auto temp = m_Tracking3D->GetRegisteredTransform();
+
+	QString pos;
+	pos.append(QString::number(temp->GetPosition()[0]));
+	pos.append(",");
+	pos.append(QString::number(temp->GetPosition()[1]));
+	pos.append(",");
+	pos.append(QString::number(temp->GetPosition()[2]));
+	pos.append(";");
+	m_pos_log.append(pos);
+
+}
 
 void CalibrationWindow::On_Calculate1()
 {
 	// run calibration process
 	m_CalibrationHandle1->DoPivotCalibration();
-
 
 	// print information
 	std::string message = m_CalibrationHandle1->GetPivotPointToMarkerTranslationString();
@@ -190,6 +201,7 @@ void CalibrationWindow::On_Calculate1()
 
 void CalibrationWindow::On_Calculate2()
 {
+
 	// run calibration process
 	m_CalibrationHandle2->ComputePivotCalibration();
 
@@ -295,16 +307,18 @@ void CalibrationWindow::Act_Load_nii()
 	m_View->Render();
 }
 
-void CalibrationWindow::On_Move()
+void CalibrationWindow::On_Move3d()
 {
 	connect(m_Tracking3D, SIGNAL(on_timer_signal_transform(vtkMatrix4x4*)), this, SLOT(On_Timer(vtkMatrix4x4*)));
 	m_Tracking3D->StartTracking2();
-	
-	//m_Timer = new QTimer();
-	//m_Timer->start(50);
-	//connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
-	
 }
+void CalibrationWindow::On_Move()
+{
+	m_Timer = new QTimer();
+	m_Timer->start(50);
+	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
+}
+
 void CalibrationWindow::On_Close()
 {
 	m_Tracking3D->StopTracking2();
@@ -313,11 +327,52 @@ void CalibrationWindow::On_Close()
 }
 
 
+void CalibrationWindow::On_Save()
+{
+	//write to file //m_pos_log
+	QString time_stamp = QDateTime::currentDateTime().toString("yyyyMMddhhmmss");
+	QString file_name = time_stamp.append("calib");
+	file_name.append(".txt");
+
+	QFile file(file_name);
+	// Trying to open in WriteOnly and Text mode
+	if (!file.open(QFile::WriteOnly | QFile::Text))
+	{
+		QMessageBox msgBox;
+		msgBox.setText("Cannot Write file");
+		msgBox.exec();
+		return;
+	}
+	QTextStream out(&file);
+
+	out << "Calibration Log:" << endl;
+	for (size_t i = 0; i < m_pos_log.size(); i++)
+	{
+		out << m_calib_log.at(i) << endl;
+	}
+
+	out << "\n\nCalibration Log:" << endl;
+	for (size_t i = 0; i < m_pos_log.size(); i++)
+	{
+		out << m_pos_log.at(i) << endl;
+	}
+	file.flush();
+	file.close();
+
+}
+
+/*
+Move actors with vtkTracking3D
+*/
 void CalibrationWindow::On_Timer(vtkMatrix4x4* matrix)
 {
 	m_Actor->SetUserMatrix(matrix);
 	m_View->Render();
 }
+
+/*
+Move using raw data
+*/
 void CalibrationWindow::On_Timer1()
 {
 	NEW2DARR(double, matrix);
@@ -336,26 +391,4 @@ void CalibrationWindow::On_Timer1()
 
 	DEL2DARR(double,matrix);
 }
-
-/*
-
-	// convert raw position and rotation information from sensor
-	m_Tool_Transform = m_Polaris->GetTransform(0);
-	auto matrix = vtkSmartPointer<vtkMatrix4x4>::New();
-	PivotCalibration2::TransformToMatrix(m_Tool_Transform, matrix);
-	// calibrate the tool tip
-	auto calibrated = vtkSmartPointer<vtkTransform>::New();
-	calibrated->SetMatrix(matrix);
-	calibrated->Concatenate(m_Tool2TipMatrix);
-	// transform with registration transform
-	auto registered = vtkSmartPointer<vtkTransform>::New();
-	registered->SetMatrix(reg);
-	registered->Concatenate(calibrated);
-
-	m_Actor->SetUserTransform(registered);
-	//m_Actor->SetPosition(temp);
-	//m_Actor->SetOrientation(orientation);
-
-*/
-
 

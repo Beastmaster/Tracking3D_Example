@@ -24,11 +24,11 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 
 	//connect vtkTracking3D
 	//connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double,double,double)));
-	connect(m_3d_View, SIGNAL(on_timer_signal_index(int, int, int)), this, SLOT(on_ResliceAction(int, int, int)));
-	connect(m_3d_View, SIGNAL(on_timer_signal_coor(double,double,double)), this, SLOT(on_ResliceAction(double, double, double)));
+	connect(m_3d_View, SIGNAL(on_timer_signal_index(int, int, int)), this, SLOT(on_ResliceAction(int, int, int)), Qt::QueuedConnection);
+	connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double, double, double)), Qt::QueuedConnection);
 	//connect
-	connect(ui->load_Image_Btn,SIGNAL(clicked()),this,SLOT(on_Load_Image()));
-	connect(ui->load_Atlas_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Atlas()));
+	connect(ui->load_Image_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Image()), Qt::QueuedConnection);
+	connect(ui->load_Atlas_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Atlas()), Qt::QueuedConnection);
 	connect(ui->del_Atlas_Btn, SIGNAL(clicked()),this,SLOT(on_Del_Atlas()));
 	connect(ui->config_Tracker_Btn,SIGNAL(clicked()),this,SLOT(on_Config_Tracker()));
 	connect(ui->sel_Tracker_Combo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_Sel_Tracker(int)));
@@ -220,7 +220,7 @@ void MainWindow::on_Load_Image()
 		//extract 3d model
 		auto marchingCubes = vtkSmartPointer<vtkMarchingCubes>::New();
 		marchingCubes->SetInputData(m_Image);
-		marchingCubes->SetValue(0,500);
+		marchingCubes->SetValue(0,50);
 		marchingCubes->Update();
 		m_3d_View->AddPolySource(marchingCubes->GetOutput());
 		m_3d_View->SetColor(0,0.5,0.6,0.7);

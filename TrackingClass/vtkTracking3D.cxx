@@ -31,6 +31,7 @@ vtkTracking3D::vtkTracking3D()
 	m_MouseCallback = vtkSmartPointer<vtkCallbackCommand>::New();
 
 	// reference frame transform
+	m_ToolId = 0;
 	m_RefID = 1;
 	m_RefTransform = vtkSmartPointer<vtkTransform>::New();
 	m_RefTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
@@ -45,6 +46,7 @@ vtkTracking3D::vtkTracking3D()
 
 	// Final transform after calibration and registration
 	m_FinTransform = vtkSmartPointer<vtkTransform>::New();
+	m_FinTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 	//m_FinTransform->PostMultiply(); //this is the key line
 
 	// Tool Calibration Matrix
@@ -73,7 +75,7 @@ int vtkTracking3D::AddObject(vtkSmartPointer< vtkActor > act)
 {
 	m_ActorCollection->AddItem(act);
 	m_CurrentRenderer->AddActor(act);
-	m_CurrentRenderer->ResetCamera();
+	//m_CurrentRenderer->ResetCamera();
 	return 0;
 }
 
@@ -311,6 +313,7 @@ Description:
 */
 int vtkTracking3D::SetColor(int index, double r, double g, double b)
 {
+	m_ActorCollection = m_CurrentRenderer->GetActors();
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() >= index)
 	{
 		//static_cast<vtkActor*>(m_ActorCollection->GetItemAsObject(index))->GetProperty()->SetOpacity(opacity);
@@ -360,9 +363,8 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 	vtkMatrix4x4::Multiply4x4(refer_raw,m_ToolTipCalibrationMatrix,calibrate_raw);
 	//vtkMatrix4x4::Multiply4x4(m_RawTransformMatrix, m_ToolTipCalibrationMatrix, calibrate_raw); // disable reference test
 
-	m_FinTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+	//m_FinTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 	vtkMatrix4x4::Multiply4x4(m_RegisterTransformMatrix,calibrate_raw,m_FinTransformMatrix);
-
 
 	m_FinTransform->SetMatrix(m_FinTransformMatrix);
 	//m_FinTransformMatrix = m_RegisterTransform->GetMatrix();
@@ -393,6 +395,7 @@ int  vtkTracking3D::SetTransform(int index, vtkMatrix4x4* ma)
 	{
 		//move actor here
 		GetActorPointer(m_ActorCollection, index)->SetUserMatrix(ma);
+		this->m_RenderWindow->Render();
 		return 0;
 	}
 	else
@@ -511,10 +514,12 @@ Description:
 */
 vtkSmartPointer<vtkTransform> vtkTracking3D:: GetRegisteredTransform()
 {
+	SetTransform(100, GetTransform(0)); // refresh
 	return m_FinTransform;
 }
 vtkSmartPointer<vtkMatrix4x4> vtkTracking3D::GetRegisteredTransformMatrix()
 {
+	SetTransform(100, GetTransform(0));  // refresh
 	return m_FinTransformMatrix;
 }
 
@@ -524,8 +529,6 @@ QIN_Transform_Type* vtkTracking3D::GetTransform(int id)
 	PivotCalibration2::TransformToMatrix(temp,m_RefTransformMatrix);
 	m_RefTransform->Identity();
 	m_RefTransform->SetMatrix(m_RefTransformMatrix);
-
-
 
 	return this->m_tracker->GetTransform(id);
 }
@@ -735,7 +738,7 @@ void TimerCallbackFunction(
 		{
 			//memcpy(&trans, temp, sizeof(QIN_Transform_Type));
 			tracking->SetTransform(it->first, temp);
-			std::cout <<it->first<<":"<< temp->x<< " " << temp->y<< " " << temp->z<< std::endl;
+			//std::cout <<it->first<<":"<< temp->x<< " " << temp->y<< " " << temp->z<< std::endl;
 		}
 		else
 		{

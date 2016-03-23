@@ -147,6 +147,7 @@ public:
 	void SetTracker(TrackerType* in);
 	void SetToolTipCalibrationMatrix(vtkMatrix4x4*);
 	int  SetRegisterTransform(vtkMatrix4x4*);
+	int  SetToolIndex(int);
 	int  SetReferenceIndex(int);
 
 	// Get Functions
@@ -205,6 +206,7 @@ private:
 	vtkSmartPointer<vtkImageData> m_Image;
 	
 	// Reference frame transform
+	int							  m_ToolId;
 	int							  m_RefID;
 	vtkSmartPointer<vtkTransform> m_RefTransform;
 	vtkSmartPointer<vtkMatrix4x4> m_RefTransformMatrix;

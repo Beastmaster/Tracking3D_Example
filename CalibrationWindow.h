@@ -76,19 +76,25 @@ public:
 	void Toggle_Polaris_Radio(bool);
 	void Toggle_ATC_Radio(bool);
 	void On_Capture();
+	void On_Record();
 	void On_Calculate1();
 	void On_Calculate2();
 	void Act_LoadSTL();
 	void Act_CreateDefault();
 	void Act_Load_nii();
 	void On_Move();
+	void On_Move3d();
 	void On_Close();
 	void On_Timer(vtkMatrix4x4*);
 	void On_Timer1();
+	void On_Save();
 protected:
 	void CreateCoordinate();
 	
 private:
+	QStringList m_pos_log;		//Position log
+	QStringList m_calib_log;	//Calibration position log
+
 	Ui::CalibrationWindow *ui;
 	vtkSmartPointer<QtWrapvtkTracking3D>		m_Tracking3D;
 	QTimer*										m_Timer;

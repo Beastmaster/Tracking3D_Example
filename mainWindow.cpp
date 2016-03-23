@@ -69,6 +69,7 @@ void MainWindow::sys_Init()
 	m_ImageFileName = "";
 	m_AtlasFileName = "";
 	m_ToolModelFileName = "";
+	m_StripValue = 500;
 
 	//init qvtkwidget 
 	ui->axialWidget->GetRenderWindow()->Render();
@@ -220,7 +221,7 @@ void MainWindow::on_Load_Image()
 		//extract 3d model
 		auto marchingCubes = vtkSmartPointer<vtkMarchingCubes>::New();
 		marchingCubes->SetInputData(m_Image);
-		marchingCubes->SetValue(0,50);
+		marchingCubes->SetValue(0,m_StripValue);
 		marchingCubes->Update();
 		m_3d_View->AddPolySource(marchingCubes->GetOutput());
 		m_3d_View->SetColor(0,0.5,0.6,0.7);

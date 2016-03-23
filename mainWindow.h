@@ -92,6 +92,8 @@ private:
 	std::string m_ToolModelFileName;
 	std::string m_TargetFileName;
 
+	double m_StripValue;
+
 	vtkSmartPointer<vtkImageData> m_Image;
 	vtkSmartPointer<vtkPolyData> m_ImageModel;
 	vtkSmartPointer<vtkImageData> m_Atlas;

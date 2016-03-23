@@ -512,15 +512,15 @@ Description:
 	Get output of registration transform (vtkTransform)
 	Final transform after registration and calibration process
 */
-vtkSmartPointer<vtkTransform> vtkTracking3D:: GetRegisteredTransform()
-{
-	SetTransform(100, GetTransform(0)); // refresh
-	return m_FinTransform;
-}
 vtkSmartPointer<vtkMatrix4x4> vtkTracking3D::GetRegisteredTransformMatrix()
 {
-	SetTransform(100, GetTransform(0));  // refresh
+	this->SetTransform(100, GetTransform(0));  // refresh, get the latest position and orientation matrix
 	return m_FinTransformMatrix;
+}
+vtkSmartPointer<vtkTransform> vtkTracking3D:: GetRegisteredTransform()
+{
+	this->SetTransform(100, GetTransform(0)); // refresh
+	return m_FinTransform;
 }
 
 QIN_Transform_Type* vtkTracking3D::GetTransform(int id)

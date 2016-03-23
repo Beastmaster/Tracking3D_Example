@@ -85,7 +85,7 @@ public:
 	void On_Move();
 	void On_Move3d();
 	void On_Close();
-	void On_Timer(vtkMatrix4x4*);
+	void On_Timer();
 	void On_Timer1();
 	void On_Save();
 protected:

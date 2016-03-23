@@ -53,18 +53,7 @@ CalibrationWindow:: ~CalibrationWindow()
 
 void CalibrationWindow::sys_Init()
 {
-	//load default tool
-	auto reader = vtkSmartPointer<vtkSTLReader>::New();
-	reader->SetFileName("E:/test/QinShuoTShapeM.stl");
-	reader->Update();
-
-	auto image = vtkSmartPointer<vtkPolyData>::New();
-	image = reader->GetOutput();
-	auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-	mapper->SetInputData(image);
-	m_Actor = vtkSmartPointer<vtkActor>::New();
-	m_Actor->SetMapper(mapper);
-
+	m_Timer = new QTimer();
 
 	m_View = ui->view_Widget->GetRenderWindow();
 	m_Interactor = m_View->GetInteractor();
@@ -94,6 +83,20 @@ void CalibrationWindow::sys_Init()
 	axes->SetTotalLength(500.0,500.0,500.0);
 	m_Renderer->AddActor(axes);
 	m_Renderer->ResetCamera();
+
+
+	//load default tool
+	auto reader = vtkSmartPointer<vtkSTLReader>::New();
+	reader->SetFileName("E:/test/QinShuoTShapeM.stl");
+	reader->Update();
+
+	auto image = vtkSmartPointer<vtkPolyData>::New();
+	image = reader->GetOutput();
+	auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->SetInputData(image);
+	m_Actor = vtkSmartPointer<vtkActor>::New();
+	m_Actor->SetMapper(mapper);
+	m_Renderer->AddActor(m_Actor);
 
 	m_View->Render();
 }
@@ -174,6 +177,9 @@ Record position when moving
 void CalibrationWindow::On_Record()
 {
 	auto temp = m_Tracking3D->GetRegisteredTransform();
+
+	m_Actor->SetUserTransform(temp);
+	m_View->Render();
 
 	QString pos;
 	pos.append(QString::number(temp->GetPosition()[0]));
@@ -309,18 +315,21 @@ void CalibrationWindow::Act_Load_nii()
 
 void CalibrationWindow::On_Move3d()
 {
-	connect(m_Tracking3D, SIGNAL(on_timer_signal_transform(vtkMatrix4x4*)), this, SLOT(On_Timer(vtkMatrix4x4*)));
+	m_Timer->start(50);
+	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer()));
 	m_Tracking3D->StartTracking2();
 }
 void CalibrationWindow::On_Move()
 {
-	m_Timer = new QTimer();
 	m_Timer->start(50);
 	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
 }
 
 void CalibrationWindow::On_Close()
 {
+	m_Timer->stop();
+	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
+	disconnect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
 	m_Tracking3D->StopTracking2();
 	m_Polaris->StopTracking();
 	m_ATC->StopTracking();
@@ -364,9 +373,25 @@ void CalibrationWindow::On_Save()
 /*
 Move actors with vtkTracking3D
 */
-void CalibrationWindow::On_Timer(vtkMatrix4x4* matrix)
+void CalibrationWindow::On_Timer()
 {
-	m_Actor->SetUserMatrix(matrix);
+	auto xx = vtkSmartPointer<vtkMatrix4x4>::New();
+	xx = m_Tracking3D->GetRegisteredTransformMatrix();
+	
+	for (size_t i = 0; i < 4; i++)
+	{
+		for (size_t j = 0; j < 4; j++)
+		{
+			std::cout<<xx->GetElement(i,j)<<",";
+		}
+		std::cout << std::endl;
+	}
+
+	//auto temp = m_Tracking3D->GetRegisteredTransform();
+	auto temp = vtkSmartPointer<vtkTransform>::New();
+	temp->SetMatrix(xx);
+
+	m_Actor->SetUserTransform(temp);
 	m_View->Render();
 }
 
@@ -377,7 +402,15 @@ void CalibrationWindow::On_Timer1()
 {
 	NEW2DARR(double, matrix);
 
-	m_ATC->GetTransform(0,matrix);
+	if (ui->ATC_Radio->isChecked())
+	{
+		m_ATC->GetTransform(0, matrix);
+	}
+	else
+	{
+		m_Polaris->GetTransform(0,matrix);
+	}
+	
 	// Capture and convert to vtkMatrix4X4
 	auto matrixx = vtkSmartPointer<vtkMatrix4x4>::New();
 	for (size_t i = 0; i < 4; i++)
@@ -387,6 +420,8 @@ void CalibrationWindow::On_Timer1()
 	}
 
 	m_Actor->SetUserMatrix(matrixx);
+	//m_Actor->SetUserMatrix(m_Tracking3D->GetRegisteredTransformMatrix());
+	
 	m_View->Render();
 
 	DEL2DARR(double,matrix);

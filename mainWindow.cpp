@@ -69,13 +69,14 @@ void MainWindow::sys_Init()
 	m_ImageFileName = "";
 	m_AtlasFileName = "";
 	m_ToolModelFileName = "";
-	m_StripValue = 500;
+	m_StripValue = 50;
 
 	//init qvtkwidget 
 	ui->axialWidget->GetRenderWindow()->Render();
 	ui->sagittalWidget->GetRenderWindow()->Render();
 	ui->coronalWidget->GetRenderWindow()->Render();
 	ui->threeDWidget->GetRenderWindow()->Render();
+
 
 	m_Sagittal_View = new reslice_view_base(ui->sagittalWidget->GetRenderWindow(),'s');
 	m_Axial_View = new reslice_view_base(ui->axialWidget->GetRenderWindow(), 'a');
@@ -84,6 +85,7 @@ void MainWindow::sys_Init()
 	m_3d_View->SetWindow(ui->threeDWidget->GetRenderWindow());
 	m_3d_View->SetInteractor(ui->threeDWidget->GetRenderWindow()->GetInteractor());
 	m_3d_View->InstallPipeline();
+
 
 	m_TrackerATC3DG = NULL;
 	m_TrackerPolaris = NULL;
@@ -103,15 +105,15 @@ void MainWindow::sys_Init()
 	mat[0][0] = 1.0;
 	mat[0][1] = 0.0;
 	mat[0][2] = 0.0;
-	mat[0][3] = 142.965;//137.743
+	mat[0][3] = 108.679;//137.743
 	mat[1][0] = 0.0;
 	mat[1][1] = 1.0;
 	mat[1][2] = 0.0;
-	mat[1][3] = 8.96629;
+	mat[1][3] = 8.16833;
 	mat[2][0] = 0.0;
 	mat[2][1] = 0.0;
 	mat[2][2] = 1.0;
-	mat[2][3] = 30.725;//25.9801
+	mat[2][3] = 9.94948;//25.9801
 	mat[3][0] = 0.0;
 	mat[3][1] = 0.0;
 	mat[3][2] = 0.0;

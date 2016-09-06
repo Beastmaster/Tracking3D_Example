@@ -285,7 +285,6 @@ int vtkTracking3D::SetImage(vtkSmartPointer<vtkImageData> in)
 	m_PlaneX->SetPlaneOrientationToXAxes();
 	m_PlaneY->SetPlaneOrientationToYAxes();
 	m_PlaneZ->SetPlaneOrientationToZAxes();
-
 	return 0;
 }
 
@@ -376,6 +375,10 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 	m_marker_tobe_set[0] = m_FinTransform->GetPosition()[0];
 	m_marker_tobe_set[1] = m_FinTransform->GetPosition()[1];
 	m_marker_tobe_set[2] = m_FinTransform->GetPosition()[2];
+
+	this->m_PlaneX->SetSlicePosition(m_marker_tobe_set[0]);
+	this->m_PlaneY->SetSlicePosition(m_marker_tobe_set[1]);
+	this->m_PlaneZ->SetSlicePosition(m_marker_tobe_set[2]);
 
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
 	{

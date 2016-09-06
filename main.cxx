@@ -588,6 +588,14 @@ void TestConfigParser()
 	parser->UpdateFile();
 }
 
+QCoreApplication* createApplication(int &argc, char *argv[])
+{
+	for (int i = 1; i < argc; ++i)
+		if (!qstrcmp(argv[i], "-no-gui"))
+			return new QCoreApplication(argc, argv);
+	return new QApplication(argc, argv);
+}
+
 int main(int argc, char** argv)
 {
 	//TestConfigParser();
@@ -600,15 +608,20 @@ int main(int argc, char** argv)
 	//TestTrack3D();
 	//TestSliderWidget();
 
-	QApplication Reg_main_app(argc, argv);
 
-	MainWindow main_window;
-	CalibrationWindow caliWin;
-	//caliWin.show();
-	main_window.show();
+	QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 
-	return Reg_main_app.exec();
+	if (qobject_cast<QApplication *>(app.data())) {
+		// start GUI version...
+		MainWindow* main_window;
+		main_window = new MainWindow;
+		main_window->show();
+	}
+	else {
+		// start non-GUI version...
+	}
 
-	return 0;
+	return app->exec();
+
 }
 

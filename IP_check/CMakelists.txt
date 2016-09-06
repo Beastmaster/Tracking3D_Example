@@ -1,0 +1,28 @@
+
+cmake_minimum_required(VERSION 2.8)
+
+
+SET(PRJ ip_check)
+
+project(${PRJ})
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+
+
+set(
+SRC
+GetAdaptersInfo.cpp
+)
+
+set(
+HEAD
+IPEXPORT.H
+Iphlpapi.h
+IPRTRMIB.H
+IPTYPES.H
+)
+
+add_library(${PRJ} ${SRC} ${HEAD})
+target_link_libraries(${PRJ}  IPHLPAPI.LIB)
+
+

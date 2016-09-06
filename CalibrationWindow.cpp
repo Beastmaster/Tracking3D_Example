@@ -194,6 +194,7 @@ void CalibrationWindow::On_Record()
 
 void CalibrationWindow::On_Calculate1()
 {
+	std::cout << "This method is not properly implemented, please use  Calibration2 method...." << std::endl;
 	// run calibration process
 	m_CalibrationHandle1->DoPivotCalibration();
 

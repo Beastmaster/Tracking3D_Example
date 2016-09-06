@@ -58,36 +58,6 @@ reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)
 	this->Set_Direction(a); // set direction here
 	this->actor->SetOpacity(1);
 	this->mask_actor->SetOpacity(0.5);
-
-
-	/*
-	//init slider
-	m_Slider = vtkSmartPointer<vtkSliderRepresentation2D>::New();
-	m_Slider->SetMinimumValue(0.0);
-	m_Slider->SetMaximumValue(50.0);
-	m_Slider->SetValue(25.0);
-	m_Slider->SetTitleText("Slice");
-	// Set color properties:
-	m_Slider->GetSliderProperty()->SetColor(1, 0, 0);// Change the color of the knob that slides//red
-	m_Slider->GetTitleProperty()->SetColor(1, 0, 0);// Change the color of the text indicating what the slider controls//red
-	m_Slider->GetLabelProperty()->SetColor(1, 0, 0);// Change the color of the text displaying the value//red
-	m_Slider->GetSelectedProperty()->SetColor(0, 1, 0);// Change the color of the knob when the mouse is held on it//green
-	m_Slider->GetTubeProperty()->SetColor(1, 1, 0);// Change the color of the bar//yellow
-	m_Slider->GetCapProperty()->SetColor(1, 1, 0);// Change the color of the ends of the bar//yellow
-	//set position of slider bar
-	m_Slider->GetPoint1Coordinate()->SetCoordinateSystemToDisplay();
-	m_Slider->GetPoint1Coordinate()->SetValue(40, 40);
-	m_Slider->GetPoint2Coordinate()->SetCoordinateSystemToDisplay();
-	m_Slider->GetPoint2Coordinate()->SetValue(100, 40);
-
-	vtkSmartPointer<vtkSliderWidget> sliderWidget =
-		vtkSmartPointer<vtkSliderWidget>::New();
-	sliderWidget->SetInteractor(this->view_window->GetInteractor());
-	sliderWidget->SetRepresentation(m_Slider);
-	sliderWidget->SetAnimationModeToAnimate();
-	sliderWidget->EnabledOn();
-	//sliderWidget->
-	//sliderWidget->AddObserver(vtkCommand::InteractionEvent, callback);*/
 }
 
 reslice_view_base::~reslice_view_base()

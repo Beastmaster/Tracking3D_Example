@@ -84,10 +84,10 @@ public:
 	void Act_Load_nii();
 	void On_Move();
 	void On_Move3d();
-	void On_Close();
-	void On_Timer();
-	void On_Timer1();
-	void On_Save();
+	void On_Close_Tracker();
+	void On_Timer_Tracking3D();
+	void On_Timer_Raw();
+	void On_Save_CalibPos();
 protected:
 	void CreateCoordinate();
 	

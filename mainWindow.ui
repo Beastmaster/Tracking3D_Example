@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1132</width>
-    <height>780</height>
+    <width>1277</width>
+    <height>778</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -101,7 +101,7 @@
       </property>
       <property name="maximumSize">
        <size>
-        <width>400</width>
+        <width>300</width>
         <height>16777215</height>
        </size>
       </property>
@@ -147,7 +147,7 @@ QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>12</pointsize>
+             <pointsize>10</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -181,7 +181,7 @@ QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>12</pointsize>
+             <pointsize>10</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -273,19 +273,21 @@ QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <layout class="QVBoxLayout" name="verticalLayout_8">
          <item>
-          <widget class="QPushButton" name="sel_Marker_Btn">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QPushButton" name="sel_Marker_Btn">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>8</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton { color: rgb(255, 255, 255);}
  
 QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
 
@@ -302,24 +304,96 @@ QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,1
 QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
 
 QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
-           </property>
-           <property name="text">
-            <string>Select Markers</string>
-           </property>
-          </widget>
+             </property>
+             <property name="text">
+              <string>Select Markers</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="valid_Marker_Btn">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>8</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+ 
+QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
+
+QPushButton:hover:!pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:hover { color:rgb(255, 255, 255);}
+
+
+
+QPushButton:checked { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;}
+
+QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
+
+QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
+             </property>
+             <property name="text">
+              <string>Valid</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="sel_Done_Btn">
+             <property name="font">
+              <font>
+               <family>Agency FB</family>
+               <pointsize>8</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+ 
+QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
+
+QPushButton:hover:!pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:hover { color:rgb(255, 255, 255);}
+
+
+
+QPushButton:checked { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;}
+
+QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,70);}
+
+QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
+
+QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
+             </property>
+             <property name="text">
+              <string>Select Done</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
-          <widget class="QPushButton" name="cap_Marker_Btn">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>12</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
+           <item>
+            <widget class="QPushButton" name="cap_Marker_Btn">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>9</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton { color: rgb(255, 255, 255);}
  
 QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
 
@@ -336,24 +410,24 @@ QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,1
 QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
 
 QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
-           </property>
-           <property name="text">
-            <string>Capture</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="ok_Sel_Btn">
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>12</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QPushButton { color: rgb(255, 255, 255);}
+             </property>
+             <property name="text">
+              <string>Capture</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="ok_Sel_Btn">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>9</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton { color: rgb(255, 255, 255);}
  
 QPushButton:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}
 
@@ -370,11 +444,13 @@ QPushButton:checked:hover { color: rgb(255, 255, 255);border: 1px solid rgba(0,1
 QPushButton:checked:hover:!pressed { color: rgb(255, 255, 255);border: 1px solid rgba(0,102,224);margin: 0px;padding: 0px;background-color:rgb(63,63,102);}
 
 QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px;padding: 0px;background-color:rgb(0,102,224);}</string>
-           </property>
-           <property name="text">
-            <string>Finish</string>
-           </property>
-          </widget>
+             </property>
+             <property name="text">
+              <string>Finish</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
@@ -385,7 +461,7 @@ QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>12</pointsize>
+             <pointsize>9</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -419,7 +495,7 @@ QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>12</pointsize>
+             <pointsize>9</pointsize>
              <weight>75</weight>
              <bold>true</bold>
             </font>
@@ -453,6 +529,21 @@ QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
+          <widget class="QCheckBox" name="en_Skull_Check">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Enable Skull</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QCheckBox" name="en_Plane_Check">
            <property name="font">
             <font>
@@ -469,6 +560,44 @@ QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px
          </item>
         </layout>
        </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="logHorizontalLayout" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>100</height>
+          </size>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_9">
+          <item>
+           <widget class="QLabel" name="log_Label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
@@ -479,7 +608,7 @@ QPushButton:checked:pressed { color: rgb(255, 255, 255);border: none;margin: 0px
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1132</width>
+     <width>1277</width>
      <height>27</height>
     </rect>
    </property>

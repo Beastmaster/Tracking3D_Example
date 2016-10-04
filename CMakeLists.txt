@@ -36,6 +36,7 @@ CalibrationWindow.ui
 set( QT_HEAD
 mainWindow.h
 CalibrationWindow.h
+calibrateRW.h
 )
 
 

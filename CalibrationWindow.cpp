@@ -37,8 +37,8 @@ QMainWindow(parent), ui(new Ui::CalibrationWindow)
 	connect(ui->cal2_Btn, SIGNAL(clicked()), this, SLOT(On_Calculate2()));
 	connect(ui->move_Btn, SIGNAL(clicked()), this, SLOT(On_Move()));
 	connect(ui->mov3d_Btn, SIGNAL(clicked()), this, SLOT(On_Move3d()));
-	connect(ui->close_Btn, SIGNAL(clicked()), this, SLOT(On_Close()));
-	connect(ui->save_Btn, SIGNAL(clicked()), this, SLOT(On_Save()));
+	connect(ui->close_Btn, SIGNAL(clicked()), this, SLOT(On_Close_Tracker()));
+	connect(ui->save_Btn, SIGNAL(clicked()), this, SLOT(On_Save_CalibPos()));
 
 
 	// connect actions here	
@@ -85,18 +85,18 @@ void CalibrationWindow::sys_Init()
 	m_Renderer->ResetCamera();
 
 
-	//load default tool
-	auto reader = vtkSmartPointer<vtkSTLReader>::New();
-	reader->SetFileName("E:/test/QinShuoTShapeM.stl");
-	reader->Update();
-
-	auto image = vtkSmartPointer<vtkPolyData>::New();
-	image = reader->GetOutput();
-	auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-	mapper->SetInputData(image);
-	m_Actor = vtkSmartPointer<vtkActor>::New();
-	m_Actor->SetMapper(mapper);
-	m_Renderer->AddActor(m_Actor);
+	////load default tool
+	//auto reader = vtkSmartPointer<vtkSTLReader>::New();
+	//reader->SetFileName("E:/test/QinShuoTShapeM.stl");
+	//reader->Update();
+	//
+	//auto image = vtkSmartPointer<vtkPolyData>::New();
+	//image = reader->GetOutput();
+	//auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	//mapper->SetInputData(image);
+	//m_Actor = vtkSmartPointer<vtkActor>::New();
+	//m_Actor->SetMapper(mapper);
+	//m_Renderer->AddActor(m_Actor);
 
 	m_View->Render();
 }
@@ -149,6 +149,11 @@ void CalibrationWindow::On_Capture()
 
 	m_Tool_Transform = m_Tracking3D->GetTransform(0);
 	
+	if (m_Tool_Transform == NULL)
+	{
+		std::cout << "On_Capture() called:   m_Tool_Transform is NULL!" << std::endl;
+		return;
+	}
 	QString pos;
 	pos.append(QString::number(m_Tool_Transform->x));
 	pos.append(",");
@@ -317,27 +322,27 @@ void CalibrationWindow::Act_Load_nii()
 void CalibrationWindow::On_Move3d()
 {
 	m_Timer->start(50);
-	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer()));
-	m_Tracking3D->StartTracking2();
+	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer_Tracking3D()));
+	m_Tracking3D->StartTrackingQt();
 }
 void CalibrationWindow::On_Move()
 {
 	m_Timer->start(50);
-	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
+	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer_Raw()));
 }
 
-void CalibrationWindow::On_Close()
+void CalibrationWindow::On_Close_Tracker()
 {
 	m_Timer->stop();
-	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
-	disconnect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer1()));
-	m_Tracking3D->StopTracking2();
+	connect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer_Raw()));
+	disconnect(m_Timer, SIGNAL(timeout()), this, SLOT(On_Timer_Raw()));
+	m_Tracking3D->StopTrackingQt();
 	m_Polaris->StopTracking();
 	m_ATC->StopTracking();
 }
 
 
-void CalibrationWindow::On_Save()
+void CalibrationWindow::On_Save_CalibPos()
 {
 	//write to file //m_pos_log
 	QString time_stamp = QDateTime::currentDateTime().toString("yyyyMMddhhmmss");
@@ -374,7 +379,7 @@ void CalibrationWindow::On_Save()
 /*
 Move actors with vtkTracking3D
 */
-void CalibrationWindow::On_Timer()
+void CalibrationWindow::On_Timer_Tracking3D()
 {
 	auto xx = vtkSmartPointer<vtkMatrix4x4>::New();
 	xx = m_Tracking3D->GetRegisteredTransformMatrix();
@@ -399,7 +404,7 @@ void CalibrationWindow::On_Timer()
 /*
 Move using raw data
 */
-void CalibrationWindow::On_Timer1()
+void CalibrationWindow::On_Timer_Raw()
 {
 	NEW2DARR(double, matrix);
 

@@ -65,12 +65,15 @@ public:
 public slots:
 	void on_ResliceAction(double,double,double);
 	void on_ResliceAction(int x, int y, int z);
+	void on_ResliceActionMarker(double, double, double);
 	void on_Load_Image();
 	void on_Load_Atlas();
 	void on_Del_Atlas();
 	void on_Sel_Tracker(int);
 	void on_Config_Tracker();
 	void on_Sel_Markers();
+	void on_Valid_Marker();
+	void on_Sel_MarkersDone();
 	void on_Cap_Btn();
 	void on_CapDone_Btn();
 	void on_StartTracking();
@@ -83,6 +86,7 @@ public slots:
 	void on_Coronal_Slider(int);
 	void on_Opacity_Slider(int);
 	void on_EnablePlane(int);
+	void on_EnableSkull(int);
 
 private:
 	Ui::MainWindow *ui;

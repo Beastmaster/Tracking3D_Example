@@ -26,13 +26,17 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	//connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double,double,double)));
 	connect(m_3d_View, SIGNAL(on_timer_signal_index(int, int, int)), this, SLOT(on_ResliceAction(int, int, int)), Qt::QueuedConnection);
 	connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double, double, double)), Qt::QueuedConnection);
+	//connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceActionMarker(double, double, double)));
+	
 	//connect
 	connect(ui->load_Image_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Image()), Qt::QueuedConnection);
 	connect(ui->load_Atlas_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Atlas()), Qt::QueuedConnection);
 	connect(ui->del_Atlas_Btn, SIGNAL(clicked()),this,SLOT(on_Del_Atlas()));
 	connect(ui->config_Tracker_Btn,SIGNAL(clicked()),this,SLOT(on_Config_Tracker()));
 	connect(ui->sel_Tracker_Combo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_Sel_Tracker(int)));
-	connect(ui->sel_Marker_Btn, SIGNAL(clicked()),this,SLOT(on_Sel_Markers()));
+	connect(ui->sel_Marker_Btn, SIGNAL(clicked()), this, SLOT(on_Sel_Markers()));
+	connect(ui->valid_Marker_Btn, SIGNAL(clicked()), this, SLOT(on_Valid_Marker()));
+	connect(ui->sel_Done_Btn, SIGNAL(clicked()), this, SLOT(on_Sel_MarkersDone()));
 	connect(ui->cap_Marker_Btn, SIGNAL(clicked()), this, SLOT(on_Cap_Btn()));
 	connect(ui->ok_Sel_Btn, SIGNAL(clicked()), this, SLOT(on_CapDone_Btn()));
 	connect(ui->start_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StartTracking()));
@@ -42,6 +46,7 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	connect(ui->sagittal_slider, SIGNAL(valueChanged(int)), this, SLOT(on_Sagittal_Slider(int)));
 	connect(ui->coronal_slider, SIGNAL(valueChanged(int)), this, SLOT(on_Coronal_Slider(int)));
 	connect(ui->en_Plane_Check, SIGNAL(stateChanged(int)), this, SLOT(on_EnablePlane(int)));
+	connect(ui->en_Skull_Check, SIGNAL(stateChanged(int)), this, SLOT(on_EnableSkull(int)));
 	createActions();
 }
 
@@ -68,8 +73,8 @@ void MainWindow::sys_Init()
 
 	m_ImageFileName = "";
 	m_AtlasFileName = "";
-	m_ToolModelFileName = "";
-	m_StripValue = 50;
+	m_ToolModelFileName = "E:/test/tool_model/toolz.stl";
+	m_StripValue = 100;
 
 	//init qvtkwidget 
 	ui->axialWidget->GetRenderWindow()->Render();
@@ -105,15 +110,15 @@ void MainWindow::sys_Init()
 	mat[0][0] = 1.0;
 	mat[0][1] = 0.0;
 	mat[0][2] = 0.0;
-	mat[0][3] = 108.679;//137.743
+	mat[0][3] = 0;//137.743
 	mat[1][0] = 0.0;
 	mat[1][1] = 1.0;
 	mat[1][2] = 0.0;
-	mat[1][3] = 8.16833;
+	mat[1][3] = 0;
 	mat[2][0] = 0.0;
 	mat[2][1] = 0.0;
 	mat[2][2] = 1.0;
-	mat[2][3] = 9.94948;//25.9801
+	mat[2][3] = -160;//25.9801
 	mat[3][0] = 0.0;
 	mat[3][1] = 0.0;
 	mat[3][2] = 0.0;
@@ -164,11 +169,45 @@ void MainWindow::on_ResliceAction(double x, double y, double z)
 	m_SliceY = floor(pt_ID%(x_e*y_e) /x_e );
 	m_SliceX = pt_ID%x_e;
 }
+void MainWindow::on_ResliceActionMarker(double  x, double y, double z)
+{
+	int pt_ID = 0;
+	pt_ID = m_Image->FindPoint(x, y, z);
+	std::cout << "Point ID is: " << pt_ID << std::endl;
+
+	int extent[6];
+	m_Image->GetExtent(extent);
+
+	int x_e = extent[1] - extent[0] + 1;
+	int y_e = extent[3] - extent[2] + 1;
+	int z_e = extent[5] - extent[4] + 1;
+
+	m_SliceZ = floor(pt_ID / (x_e*y_e));
+	m_SliceY = floor(pt_ID % (x_e*y_e) / x_e);
+	m_SliceX = pt_ID%x_e;
+
+
+	m_3d_View->PopObject();
+	auto ball = vtkSmartPointer<vtkSphereSource>::New();
+	ball->SetRadius(5.0);
+	ball->SetPhiResolution(50);
+	ball->SetThetaResolution(50);
+	ball->Update();
+	auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->SetInputData(ball->GetOutput());
+	auto ball_actor = vtkSmartPointer<vtkActor>::New();
+	ball_actor->SetMapper(mapper);
+	ball_actor->GetProperty()->SetColor(1.0,0.0,0.0);
+	ball_actor->SetPosition(x,y,z);
+	m_3d_View->AddObject(ball_actor);
+	m_3d_View->RefreshView();
+}
+
 void MainWindow::on_ResliceAction(int x, int y, int z)
 {
-	m_SliceX = m_3d_View->m_SliceX;
-	m_SliceY = m_3d_View->m_SliceY;
-	m_SliceZ = m_3d_View->m_SliceZ;
+	//m_SliceX = m_3d_View->m_SliceX;
+	//m_SliceY = m_3d_View->m_SliceY;
+	//m_SliceZ = m_3d_View->m_SliceZ;
 
 	std::cout << "x coor:" << m_SliceX << std::endl;
 	std::cout << "y coor:" << m_SliceY << std::endl;
@@ -227,8 +266,7 @@ void MainWindow::on_Load_Image()
 		marchingCubes->Update();
 		m_3d_View->AddPolySource(marchingCubes->GetOutput());
 		m_3d_View->SetColor(0,0.5,0.6,0.7);
-		m_3d_View->RefreshView();
-		m_3d_View->GetRenderWindow()->Render();
+		m_3d_View->ResetView();
 	}
 }
 
@@ -287,12 +325,22 @@ void MainWindow::on_Config_Tracker()
 	if (m_3d_View->m_tracker->ConfigureTracker()!=0)
 	{
 		std::cout << "Tracker configuration fail" << std::endl;
+		QMessageBox msgBox;
+		msgBox.setText("Configuration Failed, Please check system.");
+		msgBox.exec();
+		return;
 	}
 	if (m_3d_View->m_tracker->StartTracking()!=0)
 	{
 		std::cout << "Start Tracker fail" << std::endl;
+		QMessageBox msgBox;
+		msgBox.setText("Configuration Failed, Please check system.");
+		msgBox.exec();
+		return;
 	}
-	
+	QMessageBox msgBox;
+	msgBox.setText("System configuration success!");
+	msgBox.exec();
 }
 
 /*
@@ -307,30 +355,59 @@ void MainWindow::on_Sel_Markers()
 	msgBox.setStandardButtons(QMessageBox::Ok);
 	int ret = msgBox.exec();
 
+	auto ball = vtkSmartPointer<vtkSphereSource>::New();
+	ball->SetRadius(5.0);
+	ball->SetPhiResolution(50);
+	ball->SetThetaResolution(50);
+	ball->Update();
+	auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->SetInputData(ball->GetOutput());
+	auto ball_actor = vtkSmartPointer<vtkActor>::New();
+	ball_actor->SetMapper(mapper);
+	ball_actor->GetProperty()->SetColor(1.0, 0.0, 0.0);
+	m_3d_View->AddObject(ball_actor);
+	m_3d_View->RefreshView();
+
+	disconnect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double, double, double)));
+	connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceActionMarker(double, double, double)));
+
 	// enable mouse pick first
 	m_3d_View->EnablePick(); //press a to accept
 }
+void MainWindow::on_Valid_Marker()
+{
+	// valid marker you select in the 3d view
+	m_3d_View->ValidMarker();
+
+	int tt = m_3d_View->GetMarkerList().size();
+	
+	std::string log = std::to_string(tt).append(" th marker selected");
+	ui->log_Label->setText(log.c_str());
+}
+void MainWindow::on_Sel_MarkersDone()
+{
+	disconnect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double, double, double)));
+	connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceActionMarker(double, double, double)));
+
+
+	//write to config file
+	// m_3d_View->GetMarkerList()
+
+	// disable pick
+	m_3d_View->PopObject();
+	m_3d_View->DisablePick();
+	m_3d_View->RefreshView();
+}
+
 /*
 Capture the point and the device position
 */
 void MainWindow::on_Cap_Btn()
 {
-	// valid marker you select in the 3d view
-	m_3d_View->ValidMarker();
-
 	// marker capture get marker;
 	m_Marker_Capture->GetNextMarker();
 }
 
-/*
-Run Calibration process and get output the calibration transform
-*/
-
-void MainWindow::on_ActionCalibrate()
-{
-	m_Calibration_Win->setWindowModality(Qt::WindowModal);
-	m_Calibration_Win->show();
-}
 
 /*
 Finish capture and run registration
@@ -340,16 +417,33 @@ void MainWindow::on_CapDone_Btn()
 	//disconnect pick callback
 	m_3d_View->DisablePick();
 
-	if (m_3d_View->GetMarkerList().size() != m_Marker_Capture->GetMarkerList().size())
+	std::vector<double*> temp_dst;
+	if (m_3d_View->GetMarkerList().size()==0)
 	{
-		std::cout << "Markers invalid" << std::endl;
-		m_3d_View->ClearMarkers();
-		m_Marker_Capture->ClearMarkers();
+		double a1[] = { 176.286,195.733,90.0183 };
+		double a2[] = { 75.7988,192.343,88.1086 };
+		double a3[] = { 124.12,139.966,167.357 };
+		double a4[] = { 122.669,40.1707,116.375 };
+		
+		temp_dst.push_back(a1);
+		temp_dst.push_back(a2);
+		temp_dst.push_back(a3);
+		temp_dst.push_back(a4);
 	}
+	else
+	{
+		temp_dst = m_3d_View->GetMarkerList();
+	}
+	//if (m_3d_View->GetMarkerList().size() != m_Marker_Capture->GetMarkerList().size())
+	//{
+	//	std::cout << "Markers invalid" << std::endl;
+	//	m_3d_View->ClearMarkers();
+	//	m_Marker_Capture->ClearMarkers();
+	//}
 
 	// start registration here
 	auto temp_src = m_Marker_Capture->GetMarkerList();
-	auto temp_dst = m_3d_View->GetMarkerList();
+
 
 	auto reg = vtkSmartPointer<vtkTrackingLandMarkRegistration>::New();
 	reg->SetSourcePoints(temp_src);
@@ -395,8 +489,14 @@ void MainWindow::on_StartTracking()
 		sphere->Update();
 		m_Tool = sphere->GetOutput();
 	}
+	auto reader = vtkSmartPointer<vtkSTLReader>::New();
+	reader->SetFileName(m_ToolModelFileName.c_str());
+	reader->Update();
+	m_Tool = reader->GetOutput();
+
 	//connect tracking object
 	m_3d_View->AddPolySource(m_Tool);
+	std::cout << "Number of actors: " << m_3d_View->GetNumberOfActors() << std::endl;
 	m_3d_View->ConnectObjectTracker(1,0);
 	m_3d_View->SetReferenceIndex(1);
 
@@ -416,8 +516,18 @@ void MainWindow::on_StartTracking()
 void MainWindow::on_StopTracking()
 {
 	m_3d_View->StopTracking();
+	m_3d_View->m_tracker->StopTracking();
 }
 
+/*
+Run Calibration process and get output the calibration transform
+*/
+
+void MainWindow::on_ActionCalibrate()
+{
+	m_Calibration_Win->setWindowModality(Qt::WindowModal);
+	m_Calibration_Win->show();
+}
 
 /*
 Set Tracking Tool Model
@@ -431,11 +541,7 @@ void MainWindow::on_ActionSetTool()
 		return;
 	}
 	m_ToolModelFileName = fileName.toStdString();
-	
-	auto reader = vtkSmartPointer<vtkSTLReader>::New();
-	reader->SetFileName(m_ToolModelFileName.c_str());
-	reader->Update();
-	m_Tool = reader->GetOutput();
+
 }
 
 /*
@@ -508,6 +614,20 @@ void MainWindow::on_EnablePlane(int state)
 		//m_PlaneX->Off();
 		//m_PlaneY->Off();
 		//m_PlaneZ->Off();
+	}
+
+}
+void MainWindow::on_EnableSkull(int state)
+{
+	if (state == Qt::Checked)
+	{
+		m_3d_View->SetOpacity(0,1.0);
+		m_3d_View->RefreshView();
+	}
+	else
+	{
+		m_3d_View->SetOpacity(0,0.0);
+		m_3d_View->RefreshView();
 	}
 
 }

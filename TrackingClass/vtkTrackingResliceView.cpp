@@ -7,7 +7,6 @@ Date: 2016/1/11
 
 #include "vtkTrackingResliceView.h"
 
-
 reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)
 {
 	// init para
@@ -44,6 +43,8 @@ reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)
 	mask_actor   = vtkSmartPointer<vtkImageActor>::New();
 	WindowLevel1 = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
 	WindowLevel2 = vtkSmartPointer<vtkImageMapToWindowLevelColors>::New();
+	img_slice_temp = vtkSmartPointer<vtkImageData> ::New();
+	mask_slice_temp= vtkSmartPointer<vtkImageData> ::New();
 
 	this->InteractorStyle = vtkSmartPointer<reslice_interactor_style>::New();
 	this->Interactor      = vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -58,6 +59,8 @@ reslice_view_base::reslice_view_base(vtkRenderWindow* winx,char a)
 	this->Set_Direction(a); // set direction here
 	this->actor->SetOpacity(1);
 	this->mask_actor->SetOpacity(0.5);
+
+	m_mask_color_table = vtkSmartPointer<vtkLookupTable>::New();
 }
 
 reslice_view_base::~reslice_view_base()
@@ -173,7 +176,30 @@ void reslice_view_base::Set_View_Img(vtkSmartPointer<vtkImageData> img)
 	this->img_to_view = img;
 	this->dimensions = new int[3];
 	this->img_to_view->GetDimensions(this->dimensions);
-	this->slice_n = int(dimensions[0]/2);
+	switch (this->direction)
+	{
+		case 'a':
+		{
+			this->slice_n = int(dimensions[2] / 2);
+			break;
+		}
+		case 's':
+		{
+			this->slice_n = int(dimensions[1] / 2);
+			break;
+		}
+		case 'c':
+		{
+			this->slice_n = int(dimensions[0] / 2);
+			break;
+		}
+		default:
+		{
+			this->slice_n = int(dimensions[0] / 2);
+			break;
+		}
+	}
+
 	//std::cout<<"dimension is :"<<dimensions[0]<<dimensions[1]<<dimensions[2]<<std::endl;
 	this->calculate_img_center(img_to_view);
 	
@@ -208,6 +234,22 @@ void reslice_view_base::Set_Mask_Img(vtkSmartPointer<vtkImageData> img)
 	lookUp->SetRange(0.0,255.0);
 	lookUp->Build();
 	WindowLevel2->SetLookupTable(lookUp);
+}
+
+void reslice_view_base::Set_Mask_ColorTable(vtkSmartPointer<vtkLookupTable> table)
+{
+	WindowLevel2->SetLookupTable(table);
+}
+
+
+vtkRenderWindowInteractor* reslice_view_base::GetInteractor()
+{
+	return this->Interactor;
+}
+
+vtkRenderer* reslice_view_base::GetDefaultRenderer()
+{
+	return new_render;
 }
 
 void reslice_view_base::RemoveMask()
@@ -262,6 +304,7 @@ void reslice_view_base::RenderView()
 	//Attention  !!!!
 	// You must Update here!!!
 	this->reslice->Update();
+	this->img_slice_temp = this->reslice->GetOutput();
 #if VTK_MAJOR_VERSION <= 5
 	this->WindowLevel1->SetInput(this->reslice->GetOutput());
 #else
@@ -297,12 +340,14 @@ void reslice_view_base::RenderView()
 		this->mask_reslice->SetOutputDimensionality(2);
 		this->mask_reslice->SetResliceAxesDirectionCosines(this->view_dirX,this->view_dirY,this->view_dirZ);
 		this->mask_reslice->SetResliceAxesOrigin(center);
-		this->mask_reslice->SetInterpolationModeToLinear();
+		//this->mask_reslice->SetInterpolationModeToLinear();
+		
 		//Attention  !!!!
 		//Attention  !!!!
 		//Attention  !!!!
 		// You must Update here!!!
 		this->mask_reslice->Update();
+		mask_slice_temp = this->mask_reslice->GetOutput();
 #if VTK_MAJOR_VERSION <= 5
 		this->WindowLevel2->SetInput(this->mask_reslice->GetOutput());
 #else
@@ -486,40 +531,132 @@ void reslice_view_base:: on_click_mouse_lft(vtkObject* obj)
 	iren->GetEventPosition(eve_pos);// here we pick the world coordinate which is not suitable, we should get pixel position
 
 	//use vtkPropPicker 
-	vtkSmartPointer<vtkPropPicker> propPicker = 
-		vtkSmartPointer<vtkPropPicker>::New();
+	auto propPicker = this->Interactor->GetPicker();
+		//vtkSmartPointer<vtkPropPicker>::New();
 	propPicker->PickFromListOn();
-	propPicker->AddPickList(this->actor);
+	propPicker->AddPickList(this->mask_actor);
 
 	propPicker->Pick(iren->GetEventPosition()[0],
 					 iren->GetEventPosition()[1],
 					 0.0,
 					 this->new_render);
-	// There could be other props assigned to this picker, so 
-	// make sure we picked the image actor
-	vtkAssemblyPath* path = propPicker->GetPath();
-	bool validPick = false;
-	if (path)
+
+	// world coordinate position
+	double* pos = propPicker->GetPickPosition();
+	//std::cout << "Position is: " << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
+	int pos_temp[3];
+	double* ori;
+	ori = this->mask_slice_temp->GetOrigin();
+	switch (this->direction)
 	{
-		vtkCollectionSimpleIterator sit;
-		path->InitTraversal(sit);
-		vtkAssemblyNode *node;
-		for (int i = 0; i < path->GetNumberOfItems() && !validPick; ++i)
+		case 'a':
 		{
-			node = path->GetNextNode(sit);
-			if (actor == vtkImageActor::SafeDownCast(node->GetViewProp()))
-			{
-				validPick = true;
-			}
+			pos_temp[0] = pos[0] - ori[0];
+			pos_temp[1] = pos[1] - ori[1];
+			pos_temp[2] = this->slice_n;
+		}
+		case 's':
+		{
+			pos_temp[0] = pos[0] - ori[0];
+			pos_temp[1] = pos[1] - ori[1];
+			pos_temp[2] = this->slice_n;
+		}
+		case 'c':
+		{
+			pos_temp[0] = pos[0] - ori[0];
+			pos_temp[1] = pos[1] - ori[1];
+			pos_temp[2] = this->slice_n;
+		}
+		default:
+		{
+			pos_temp[0] = pos[0] - ori[0];
+			pos_temp[1] = pos[1] - ori[1];
+			pos_temp[2] = this->slice_n;
 		}
 	}
-
-	double pos[3];
-	propPicker->GetPickPosition(pos);
-
-	std::cout<<"click mouse left button "<<eve_pos[0]<<" , "<<eve_pos[1]<<" , "<<this->slice_n<<std::endl;
-	//std::cout<<"click mouse left button "<<vtkMath::Round(pos[0])<<" , "<<pos[1]<<" , "<<pos[2]<<std::endl;
-	on_emit_coordinate(eve_pos[0], eve_pos[1],this->slice_n);
+	on_emit_click_pos(pos_temp[0], pos_temp[1]);
+	int* ext;
+	ext = this->mask_slice_temp->GetExtent();
+	if ((pos_temp[0]<=ext[1])&&(pos_temp[1]<=ext[3]))  //within the extent
+	{
+		double value = 0.0;
+		switch (mask_slice_temp->GetScalarType())
+		{
+			case (VTK_CHAR):
+			{
+				char* tuple = static_cast< char *>(this->mask_slice_temp->GetScalarPointer(pos_temp[0], pos_temp[1], 0));
+				value = tuple[0];
+				break;
+			}
+			case (VTK_SIGNED_CHAR):
+			{
+				signed char* tuple = static_cast<signed char *>(this->mask_slice_temp->GetScalarPointer(pos_temp[0], pos_temp[1], 0));
+				value = tuple[0];
+				break;
+			}
+			case (VTK_UNSIGNED_CHAR) : 
+			{
+				unsigned char* tuple = static_cast<unsigned char *>(this->mask_slice_temp->GetScalarPointer(pos_temp[0], pos_temp[1], 0));
+				value = tuple[0];
+				break;
+			}
+			case (VTK_SHORT) : 
+			{
+				short* tuple = static_cast<short *>(this->mask_slice_temp->GetScalarPointer(pos_temp[0], pos_temp[1], 0));
+				value = tuple[0];
+				break;
+			}
+			case (VTK_UNSIGNED_SHORT) : 
+			{
+				unsigned short* tuple = static_cast<unsigned short *>(this->mask_slice_temp->GetScalarPointer(pos_temp[0], pos_temp[1], 0));
+				value = tuple[0];
+				break;
+			}
+			case (VTK_INT) : 
+			{
+				int* tuple = static_cast< int *>(this->mask_slice_temp->GetScalarPointer(pos_temp[0], pos_temp[1], 0));
+				value = tuple[0];
+				break;
+			}
+			case (VTK_UNSIGNED_INT): 
+			{
+				unsigned char* tuple = static_cast<unsigned char *>(this->mask_slice_temp->GetScalarPointer(pos_temp[0], pos_temp[1], 0));
+				value = tuple[0];
+				break;
+			}
+			case (VTK_LONG) : 
+			{
+				long * tuple = static_cast<long *>(this->mask_slice_temp->GetScalarPointer(pos_temp[0], pos_temp[1], 0));
+				value = tuple[0];
+				break;
+			}
+			case (VTK_UNSIGNED_LONG) : 
+			{
+				unsigned long* tuple = static_cast<unsigned long *>(this->mask_slice_temp->GetScalarPointer(pos_temp[0], pos_temp[1], 0));
+				value = tuple[0];
+				break;
+			}
+			case (VTK_FLOAT) : 
+			{
+				float * tuple = static_cast<float *>(this->mask_slice_temp->GetScalarPointer(pos_temp[0], pos_temp[1], 0));
+				value = tuple[0];
+				break;
+			}
+			case (VTK_DOUBLE) :
+			{
+				double * tuple = static_cast<double *>(this->mask_slice_temp->GetScalarPointer(pos_temp[0], pos_temp[1], 0));
+				value = tuple[0];
+				break;
+			}
+			default:
+			{
+				unsigned char* tuple = static_cast<unsigned char *>(this->mask_slice_temp->GetScalarPointer(pos_temp[0], pos_temp[1], 0));
+				value = tuple[0];
+				break;
+			}
+		}
+		on_emit_click_pos_value(value);
+	}
 }
 
 
@@ -636,7 +773,6 @@ double* reslice_view_base::calculate_img_center(vtkSmartPointer<vtkImageData> im
 	img->GetSpacing(spacing);
 	img->GetOrigin(origin);
 
-	double center[3];
 	for (int i=0;i<3;i++)
 	{
 		center[i] = origin[i]+spacing[i]*0.5*(extent_m[2*i]+extent_m[2*i+1]);//
@@ -669,3 +805,10 @@ vtkSmartPointer<vtkLookupTable> reslice_view_base::BuildUpLookupTable()
 	rgbLut->Build();
 	return rgbLut;
 }
+
+
+
+
+
+
+

@@ -52,6 +52,7 @@ Date: 2016/1/11
 #include <vtkWidgetEventTranslator.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkTextActor.h>
+#include <vtkObjectFactory.h>
 
 class reslice_interactor_style;
 //class vtkSliderCallback;
@@ -64,7 +65,8 @@ class reslice_interactor_style;
 	Coronal:  Y
 	Sagittal: X
 */
-class reslice_view_base : QObject
+
+class reslice_view_base : public QObject
 {
 	Q_OBJECT
 public:
@@ -76,6 +78,12 @@ public:
 	void SetMaskOpacity(double op) {mask_actor->SetOpacity(op);};
 	void Set_View_Img(vtkSmartPointer<vtkImageData>);
 	void Set_Mask_Img(vtkSmartPointer<vtkImageData>);
+	void Set_Mask_ColorTable(vtkSmartPointer<vtkLookupTable>);
+
+	void Get_View_Image();
+	vtkRenderWindowInteractor* GetInteractor();
+	vtkRenderer* GetDefaultRenderer();
+
 	void RenderView();
 	void RemoveMask();
 	int Slice_Position;//useless
@@ -85,7 +93,8 @@ public:
 		void on_scroll_mouse_forward(vtkObject*);
 		void on_click_mouse_lft(vtkObject*);
 	signals:
-		void on_emit_coordinate(int,int,int);
+		void on_emit_click_pos(int,int);  // pixel position
+		void on_emit_click_pos_value(double);
 private:
 	double view_dirX[3];
 	double view_dirY[3];
@@ -103,9 +112,12 @@ private:
 
 	vtkSmartPointer<vtkImageData> img_to_view;
 	vtkSmartPointer<vtkImageData> img_to_mask;
+	vtkSmartPointer<vtkImageData> img_slice_temp;
+	vtkSmartPointer<vtkImageData> mask_slice_temp;
 	vtkSmartPointer<vtkImageReslice> reslice;
 	vtkSmartPointer<vtkImageReslice> mask_reslice;
 	vtkSmartPointer<vtkWindowLevelLookupTable> lookup_table;
+	vtkSmartPointer<vtkLookupTable>	m_mask_color_table;
 	vtkSmartPointer<vtkImageMapToColors> color_map;
 	vtkSmartPointer<vtkTextActor>    m_ViewDirText;
 

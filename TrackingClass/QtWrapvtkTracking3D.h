@@ -50,7 +50,7 @@ public:
 
 		//   I have tested that, if you want to pass an
 		m_MouseClickConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();				   //   VTK User defined event to other object, for 
-		m_MouseClickConnect->Connect(this, QIN_S_VTK_EVENT,//vtkCommand::LeftButtonPressEvent, //   example Qt slot, you should define an unique 
+		m_MouseClickConnect->Connect(this, QIN_S_VTK_EVENT,									   //   example Qt slot, you should define an unique 
 			this, SLOT(on_emit_callback(vtkObject*)));										   //   EVENT ID like QIN_S_VTK_EVENT(This ID is 
 	};																						   //   defined in vtkTracking3D.h), and then
 	//   connect in the way like left code block.
@@ -61,12 +61,12 @@ public:
 	};
 
 
-	void StartTracking2()
+	void StartTrackingQt()
 	{
 		m_Timer->start(m_interval);
 		connect(m_Timer, SIGNAL(timeout()), this, SLOT(on_Timer()));
 	};
-	void StopTracking2()
+	void StopTrackingQt()
 	{
 		m_Timer->stop();
 		disconnect(m_Timer, SIGNAL(timeout()), this, SLOT(on_Timer()));
@@ -89,8 +89,11 @@ public:
 	};
 
 public slots:
+	//void slot_clicked(vtkObject*, unsigned long, void*, void*);
+
 	void on_emit_callback(vtkObject*)
 	{
+		std::cout << "emitting click callback" << std::endl;
 		emit on_timer_signal_index(this->m_SliceX, this->m_SliceY, this->m_SliceZ);
 		emit on_timer_signal_coor(m_marker_tobe_set[0], m_marker_tobe_set[1], m_marker_tobe_set[2]);
 	};

@@ -179,6 +179,12 @@ int vtkTracking3D::DisConnectObjectTracker(int obj_index)
 	}
 }
 
+int vtkTracking3D::GetNumberOfActors()
+{
+	m_ActorCollection->GetNumberOfItems();
+	return m_CurrentRenderer->GetActors()->GetNumberOfItems();
+}
+
 //get vtkactor pointer from a vtkActorCollection 
 vtkActor* vtkTracking3D::GetActorPointer(vtkPropCollection* collection, int index)
 {
@@ -189,6 +195,15 @@ vtkActor* vtkTracking3D::GetActorPointer(vtkPropCollection* collection, int inde
 	else
 		return NULL;
 }
+
+vtkActor* vtkTracking3D::GetActorPointer(int index)
+{
+	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() >= index)
+		return GetActorPointer(m_ActorCollection, index);
+	else
+		return vtkSmartPointer<vtkActor>::New();
+}
+
 
 /*
 Description:
@@ -285,6 +300,18 @@ int vtkTracking3D::SetImage(vtkSmartPointer<vtkImageData> in)
 	m_PlaneX->SetPlaneOrientationToXAxes();
 	m_PlaneY->SetPlaneOrientationToYAxes();
 	m_PlaneZ->SetPlaneOrientationToZAxes();
+
+	return 0;
+}
+
+
+/*
+Description:
+	Set the background color
+*/
+int  vtkTracking3D::SetBackGround(double r, double g, double b)
+{
+	m_CurrentRenderer->SetBackground(r,g,b);
 	return 0;
 }
 
@@ -376,9 +403,9 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 	m_marker_tobe_set[1] = m_FinTransform->GetPosition()[1];
 	m_marker_tobe_set[2] = m_FinTransform->GetPosition()[2];
 
-	this->m_PlaneX->SetSlicePosition(m_marker_tobe_set[0]);
-	this->m_PlaneY->SetSlicePosition(m_marker_tobe_set[1]);
-	this->m_PlaneZ->SetSlicePosition(m_marker_tobe_set[2]);
+	//this->m_PlaneX->SetSlicePosition(m_marker_tobe_set[0]);
+	//this->m_PlaneY->SetSlicePosition(m_marker_tobe_set[1]);
+	//this->m_PlaneZ->SetSlicePosition(m_marker_tobe_set[2]);
 
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
 	{
@@ -479,6 +506,47 @@ int vtkTracking3D::RemoveObject(vtkActor* obj)
 	m_CurrentRenderer->RemoveActor(obj);
 	return 0;
 }
+int vtkTracking3D::PopObject()
+{
+	int total = m_CurrentRenderer->GetActors()->GetNumberOfItems();
+	int index = total - 1;
+	m_CurrentRenderer->RemoveActor(GetActorPointer(m_ActorCollection, index));
+	m_ActorCollection->RemoveItem(index);
+	return 0;
+}
+
+
+/*
+Description:
+	Insert actor by index or pointer
+Input:
+	Index, count from 0
+Note:
+	Do nothing if index is invalid
+*/
+int vtkTracking3D::ReplaceObject(int index, vtkSmartPointer< vtkActor > obj)
+{
+	m_ActorCollection->ReplaceItem(index, obj);
+	m_CurrentRenderer->GetViewProps()->ReplaceItem(index,obj);
+	return 0;
+}
+
+int vtkTracking3D::ReplacePolySource(int index, vtkSmartPointer<vtkPolyData> poly)
+{
+
+	vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	mapper->ScalarVisibilityOff();
+#if VTK_MAJOR_VERSION <= 5	mapper->SetInput(poly);
+#else
+	mapper->SetInputData(poly);
+#endif
+	vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+	actor->SetMapper(mapper);
+	this->ReplaceObject(index, actor);
+	return 1;
+}
+
+
 void vtkTracking3D::SetInteractor(vtkSmartPointer<vtkRenderWindowInteractor> inct)
 {
 	this->m_Interactor = inct;
@@ -595,6 +663,12 @@ int vtkTracking3D::InstallPipeline()
 	m_MouseCallback->SetCallback(MouseclickCallbackFunction);
 	m_Interactor->AddObserver(vtkCommand::KeyPressEvent, m_KeyPressCallBack);
 	m_Interactor->AddObserver(vtkCommand::TimerEvent, m_TimerCallBack);
+	auto pointPicker = vtkSmartPointer<vtkPointPicker>::New();
+	auto propPicker = vtkSmartPointer<vtkPropPicker>::New();
+	auto cellPicker = vtkSmartPointer<vtkCellPicker>::New();
+	//m_Interactor->SetPicker(pointPicker);
+	m_Interactor->SetPicker(propPicker);
+	//m_Interactor->SetPicker(cellPicker);
 
 	m_PlaneX->SetInteractor(m_Interactor);
 	m_PlaneY->SetInteractor(m_Interactor);
@@ -608,11 +682,19 @@ int vtkTracking3D::InstallPipeline()
 Description: 
 	This function refresh the view
 */
-void vtkTracking3D::RefreshView()
+void vtkTracking3D::ResetView()
 {
 	m_CurrentRenderer->ResetCamera();
 	m_RenderWindow->Render();
 }
+
+void vtkTracking3D::RefreshView()
+{
+	m_RenderWindow->Render();
+}
+
+
+
 
 /*
 Description:
@@ -671,46 +753,6 @@ void KeypressCallbackFunction(vtkObject* caller,long unsigned int eventId,void* 
 	
 }
 
-/*
-Description:
-	This function contain some key technologies
-	Show more attentions
-*/
-static void MouseclickCallbackFunction(
-	vtkObject* caller,
-	long unsigned int eventId,
-	void* clientData,
-	void* callData
-	)
-{
-	vtkSmartPointer<vtkTracking3D> tracking = static_cast<vtkTracking3D*> (clientData);
-
-	// Get the screen/window pixel coordinate
-	int* clickPos = tracking->GetInteractor()->GetEventPosition();
-
-	// Pick from this location
-	vtkSmartPointer<vtkPropPicker> picker = vtkSmartPointer<vtkPropPicker>::New();
-	picker->Pick(clickPos[0], clickPos[1],0, tracking->GetDefaultRenderer());
-
-	double* pos = picker->GetPickPosition();
-
-	std::cout << "Position is: " << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
-	
-	tracking->m_marker_tobe_set[0] = pos[0];
-	tracking->m_marker_tobe_set[1] = pos[1];
-	tracking->m_marker_tobe_set[2] = pos[2];
-
-	tracking->m_PlaneX->SetSlicePosition(pos[0]);
-	tracking->m_PlaneY->SetSlicePosition(pos[1]);
-	tracking->m_PlaneZ->SetSlicePosition(pos[2]);
-
-	tracking->m_SliceZ = tracking->m_PlaneZ->GetSliceIndex();
-	tracking->m_SliceY = tracking->m_PlaneY->GetSliceIndex();
-	tracking->m_SliceX = tracking->m_PlaneX->GetSliceIndex();
-
-	//this emit a signal to connect qt signal
-	tracking->InvokeEvent(QIN_S_VTK_EVENT, tracking);
-}
 
 
 /*
@@ -741,14 +783,16 @@ void TimerCallbackFunction(
 		{
 			//memcpy(&trans, temp, sizeof(QIN_Transform_Type));
 			tracking->SetTransform(it->first, temp);
-			//std::cout <<it->first<<":"<< temp->x<< " " << temp->y<< " " << temp->z<< std::endl;
+			
+			//tracking->Find3DIndex(temp->x, temp->y, temp->z);
+			
 		}
 		else
 		{
 			std::cout << "transform invalid" << std::endl;
 		}
 	}
-
+	tracking->InvokeEvent(QIN_S_VTK_EVENT, tracking);
 	tracking->GetRenderWindow()->Render();
 }
 
@@ -804,6 +848,52 @@ void TimerCallbackFunction2(
 }
 
 
+/*
+Description:
+This function contain some key technologies
+Show more attentions
+*/
+static void MouseclickCallbackFunction(
+	vtkObject* caller,
+	long unsigned int eventId,
+	void* clientData,
+	void* callData
+	)
+{
+	vtkSmartPointer<vtkTracking3D> tracking = static_cast<vtkTracking3D*> (clientData);
+
+	// Get the screen/window pixel coordinate
+	int* clickPos = tracking->GetInteractor()->GetEventPosition();
+
+	//vtkSmartPointer<vtkPointPicker> pointPicker = static_cast<vtkPointPicker* >( tracking->GetInteractor()->GetPicker());
+	//pointPicker->Pick(clickPos[0],clickPos[1],0,tracking->GetDefaultRenderer());
+	//pointPicker->SetTolerance(0.01);
+
+	vtkSmartPointer<vtkPropPicker> propPicker = static_cast<vtkPropPicker* >(tracking->GetInteractor()->GetPicker());
+	propPicker->Pick(clickPos[0], clickPos[1], 0, tracking->GetDefaultRenderer());
+	auto points = propPicker->GetPickPosition();
+
+	//vtkSmartPointer<vtkCellPicker> cellPicker = static_cast<vtkCellPicker* >(tracking->GetInteractor()->GetPicker());
+	//cellPicker->SetTolerance(0.01);
+	//cellPicker->Pick(clickPos[0], clickPos[1], 0, tracking->GetDefaultRenderer());
+	//auto points = cellPicker->GetPickPosition();
+
+	std::cout << "Position is: " << points[0] << " " << points[1] << " " << points[2] << std::endl;
+	memcpy(tracking->m_marker_tobe_set, points, 3 * sizeof(double));
+
+
+	tracking->m_PlaneX->SetSlicePosition(points[0]);
+	tracking->m_PlaneY->SetSlicePosition(points[1]);
+	tracking->m_PlaneZ->SetSlicePosition(points[2]);
+
+	tracking->m_SliceZ = tracking->m_PlaneZ->GetSliceIndex();
+	tracking->m_SliceY = tracking->m_PlaneY->GetSliceIndex();
+	tracking->m_SliceX = tracking->m_PlaneX->GetSliceIndex();
+
+
+	//this emit a signal to connect qt signal
+	tracking->InvokeEvent(QIN_S_VTK_EVENT , tracking);
+}
 
 
 
@@ -850,6 +940,27 @@ void vtkTracking3D::Find3DIndex(vtkImageData* img, double x, double y, double z,
 	out[0] = pt_ID%x_e;
 }
 
+void vtkTracking3D::Find3DIndex(double x, double y, double z, int * out)
+{
+	Find3DIndex(m_Image,x,y,z,out);
+}
+void vtkTracking3D::Find3DIndex(double* in, int * out)
+{
+	Find3DIndex(m_Image,in,out);
+}
 
-
-
+void vtkTracking3D::Find3DIndex(double x,double y,double z)
+{
+	int pt_ID = 0;
+	pt_ID = m_Image->FindPoint(x, y, z);
+	std::cout << "Point ID is: " << pt_ID << std::endl;
+	int extent[6];
+	m_Image->GetExtent(extent);
+	int x_e = extent[1] - extent[0] + 1;
+	int y_e = extent[3] - extent[2] + 1;
+	int z_e = extent[5] - extent[4] + 1;
+	m_SliceX = floor(pt_ID / (x_e*y_e));
+	m_SliceY = floor(pt_ID % (x_e*y_e) / x_e);
+	m_SliceZ = pt_ID%x_e;
+	std::cout << "xxxxxxxxxxxxxxxxxxxxxxxx" << std::endl;
+}

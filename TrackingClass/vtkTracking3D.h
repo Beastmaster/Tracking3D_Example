@@ -42,7 +42,9 @@ Manual2:
 #include "vtkPolyDataMapper.h"
 #include "vtkOutlineFilter.h"
 #include "vtkImagePlaneWidget.h"
-
+#include "vtkPicker.h"
+#include "vtkPointPicker.h"
+#include "vtkCellPicker.h"
 #include <vtkTransform.h>
 #include <vtkLandmarkTransform.h>
 #include <vtkPropAssembly.h>
@@ -52,6 +54,7 @@ Manual2:
 
 #include <vector>
 #include <map>
+#include <functional>
 #include "TrackerBase.h"
 #include "PivotCalibration\PivotCalibration2.h"
 #include "PivotCalibration\PivotCalibration.h"
@@ -61,7 +64,7 @@ Manual2:
 //----------  define user event id here  ---------//
 #define QIN_MOVE_EVENT "new data"
 #define QIN_ERROR_EVENT "error!!!"
-#define QIN_S_VTK_EVENT 8888    // This is an unique event ID to connect mouse picked coordinate
+#define QIN_S_VTK_EVENT 9856    // This is an unique event ID to connect mouse picked coordinate
 								// First used in QtWrapvtkTracking3D.h
 
 /*
@@ -120,6 +123,8 @@ public:
 	// Add Functions
 	int AddObject( vtkSmartPointer< vtkActor > );
 	int AddPolySource(vtkSmartPointer<vtkPolyData>);
+	int ReplaceObject(int index, vtkSmartPointer< vtkActor >);
+	int ReplacePolySource(int index, vtkSmartPointer<vtkPolyData>);
 	int EnableOrthogonalPlanes();
 	int DisableOrthogonalPlanes();
 	int ConnectObjectTracker(int,int);
@@ -128,9 +133,11 @@ public:
 	// Remove Functions
 	int RemoveObject(int index);
 	int RemoveObject(vtkActor*);
+	int PopObject();
 
 	// Set Functions: for view purpose
-	int  SetImage(vtkSmartPointer<vtkImageData>);
+	int  SetImage(vtkSmartPointer<vtkImageData> );
+	int  SetBackGround(double r,double g, double b);
 	int  SetOpacity(int index , float opacity);
 	int  SetEnableOutline(int index,bool en);
 	int  SetColor(int index, double r, double g, double b);
@@ -151,7 +158,9 @@ public:
 	int  SetReferenceIndex(int);
 
 	// Get Functions
+	int GetNumberOfActors();
 	static vtkActor* GetActorPointer(vtkPropCollection*, int);
+	vtkActor* GetActorPointer(int);
 	vtkRenderer* GetDefaultRenderer();
 	vtkSmartPointer<vtkRenderWindow> GetRenderWindow();
 	vtkSmartPointer<vtkRenderWindowInteractor> GetInteractor();
@@ -164,6 +173,7 @@ public:
 
 	// install pipeline
 	int InstallPipeline();
+	void ResetView();
 	void RefreshView();
 
 	//marker control function
@@ -176,6 +186,9 @@ public:
 	//static function to find point 3d index from world coordinate
 	static void Find3DIndex(vtkImageData*, double* coordinate,int*);
 	static void Find3DIndex(vtkImageData*, double x,double y,double z,int *);
+	void Find3DIndex(double x, double y, double z, int *);
+	void Find3DIndex(double*, int *);
+	void Find3DIndex(double x, double y,double z);
 
 	//tracking device configuration
 	//PloarisVicraConfiguration* m_tracker;
@@ -201,7 +214,6 @@ protected:
 
 	std::vector<double*> m_marker_list;
 
-private:
 	// image to display
 	vtkSmartPointer<vtkImageData> m_Image;
 	
@@ -243,7 +255,6 @@ private:
 	// actor collections
 	vtkSmartPointer< vtkActorCollection > m_ActorCollection;
 	vtkSmartPointer< vtkPropCollection > m_PropCollection;  //no use by now
-
 };
 
 

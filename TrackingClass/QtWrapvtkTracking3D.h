@@ -112,6 +112,7 @@ public slots:
 			}
 			else
 			{
+				emit transform_invalid();
 				std::cout << "transform invalid" << std::endl;
 			}
 		}
@@ -124,6 +125,7 @@ signals:
 	void on_timer_signal_index(int index_x,int index_y, int index_z);
 	void on_timer_signal_coor(double x, double y, double z);
 	void on_timer_signal_transform(vtkMatrix4x4* &);
+	void transform_invalid(); // if transform is invalid, this signal will emitted
 private:
 	vtkSmartPointer<vtkEventQtSlotConnect> m_TimerConnect;
 	vtkSmartPointer<vtkEventQtSlotConnect> m_MouseClickConnect;

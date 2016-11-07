@@ -10,7 +10,7 @@ Date: 2016/1/10
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
 
-MainWindow::MainWindow(QWidget *parent):
+MainWindow::MainWindow(QWidget *parent) :
 QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
@@ -27,20 +27,20 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	connect(m_3d_View, SIGNAL(on_timer_signal_index(int, int, int)), this, SLOT(on_ResliceAction(int, int, int)), Qt::QueuedConnection);
 	connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double, double, double)), Qt::QueuedConnection);
 	//connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceActionMarker(double, double, double)));
-	
+
 	//connect
 	connect(ui->load_Image_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Image()), Qt::QueuedConnection);
 	connect(ui->load_Atlas_Btn, SIGNAL(clicked()), this, SLOT(on_Load_Atlas()), Qt::QueuedConnection);
-	connect(ui->del_Atlas_Btn, SIGNAL(clicked()),this,SLOT(on_Del_Atlas()));
-	connect(ui->config_Tracker_Btn,SIGNAL(clicked()),this,SLOT(on_Config_Tracker()));
+	connect(ui->del_Atlas_Btn, SIGNAL(clicked()), this, SLOT(on_Del_Atlas()));
+	connect(ui->config_Tracker_Btn, SIGNAL(clicked()), this, SLOT(on_Config_Tracker()));
 	connect(ui->sel_Tracker_Combo, SIGNAL(currentIndexChanged(int)), this, SLOT(on_Sel_Tracker(int)));
 	connect(ui->sel_Marker_Btn, SIGNAL(clicked()), this, SLOT(on_Sel_Markers()));
 	connect(ui->valid_Marker_Btn, SIGNAL(clicked()), this, SLOT(on_Valid_Marker()));
 	connect(ui->sel_Done_Btn, SIGNAL(clicked()), this, SLOT(on_Sel_MarkersDone()));
 	connect(ui->cap_Marker_Btn, SIGNAL(clicked()), this, SLOT(on_Cap_Btn()));
 	connect(ui->ok_Sel_Btn, SIGNAL(clicked()), this, SLOT(on_CapDone_Btn()));
-	connect(ui->start_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StartTracking()));
-	connect(ui->stop_Tracking_Btn,SIGNAL(clicked()),this,SLOT(on_StopTracking()));
+	connect(ui->start_Tracking_Btn, SIGNAL(clicked()), this, SLOT(on_StartTracking()));
+	connect(ui->stop_Tracking_Btn, SIGNAL(clicked()), this, SLOT(on_StopTracking()));
 	connect(ui->opacity_Slider, SIGNAL(valueChanged(int)), this, SLOT(on_Opacity_Slider(int)));
 	connect(ui->axial_slider, SIGNAL(valueChanged(int)), this, SLOT(on_Axial_Slider(int)));
 	connect(ui->sagittal_slider, SIGNAL(valueChanged(int)), this, SLOT(on_Sagittal_Slider(int)));
@@ -60,7 +60,7 @@ MainWindow:: ~MainWindow()
 	{
 		delete m_TrackerPolaris;
 	}
-	if (m_TrackerATC3DG!=NULL)
+	if (m_TrackerATC3DG != NULL)
 	{
 		delete m_TrackerATC3DG;
 	}
@@ -83,7 +83,7 @@ void MainWindow::sys_Init()
 	ui->threeDWidget->GetRenderWindow()->Render();
 
 
-	m_Sagittal_View = new reslice_view_base(ui->sagittalWidget->GetRenderWindow(),'s');
+	m_Sagittal_View = new reslice_view_base(ui->sagittalWidget->GetRenderWindow(), 's');
 	m_Axial_View = new reslice_view_base(ui->axialWidget->GetRenderWindow(), 'a');
 	m_Coronal_View = new reslice_view_base(ui->coronalWidget->GetRenderWindow(), 'c');
 	m_3d_View = vtkSmartPointer<QtWrapvtkTracking3D>::New();
@@ -127,7 +127,7 @@ void MainWindow::sys_Init()
 	{
 		for (size_t j = 0; j < 4; j++)
 		{
-			m_ToolTipCalibration_Matrix->SetElement(i,j,mat[i][j]);
+			m_ToolTipCalibration_Matrix->SetElement(i, j, mat[i][j]);
 			std::cout << m_ToolTipCalibration_Matrix->GetElement(i, j) << " , ";
 		}
 		std::cout << std::endl;
@@ -155,18 +155,18 @@ Parameters are coordinate from the world coordinate.
 void MainWindow::on_ResliceAction(double x, double y, double z)
 {
 	int pt_ID = 0;
-	pt_ID = m_Image->FindPoint(x,y,z);
+	pt_ID = m_Image->FindPoint(x, y, z);
 	std::cout << "Point ID is: " << pt_ID << std::endl;
 
 	int extent[6];
 	m_Image->GetExtent(extent);
 
-	int x_e = extent[1] - extent[0] +1;
-	int y_e = extent[3] - extent[2] +1 ;
-	int z_e = extent[5] - extent[4] +1 ;
+	int x_e = extent[1] - extent[0] + 1;
+	int y_e = extent[3] - extent[2] + 1;
+	int z_e = extent[5] - extent[4] + 1;
 
-	m_SliceZ = floor(pt_ID/(x_e*y_e));
-	m_SliceY = floor(pt_ID%(x_e*y_e) /x_e );
+	m_SliceZ = floor(pt_ID / (x_e*y_e));
+	m_SliceY = floor(pt_ID % (x_e*y_e) / x_e);
 	m_SliceX = pt_ID%x_e;
 }
 void MainWindow::on_ResliceActionMarker(double  x, double y, double z)
@@ -197,8 +197,8 @@ void MainWindow::on_ResliceActionMarker(double  x, double y, double z)
 	mapper->SetInputData(ball->GetOutput());
 	auto ball_actor = vtkSmartPointer<vtkActor>::New();
 	ball_actor->SetMapper(mapper);
-	ball_actor->GetProperty()->SetColor(1.0,0.0,0.0);
-	ball_actor->SetPosition(x,y,z);
+	ball_actor->GetProperty()->SetColor(1.0, 0.0, 0.0);
+	ball_actor->SetPosition(x, y, z);
 	m_3d_View->AddObject(ball_actor);
 	m_3d_View->RefreshView();
 }
@@ -262,10 +262,10 @@ void MainWindow::on_Load_Image()
 		//extract 3d model
 		auto marchingCubes = vtkSmartPointer<vtkMarchingCubes>::New();
 		marchingCubes->SetInputData(m_Image);
-		marchingCubes->SetValue(0,m_StripValue);
+		marchingCubes->SetValue(0, m_StripValue);
 		marchingCubes->Update();
 		m_3d_View->AddPolySource(marchingCubes->GetOutput());
-		m_3d_View->SetColor(0,0.5,0.6,0.7);
+		m_3d_View->SetColor(0, 0.5, 0.6, 0.7);
 		m_3d_View->ResetView();
 	}
 }
@@ -322,7 +322,7 @@ void MainWindow::on_Sel_Tracker(int value)
 
 void MainWindow::on_Config_Tracker()
 {
-	if (m_3d_View->m_tracker->ConfigureTracker()!=0)
+	if (m_3d_View->m_tracker->ConfigureTracker() != 0)
 	{
 		std::cout << "Tracker configuration fail" << std::endl;
 		QMessageBox msgBox;
@@ -330,7 +330,7 @@ void MainWindow::on_Config_Tracker()
 		msgBox.exec();
 		return;
 	}
-	if (m_3d_View->m_tracker->StartTracking()!=0)
+	if (m_3d_View->m_tracker->StartTracking() != 0)
 	{
 		std::cout << "Start Tracker fail" << std::endl;
 		QMessageBox msgBox;
@@ -380,7 +380,7 @@ void MainWindow::on_Valid_Marker()
 	m_3d_View->ValidMarker();
 
 	int tt = m_3d_View->GetMarkerList().size();
-	
+
 	std::string log = std::to_string(tt).append(" th marker selected");
 	ui->log_Label->setText(log.c_str());
 }
@@ -418,13 +418,13 @@ void MainWindow::on_CapDone_Btn()
 	m_3d_View->DisablePick();
 
 	std::vector<double*> temp_dst;
-	if (m_3d_View->GetMarkerList().size()==0)
+	if (m_3d_View->GetMarkerList().size() == 0)
 	{
-		double a1[] = { 176.286,195.733,90.0183 };
-		double a2[] = { 75.7988,192.343,88.1086 };
-		double a3[] = { 124.12,139.966,167.357 };
-		double a4[] = { 122.669,40.1707,116.375 };
-		
+		double a1[] = { 176.286, 195.733, 90.0183 };
+		double a2[] = { 75.7988, 192.343, 88.1086 };
+		double a3[] = { 124.12, 139.966, 167.357 };
+		double a4[] = { 122.669, 40.1707, 116.375 };
+
 		temp_dst.push_back(a1);
 		temp_dst.push_back(a2);
 		temp_dst.push_back(a3);
@@ -497,7 +497,7 @@ void MainWindow::on_StartTracking()
 	//connect tracking object
 	m_3d_View->AddPolySource(m_Tool);
 	std::cout << "Number of actors: " << m_3d_View->GetNumberOfActors() << std::endl;
-	m_3d_View->ConnectObjectTracker(1,0);
+	m_3d_View->ConnectObjectTracker(1, 0);
 	m_3d_View->SetReferenceIndex(1);
 
 	//add target to view
@@ -589,7 +589,7 @@ void MainWindow::on_Coronal_Slider(int po)
 void MainWindow::on_Opacity_Slider(int value)
 {
 	float op = value;
-	m_3d_View->SetOpacity(0,op/100);
+	m_3d_View->SetOpacity(0, op / 100);
 }
 
 
@@ -621,12 +621,12 @@ void MainWindow::on_EnableSkull(int state)
 {
 	if (state == Qt::Checked)
 	{
-		m_3d_View->SetOpacity(0,1.0);
+		m_3d_View->SetOpacity(0, 1.0);
 		m_3d_View->RefreshView();
 	}
 	else
 	{
-		m_3d_View->SetOpacity(0,0.0);
+		m_3d_View->SetOpacity(0, 0.0);
 		m_3d_View->RefreshView();
 	}
 

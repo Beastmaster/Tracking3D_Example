@@ -51,7 +51,7 @@ namespace Ui {
 
 
 
-class MainWindow: public QMainWindow
+class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
@@ -62,8 +62,8 @@ public:
 	void sys_Init();
 	void createActions();
 
-public slots:
-	void on_ResliceAction(double,double,double);
+	public slots:
+	void on_ResliceAction(double, double, double);
 	void on_ResliceAction(int x, int y, int z);
 	void on_ResliceActionMarker(double, double, double);
 	void on_Load_Image();

@@ -59,8 +59,8 @@ public:
 	void SetReferIndex(int);
 	void SetCalibrationMatrix(vtkMatrix4x4* in) { m_CalibrationMatrix = in; };
 
-	void GetNextMarker();
-	void DelLastMarker();
+	int GetNextMarker();
+	int DelLastMarker();
 	void ClearMarkers();
 	std::vector<double*> GetMarkerList();
 
@@ -120,14 +120,17 @@ Description:
 	When all configurations are done
 	Call this function to append the marker to the 
 	bufer list
+return: 
+    0: success
+	1: transform invalid
 */
 template<typename TrackerType>
-void vtkTrackingMarkCapture<TrackerType>::GetNextMarker()
+int vtkTrackingMarkCapture<TrackerType>::GetNextMarker()
 {
 	if (m_Tracker->GetTrackingStatus() != 0)
 	{
 		std::cout << "Not Tracking" << std::endl;
-		return;
+		return 1;
 	}
 
 	std::cout << "Selecting " << m_ToolMarkers.size() + 1 << " th marker" << std::endl;
@@ -140,13 +143,14 @@ void vtkTrackingMarkCapture<TrackerType>::GetNextMarker()
 	QIN_Transform_Type* tem_refer = new QIN_Transform_Type;
 	memcpy(tem_refer, refer_trans, sizeof(QIN_Transform_Type));	
 	m_ReferMarkers.push_back(tem_refer);
+	return 0;
 }
 
 /*
 Delete the last marker
 */
 template<typename TrackerType>
-void vtkTrackingMarkCapture<TrackerType>::DelLastMarker()
+int vtkTrackingMarkCapture<TrackerType>::DelLastMarker()
 {
 	if (m_ToolMarkers.size()>0)
 	{
@@ -158,7 +162,7 @@ void vtkTrackingMarkCapture<TrackerType>::DelLastMarker()
 		delete m_ReferMarkers.back();
 		m_ReferMarkers.pop_back();
 	}
-
+	return 0;
 }
 
 

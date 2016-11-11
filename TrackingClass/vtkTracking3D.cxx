@@ -371,6 +371,9 @@ Input:
 */
 int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 {
+	if (trans == NULL) // null ptr
+		return 2;
+
 	// convert trans to vtkTransform and vtkMatrix first
 	PivotCalibration2::TransformToMatrix(trans,m_RawTransformMatrix);
 	m_RawTransform->Identity();
@@ -594,9 +597,24 @@ vtkSmartPointer<vtkTransform> vtkTracking3D:: GetRegisteredTransform()
 	return m_FinTransform;
 }
 
+/*
+Get out the transform you set in..
+*/
+vtkSmartPointer<vtkTransform> vtkTracking3D::GetRegisterTransform()
+{
+	return m_RegisterTransform;
+}
+vtkSmartPointer<vtkMatrix4x4> vtkTracking3D::GetRegisterTransformMatrix()
+{
+	return m_RegisterTransformMatrix;
+}
+
 QIN_Transform_Type* vtkTracking3D::GetTransform(int id)
 {
 	auto temp = m_tracker->GetTransform(m_RefID);
+	if (temp == NULL)
+		return NULL;
+
 	PivotCalibration2::TransformToMatrix(temp,m_RefTransformMatrix);
 	m_RefTransform->Identity();
 	m_RefTransform->SetMatrix(m_RefTransformMatrix);
@@ -783,9 +801,6 @@ void TimerCallbackFunction(
 		{
 			//memcpy(&trans, temp, sizeof(QIN_Transform_Type));
 			tracking->SetTransform(it->first, temp);
-			
-			//tracking->Find3DIndex(temp->x, temp->y, temp->z);
-			
 		}
 		else
 		{

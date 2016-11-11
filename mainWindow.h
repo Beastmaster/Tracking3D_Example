@@ -87,9 +87,17 @@ public:
 	void on_Opacity_Slider(int);
 	void on_EnablePlane(int);
 	void on_EnableSkull(int);
+	void on_Change_Tracking_Status(int);
+	//
+	void on_StartCapture();
+	void On_DoneCapture();
+	void On_FineRegister();
+	void On_Capture_squence();
+
 
 private:
 	Ui::MainWindow *ui;
+	QTimer* m_captureTimer;
 
 	std::string m_ImageFileName;
 	std::string m_AtlasFileName;
@@ -113,7 +121,7 @@ private:
 	vtkSmartPointer<vtkMatrix4x4>		m_ToolTipCalibration_Matrix;
 	CalibrationWindow*					m_Calibration_Win;
 
-	vtkSmartPointer< vtkTrackingMarkCapture<TrackerBase> > m_Marker_Capture;
+	vtkSmartPointer< vtkTrackingMarkCapture> m_Marker_Capture;
 
 	int m_SliceX;  //---> Sagittal
 	int m_SliceY;  //---> Coronal

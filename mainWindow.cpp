@@ -26,6 +26,7 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	//connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double,double,double)));
 	connect(m_3d_View, SIGNAL(on_timer_signal_index(int, int, int)), this, SLOT(on_ResliceAction(int, int, int)), Qt::QueuedConnection);
 	connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceAction(double, double, double)), Qt::QueuedConnection);
+	connect(m_3d_View, SIGNAL(qs_transform_valid(int)), this, SLOT(on_Change_Tracking_Status(int)));
 	//connect(m_3d_View, SIGNAL(on_timer_signal_coor(double, double, double)), this, SLOT(on_ResliceActionMarker(double, double, double)));
 
 	//connect
@@ -47,6 +48,11 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 	connect(ui->coronal_slider, SIGNAL(valueChanged(int)), this, SLOT(on_Coronal_Slider(int)));
 	connect(ui->en_Plane_Check, SIGNAL(stateChanged(int)), this, SLOT(on_EnablePlane(int)));
 	connect(ui->en_Skull_Check, SIGNAL(stateChanged(int)), this, SLOT(on_EnableSkull(int)));
+	
+	connect(ui->con_capture_Btn, SIGNAL(clicked()), this, SLOT(on_StartCapture()));
+	connect(ui->con_capture_Done_Btn, SIGNAL(clicked()), this, SLOT(On_DoneCapture()));
+	connect(ui->con_Register_Btn, SIGNAL(clicked()), this, SLOT(On_FineRegister()));
+
 	createActions();
 }
 
@@ -99,7 +105,7 @@ void MainWindow::sys_Init()
 	m_TrackerPolaris = new PloarisVicraConfiguration;
 	m_3d_View->SetTracker(m_TrackerATC3DG); // default tracker is ATC3DG device
 
-	m_Marker_Capture = vtkSmartPointer< vtkTrackingMarkCapture<TrackerBase> >::New();
+	m_Marker_Capture = vtkSmartPointer< vtkTrackingMarkCapture>::New();
 	m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
 	m_Marker_Capture->SetToolIndex(0);
 	m_Marker_Capture->SetReferIndex(1);
@@ -154,6 +160,9 @@ Parameters are coordinate from the world coordinate.
 */
 void MainWindow::on_ResliceAction(double x, double y, double z)
 {
+	if (m_Image == NULL)
+		return;
+
 	int pt_ID = 0;
 	pt_ID = m_Image->FindPoint(x, y, z);
 	std::cout << "Point ID is: " << pt_ID << std::endl;
@@ -264,7 +273,8 @@ void MainWindow::on_Load_Image()
 		marchingCubes->SetInputData(m_Image);
 		marchingCubes->SetValue(0, m_StripValue);
 		marchingCubes->Update();
-		m_3d_View->AddPolySource(marchingCubes->GetOutput());
+		m_ImageModel = marchingCubes->GetOutput();
+		m_3d_View->AddPolySource(m_ImageModel);
 		m_3d_View->SetColor(0, 0.5, 0.6, 0.7);
 		m_3d_View->ResetView();
 	}
@@ -510,7 +520,7 @@ void MainWindow::on_StartTracking()
 		m_3d_View->AddPolySource(m_Target);
 	}
 
-	m_3d_View->StartTracking();
+	m_3d_View->StartTrackingQt();
 }
 
 void MainWindow::on_StopTracking()
@@ -630,4 +640,84 @@ void MainWindow::on_EnableSkull(int state)
 		m_3d_View->RefreshView();
 	}
 
+}
+
+void MainWindow::on_Change_Tracking_Status(int status)
+{
+	if (status == 1)
+	{
+		ui->label_status->setText(("<font color='red'>Tracking</font>")); 
+	}
+	else
+	{
+		ui->label_status->setText("Lost!!");
+	}
+}
+
+void MainWindow::on_StartCapture()
+{
+	std::cout << "Continue capture... Triggered" << std::endl;
+
+	m_captureTimer = new QTimer;
+	m_captureTimer->start(100);    // 100 millisecon interval
+
+	//connect
+	connect(m_captureTimer, SIGNAL(timeout()), this, SLOT(On_Capture_squence()));
+}
+void MainWindow::On_DoneCapture()
+{
+	std::cout << "Continue capture done... Triggered" << std::endl;
+
+	//stop timer
+	m_captureTimer->stop();
+	disconnect(m_captureTimer, SIGNAL(timeout()), this, SLOT(On_Capture_squence()));
+	if (m_captureTimer != NULL)
+	{
+		delete m_captureTimer;
+	}
+	
+}
+void MainWindow::On_Capture_squence()
+{
+	std::cout << "Continue capture timer... Triggered" << std::endl;
+	m_Marker_Capture->GetNextMarker();
+}
+void MainWindow::On_FineRegister()
+{
+	std::cout << "Register... Triggered" << std::endl;
+	return;
+
+	auto reg = vtkSmartPointer<vtkTrackingICPRegistration>::New();
+	reg->SetTargetPoints(m_ImageModel->GetPoints());
+	reg->SetSourcePoints(m_Marker_Capture->GetMarkerList());
+	reg->SetPreMultipliedMatrix(m_3d_View->GetRegisterTransformMatrix());
+	reg->GenerateTransform();
+	auto res2 = reg->GetTransformMatrix();
+	std::cout << "Result" << std::endl;
+	std::cout << "Error is: " << reg->EstimateRegistrationError() << std::endl;
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+			std::cout << res2->GetElement(i, j) << ",";
+		std::cout << std::endl;
+	}
+	// a messagebox for user to accecpt or discard the error
+	QMessageBox msgBox;
+	msgBox.setWindowTitle("Register Box");
+	QString msg = "Accept the registration error:\n   ";
+	msg = msg + QString::number(reg->EstimateRegistrationError());
+	msgBox.setInformativeText(msg);
+	msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Discard);
+	msgBox.setDefaultButton(QMessageBox::Yes);
+	int ret = msgBox.exec();
+	if (ret == QMessageBox::Yes)
+	{
+		m_3d_View->SetRegisterTransform(res2);
+		//m_3d_View->SetLandMarks(temp_src,temp_dst);
+	}
+	else
+	{
+		m_Marker_Capture->ClearMarkers();
+		m_3d_View->ClearMarkers();
+	}
 }

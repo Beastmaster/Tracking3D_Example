@@ -385,16 +385,20 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 	}
 	if (!m_bIsTracking)  // not tracking
 	{
-		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
-		m_Transform->q0 = 1;
+		//memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		//m_Transform->q0 = 1;
+		delete m_Transform;
+		m_Transform = NULL;
 		return m_Transform;
 	}
 
 	//check is the index in the portID list
 	if ( m_PortID.size()<=index )
 	{
-		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
-		m_Transform->q0 = 1;
+		//memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		//m_Transform->q0 = 1;
+		delete m_Transform;
+		m_Transform = NULL;
 		return m_Transform;
 	}
 
@@ -402,14 +406,16 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 	auto it = std::find(m_PortID.begin(), m_PortID.end(), index2);
 	if (it != m_PortID.end())
 	{
-		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
-		m_Transform->q0 = 1;
+		//memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		//m_Transform->q0 = 1;
 		// check transform validation
 		if (this->m_dtHandleInformation[index2].Xfrms.ulFlags != TRANSFORM_VALID )
 		{
 #if EN_INFO_POLARIS
 			std::cout << "Transform "<< index <<" Invalid!" << std::endl;
 #endif
+			delete m_Transform;
+			m_Transform = NULL;
 			return m_Transform;
 		}
 		if (this->m_dtHandleInformation[index2].HandleInfo.bPartiallyOutOfVolume)
@@ -417,6 +423,8 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 #if EN_INFO_POLARIS ==1
 			std::cout << "Tool " << index << " Partially out of volume" << std::endl;
 #endif
+			delete m_Transform;
+			m_Transform = NULL;
 			return m_Transform;
 		}
 		else if (this->m_dtHandleInformation[index2].HandleInfo.bOutOfVolume)
@@ -424,11 +432,15 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 #if EN_INFO_POLARIS
 			std::cout << "Tool " << index << " Out of volume" << std::endl;
 #endif
+			delete m_Transform;
+			m_Transform = NULL;
 			return m_Transform;
 		}
 		else
 		{
+#if EN_INFO_POLARIS
 			std::cout << "Tool " << index << " Within volume" << std::endl;
+#endif
 		}
 		
 		m_Transform_Map[index2]->translation.x = m_dtHandleInformation[index2].Xfrms.translation.x;
@@ -452,8 +464,10 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 	}
 	else
 	{
-		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
-		m_Transform->q0 = 1;
+		//memset(m_Transform, 0, sizeof(QIN_Transform_Type));
+		//m_Transform->q0 = 1;
+		delete m_Transform;
+		m_Transform = NULL;
 		return m_Transform;
 	}
 }

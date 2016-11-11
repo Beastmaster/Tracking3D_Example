@@ -17,6 +17,7 @@ set(
 TrackQtHeadFile
 vtkTrackingResliceView.h
 QtWrapvtkTracking3D.h
+vtkTrackingMarkCapture.h
 )
 
 set(
@@ -25,6 +26,7 @@ vtkTracking3D.cxx
 vtkTrackingResliceView.cpp
 vtkTrackingRegistration.cxx
 ConfigurationParse.cpp
+vtkTrackingMarkCapture.cxx
 )
 
 set(
@@ -32,8 +34,6 @@ TrackHead
 vtkTracking3D.h
 vtkTrackingResliceView.h
 vtkTrackingRegistration.h
-vtkTrackingMarkCapture.h
-vtkTrackingMarkCapture.hxx
 ConfigurationParse.h
 )
 

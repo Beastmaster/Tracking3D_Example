@@ -166,6 +166,8 @@ public:
 	vtkSmartPointer<vtkRenderWindowInteractor> GetInteractor();
 	vtkSmartPointer<vtkTransform> GetRegisteredTransform();
 	vtkSmartPointer<vtkMatrix4x4> GetRegisteredTransformMatrix();
+	vtkSmartPointer<vtkTransform> GetRegisterTransform();
+	vtkSmartPointer<vtkMatrix4x4> GetRegisterTransformMatrix();
 	QIN_Transform_Type* GetTransform(int);
 	void GetResliceIndex(int*);
 	void EnablePick();
@@ -207,6 +209,7 @@ public:
 protected:
 	vtkTracking3D();
 	~vtkTracking3D();
+
 
 	//protected function, register in install pipeline
 	unsigned long m_interval; //timer interval in millisecond

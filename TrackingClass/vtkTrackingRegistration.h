@@ -21,6 +21,7 @@ Description:
 #include "vtkPoints.h"
 #include "vtkMatrix4x4.h"
 #include "vtkTransform.h"
+#include "vtkTransformFilter.h"
 
 #include <vtkIterativeClosestPointTransform.h>
 #include <vtkLandmarkTransform.h>
@@ -64,7 +65,7 @@ protected:
 	void ComputeLandmarkPrincipalAxes();
 	void ComputeRMSDistanceLandmarksFromPrincipalAxes();
 	
-	void EstimatingRegistrationError();
+	virtual void EstimatingRegistrationError();
 	double m_LandmarkCentroid[3];
 	double m_Error;
 
@@ -87,14 +88,18 @@ public:
 	vtkTypeMacro(vtkTrackingRegistrationBase, vtkTrackingRegistrationBase);
 
 	virtual void GenerateTransform();
+	void SetPreMultipliedMatrix(vtkMatrix4x4*);  // set pre multiplied matrix, transform input source point first
 	void SetMaxIterateSteps(int step){ max_steps = step; };
 private:
 	vtkTrackingICPRegistration();
 	~vtkTrackingICPRegistration();
-
+	virtual void EstimatingRegistrationError();
 protected:
 	int max_steps;
+	vtkSmartPointer<vtkMatrix4x4> m_pre_matrix;
 	vtkSmartPointer<vtkIterativeClosestPointTransform> m_icp;
+
+	int Pre_process();
 };
 
 

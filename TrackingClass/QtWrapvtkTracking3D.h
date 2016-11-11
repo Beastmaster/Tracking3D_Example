@@ -70,7 +70,10 @@ public:
 	{
 		m_Timer->stop();
 		disconnect(m_Timer, SIGNAL(timeout()), this, SLOT(on_Timer()));
+		emit qs_transform_valid(0);  // refresh status
 	};
+
+
 	/*
 	Description:
 		Set the index of tool in the tracking system
@@ -111,36 +114,27 @@ public slots:
 			
 			if (temp != NULL)
 			{
+				emit qs_transform_valid(1);
 				this->SetTransform(it->first, temp);
 			}
 			else
 			{
-				emit transform_invalid();
-				std::cout << "transform invalid" << std::endl;
+				emit qs_transform_valid(0);
 			}
 		}
 		emit on_timer_signal_index(this->m_SliceX, this->m_SliceY, this->m_SliceZ);
 		emit on_timer_signal_coor(m_marker_tobe_set[0], m_marker_tobe_set[1], m_marker_tobe_set[2]);
-		//emit on_timer_signal_transform(temp1);
 	}
-	/*
-	This timer slot is used for soft-touch continous capture
-	*/
-	void on_Timer_continue_capture()
-	{
 
-
-	}
 
 signals:
 	void on_timer_signal_index(int index_x,int index_y, int index_z);
 	void on_timer_signal_coor(double x, double y, double z);
 	void on_timer_signal_transform(vtkMatrix4x4* &);
-	void transform_invalid(); // if transform is invalid, this signal will emitted
+	void qs_transform_valid(int);// if transform is invalid, this signal will emitted
 private:
 	vtkSmartPointer<vtkEventQtSlotConnect> m_TimerConnect;
 	vtkSmartPointer<vtkEventQtSlotConnect> m_MouseClickConnect;
-
 
 	QTimer* m_Timer;
 };

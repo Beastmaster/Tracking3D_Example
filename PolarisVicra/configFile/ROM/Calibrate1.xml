@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+
+<precomputed_transform>
+
+	<description>
+	Pivot calibration for tool 8700340
+	</description>
+
+	<computation_date>
+	2015 Mar 13 15:49:44
+	</computation_date>
+
+	 <transformation estimation_error="0.1365287694">
+	0.0000000000	0.0000000000	0.0000000000	1.0000000000	-37.7552327555	3.9859922558	-161.2875821007
+	</transformation>
+
+</precomputed_transform>

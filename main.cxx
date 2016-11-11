@@ -230,7 +230,7 @@ void TestMousePick()
 	tracker->StartTracking();
 
 
-	auto mark = vtkSmartPointer< vtkTrackingMarkCapture<ATC3DGConfiguration> >::New();
+	auto mark = vtkSmartPointer< vtkTrackingMarkCapture>::New();
 	
 	mark->SetTracker(tracker);
 	mark->SetToolIndex(0);
@@ -270,8 +270,8 @@ void TestMousePick()
 		std::cout << (*it)[0] << "," << (*it)[1] << "," << (*it)[2] << std::endl;
 		dst_points->InsertNextPoint((*it));
 	}
-	reg1->SetSourcePoints(src_points);
-	reg1->SetTargetPoints(dst_points);
+	//reg1->SetSourcePoints(src_points);
+	//reg1->SetTargetPoints(dst_points);
 	reg1->GenerateTransform();
 	auto res1 = reg1->GetTransformMatrix();
 
@@ -320,8 +320,8 @@ void TestRegistration()
 	auto reg1 = vtkSmartPointer <vtkTrackingICPRegistration > ::New();
 	auto reg2 = vtkSmartPointer<vtkTrackingLandMarkRegistration>::New();
 
-	reg1->SetSourcePoints(src1);
-	reg1->SetTargetPoints(dst1);
+	//reg1->SetSourcePoints(src1);
+	//reg1->SetTargetPoints(dst1);
 	reg1->GenerateTransform();
 	auto res1 = reg1->GetTransformMatrix();
 
@@ -350,7 +350,7 @@ void TestTrackingMarkFunction()
 {
 	auto track = new ATC3DGConfiguration;
 	
-	auto mark = vtkSmartPointer< vtkTrackingMarkCapture<ATC3DGConfiguration> >::New();
+	auto mark = vtkSmartPointer< vtkTrackingMarkCapture >::New();
 	
 	mark->SetTracker(track);
 	mark->SetToolIndex(0);

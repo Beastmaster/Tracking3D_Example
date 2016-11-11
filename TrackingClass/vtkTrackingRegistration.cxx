@@ -187,10 +187,18 @@ vtkStandardNewMacro(vtkTrackingICPRegistration)
 vtkTrackingICPRegistration::vtkTrackingICPRegistration()
 {
 	m_icp = vtkSmartPointer<vtkIterativeClosestPointTransform>::New();
+	m_pre_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
 	max_steps = 50;
 }
 vtkTrackingICPRegistration::~vtkTrackingICPRegistration()
 {}
+
+
+void vtkTrackingICPRegistration::EstimatingRegistrationError()
+{
+	m_Error = 0.0;
+}
+
 void vtkTrackingICPRegistration::GenerateTransform()
 {
 	auto source_poly = vtkSmartPointer<vtkPolyData>::New();
@@ -204,6 +212,9 @@ void vtkTrackingICPRegistration::GenerateTransform()
 	{
 		return;
 	}
+
+	this->Pre_process();
+
 	//convert point to polydata first
 	source_poly->SetPoints(src_Points);
 	target_poly->SetPoints(target_Points);
@@ -238,10 +249,53 @@ void vtkTrackingICPRegistration::GenerateTransform()
 	m_icp->Modified();
 	m_icp->Update();
 
-	transform_matrix = m_icp->GetMatrix();
+	auto mat_post= m_icp->GetMatrix();
+	transform_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+	vtkMatrix4x4::Multiply4x4(mat_post,m_pre_matrix,transform_matrix);
 
 	EstimatingRegistrationError(); //this line compute the registration error
 }
+void vtkTrackingICPRegistration::SetPreMultipliedMatrix(vtkMatrix4x4* mat)
+{
+	m_pre_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
+	m_pre_matrix = mat;
+}
+int vtkTrackingICPRegistration::Pre_process()
+{
+	//src_Points
+
+	// step1: transform with pre_matrix
+	auto transform = vtkSmartPointer<vtkTransform>::New();
+	transform->SetMatrix(m_pre_matrix);
+	auto trans_Filter = vtkSmartPointer<vtkTransformFilter>::New();
+	trans_Filter->SetTransform(transform);
+	auto temp_pointset = vtkSmartPointer<vtkPolyData>::New();
+	temp_pointset->SetPoints(src_Points);
+	trans_Filter->SetInputData(temp_pointset);
+	trans_Filter->Update();
+	src_Points = trans_Filter->GetOutput()->GetPoints();
+
+	// step2: extract a bound
+	double* bound = src_Points->GetBounds();
+	auto temp_points = vtkSmartPointer<vtkPoints>::New();
+	for (int id = 0; id <= target_Points->GetNumberOfPoints(); id++)
+	{
+		auto pt = target_Points->GetPoint(id);
+		if ((pt[0] > bound[0] - 10) &&
+			(pt[0] > bound[1] + 10) &&
+			(pt[1] > bound[2] - 10) &&
+			(pt[1] > bound[3] + 10) &&
+			(pt[2] > bound[4] - 10) &&
+			(pt[2] > bound[5] + 10))
+		{
+			//temp_points->InsertNextPoint(pt);
+		}
+		temp_points->InsertNextPoint(pt);
+	}
+	target_Points = temp_points;
+	return 0;
+}
+
 
 
 //========================Land Mark Registration=========================//

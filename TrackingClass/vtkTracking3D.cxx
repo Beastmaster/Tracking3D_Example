@@ -611,14 +611,17 @@ vtkSmartPointer<vtkMatrix4x4> vtkTracking3D::GetRegisterTransformMatrix()
 
 QIN_Transform_Type* vtkTracking3D::GetTransform(int id)
 {
-	auto temp = m_tracker->GetTransform(m_RefID);
+	QIN_Transform_Type* temp = m_tracker->GetTransform(m_RefID);
 	if (temp == NULL)
-		return NULL;
-
-	PivotCalibration2::TransformToMatrix(temp,m_RefTransformMatrix);
+	{
+		temp = new QIN_Transform_Type;
+		memset(temp, 0, sizeof(QIN_Transform_Type));
+	}
+	
+	PivotCalibration2::TransformToMatrix(temp, m_RefTransformMatrix);
 	m_RefTransform->Identity();
 	m_RefTransform->SetMatrix(m_RefTransformMatrix);
-
+	
 	return this->m_tracker->GetTransform(id);
 }
 
@@ -852,7 +855,7 @@ void TimerCallbackFunction2(
 			tracking->m_marker_tobe_set[2] = coor[2];
 			//this emit a signal to connect qt signal, to reslice 2D views
 			tracking->InvokeEvent(QIN_S_VTK_EVENT, tracking);
-			std::cout << it->first << ":" << temp->x << " " << temp->y << " " << temp->z << std::endl;
+			//std::cout << it->first << ":" << temp->x << " " << temp->y << " " << temp->z << std::endl;
 		}
 		else
 		{
@@ -930,7 +933,7 @@ void vtkTracking3D::Find3DIndex(vtkImageData* img, double* coordinate, int* out)
 {
 	int pt_ID = 0;
 	pt_ID = img->FindPoint(coordinate[0], coordinate[1], coordinate[2]);
-	std::cout << "Point ID is: " << pt_ID << std::endl;
+	//std::cout << "Point ID is: " << pt_ID << std::endl;
 	int extent[6];
 	img->GetExtent(extent);
 	int x_e = extent[1] - extent[0] + 1;
@@ -944,7 +947,7 @@ void vtkTracking3D::Find3DIndex(vtkImageData* img, double x, double y, double z,
 {
 	int pt_ID = 0;
 	pt_ID = img->FindPoint(x, y, z);
-	std::cout << "Point ID is: " << pt_ID << std::endl;
+	//std::cout << "Point ID is: " << pt_ID << std::endl;
 	int extent[6];
 	img->GetExtent(extent);
 	int x_e = extent[1] - extent[0] + 1;
@@ -968,7 +971,7 @@ void vtkTracking3D::Find3DIndex(double x,double y,double z)
 {
 	int pt_ID = 0;
 	pt_ID = m_Image->FindPoint(x, y, z);
-	std::cout << "Point ID is: " << pt_ID << std::endl;
+	//std::cout << "Point ID is: " << pt_ID << std::endl;
 	int extent[6];
 	m_Image->GetExtent(extent);
 	int x_e = extent[1] - extent[0] + 1;

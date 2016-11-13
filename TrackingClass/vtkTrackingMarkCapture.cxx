@@ -62,18 +62,22 @@ int vtkTrackingMarkCapture::GetNextMarker()
 
 	std::cout << "Selecting " << m_ToolMarkers.size() + 1 << " th marker" << std::endl;
 	QIN_Transform_Type* tool_trans = m_Tracker->GetTransform(m_ToolIndex);
-	QIN_Transform_Type*  refer_trans = m_Tracker->GetTransform(m_ReferIndex);
-
-	if ((tool_trans == NULL) && (refer_trans == NULL))
+	if (tool_trans == NULL)
 	{
 		emit qs_transform_valid(0);
 		return 1;
 	}
-
 	QIN_Transform_Type* tem_tool = new QIN_Transform_Type;
 	memcpy(tem_tool, tool_trans, sizeof(QIN_Transform_Type));
 	m_ToolMarkers.push_back(tem_tool);
 
+
+	QIN_Transform_Type*  refer_trans = m_Tracker->GetTransform(m_ReferIndex);
+	if (refer_trans == NULL)
+	{
+		emit qs_transform_valid(0);
+		return 1;
+	}
 	QIN_Transform_Type* tem_refer = new QIN_Transform_Type;
 	memcpy(tem_refer, refer_trans, sizeof(QIN_Transform_Type));
 	m_ReferMarkers.push_back(tem_refer);

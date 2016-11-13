@@ -218,9 +218,9 @@ void MainWindow::on_ResliceAction(int x, int y, int z)
 	//m_SliceY = m_3d_View->m_SliceY;
 	//m_SliceZ = m_3d_View->m_SliceZ;
 
-	std::cout << "x coor:" << m_SliceX << std::endl;
-	std::cout << "y coor:" << m_SliceY << std::endl;
-	std::cout << "z coor:" << m_SliceZ << std::endl;
+	//std::cout << "x coor:" << m_SliceX << std::endl;
+	//std::cout << "y coor:" << m_SliceY << std::endl;
+	//std::cout << "z coor:" << m_SliceZ << std::endl;
 
 	ui->axial_slider->setSliderPosition(m_SliceZ);
 	ui->sagittal_slider->setSliderPosition(m_SliceX);
@@ -351,6 +351,7 @@ void MainWindow::on_Config_Tracker()
 	QMessageBox msgBox;
 	msgBox.setText("System configuration success!");
 	msgBox.exec();
+	m_3d_View->StartCheckingTimer();
 }
 
 /*
@@ -454,7 +455,6 @@ void MainWindow::on_CapDone_Btn()
 	// start registration here
 	auto temp_src = m_Marker_Capture->GetMarkerList();
 
-
 	auto reg = vtkSmartPointer<vtkTrackingLandMarkRegistration>::New();
 	reg->SetSourcePoints(temp_src);
 	reg->SetTargetPoints(temp_dst);
@@ -525,7 +525,7 @@ void MainWindow::on_StartTracking()
 
 void MainWindow::on_StopTracking()
 {
-	m_3d_View->StopTracking();
+	m_3d_View->StopTrackingQt();
 	m_3d_View->m_tracker->StopTracking();
 }
 

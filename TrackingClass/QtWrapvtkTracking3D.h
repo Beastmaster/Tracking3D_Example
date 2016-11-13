@@ -47,7 +47,7 @@ public:
 	QtWrapvtkTracking3D()
 	{
 		m_Timer = new QTimer;
-
+		m_Checking_Timer = new QTimer();
 		//   I have tested that, if you want to pass an
 		m_MouseClickConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();				   //   VTK User defined event to other object, for 
 		m_MouseClickConnect->Connect(this, QIN_S_VTK_EVENT,									   //   example Qt slot, you should define an unique 
@@ -63,16 +63,28 @@ public:
 
 	void StartTrackingQt()
 	{
+		StopCheckingTimer();
 		m_Timer->start(m_interval);
 		connect(m_Timer, SIGNAL(timeout()), this, SLOT(on_Timer()));
 	};
 	void StopTrackingQt()
 	{
+		m_Checking_Timer->stop();
 		m_Timer->stop();
 		disconnect(m_Timer, SIGNAL(timeout()), this, SLOT(on_Timer()));
 		emit qs_transform_valid(0);  // refresh status
 	};
 
+	void StartCheckingTimer()
+	{
+		m_Checking_Timer->start(50);
+		connect(m_Checking_Timer, SIGNAL(timeout()), this, SLOT(on_CheckingTimer()));
+	}
+	void StopCheckingTimer()
+	{
+		m_Checking_Timer->stop();
+		disconnect(m_Checking_Timer, SIGNAL(timeout()), this, SLOT(on_CheckingTimer()));
+	}
 
 	/*
 	Description:
@@ -125,7 +137,24 @@ public slots:
 		emit on_timer_signal_index(this->m_SliceX, this->m_SliceY, this->m_SliceZ);
 		emit on_timer_signal_coor(m_marker_tobe_set[0], m_marker_tobe_set[1], m_marker_tobe_set[2]);
 	}
+	void on_CheckingTimer()
+	{
+		for (auto it = 0; it < 2; it++)
+		{
+			//QIN_Transform_Type trans;
+			QIN_Transform_Type* temp;
+			//memset(&trans, 0, sizeof(QIN_Transform_Type));
+			temp = this->GetTransform(it);
+			if (temp == NULL)
+			{
+				std::cout << "error:  !!!  valid" << std::endl;
+				emit qs_transform_valid(0);
+				return;
+			}
+		}
+		emit qs_transform_valid(1);
 
+	}
 
 signals:
 	void on_timer_signal_index(int index_x,int index_y, int index_z);
@@ -137,6 +166,7 @@ private:
 	vtkSmartPointer<vtkEventQtSlotConnect> m_MouseClickConnect;
 
 	QTimer* m_Timer;
+	QTimer* m_Checking_Timer;
 };
 
 

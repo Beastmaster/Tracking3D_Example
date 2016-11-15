@@ -405,7 +405,10 @@ void MainWindow::on_Sel_MarkersDone()
 	// m_3d_View->GetMarkerList()
 
 	// disable pick
-	m_3d_View->PopObject();
+	for (int i = 0; i < m_3d_View->GetNumberOfActors() - 1; i++)
+	{
+		m_3d_View->PopObject();
+	}
 	m_3d_View->DisablePick();
 	m_3d_View->RefreshView();
 }

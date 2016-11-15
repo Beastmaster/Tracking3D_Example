@@ -120,8 +120,8 @@ Description:
 	Linkage of tool and actor is checked in callback, 
 	be free to use it anywhere
 Input:
-	obj_index:   actor index
-	too_index:   tool index
+	obj_index:    actor index
+	tool_index:   tracking tool index
 
 Return:
 	0: success

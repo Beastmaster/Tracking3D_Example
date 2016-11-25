@@ -73,9 +73,8 @@ vtkTracking3D::~vtkTracking3D()
 // The following functions implement the management of actor list
 int vtkTracking3D::AddObject(vtkSmartPointer< vtkActor > act)
 {
-	m_ActorCollection->AddItem(act);
 	m_CurrentRenderer->AddActor(act);
-	//m_CurrentRenderer->ResetCamera();
+	m_ActorCollection = m_CurrentRenderer->GetActors();
 	return 0;
 }
 
@@ -181,7 +180,6 @@ int vtkTracking3D::DisConnectObjectTracker(int obj_index)
 
 int vtkTracking3D::GetNumberOfActors()
 {
-	m_ActorCollection->GetNumberOfItems();
 	return m_CurrentRenderer->GetActors()->GetNumberOfItems();
 }
 
@@ -256,6 +254,11 @@ int vtkTracking3D::SetMarkerList(std::vector<double*> in)
 
 std::vector<double*> vtkTracking3D::GetMarkerList()
 {
+	std::cout << "Marker list: " << std::endl;
+	for (size_t i = 0; i < m_marker_list.size(); i++)
+	{
+		std::cout << m_marker_list[i][0] << "," << m_marker_list[i][1] << "," << m_marker_list[i][2] << std::endl;
+	}
 	return this->m_marker_list;
 }
 
@@ -351,6 +354,7 @@ int vtkTracking3D::SetColor(int index, double r, double g, double b)
 }
 int vtkTracking3D::SetColor(int index, double* rgb)
 {
+	m_ActorCollection = m_CurrentRenderer->GetActors();
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() >= index)
 	{
 		//static_cast<vtkActor*>(m_ActorCollection->GetItemAsObject(index))->GetProperty()->SetOpacity(opacity);
@@ -410,6 +414,7 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 	//this->m_PlaneY->SetSlicePosition(m_marker_tobe_set[1]);
 	//this->m_PlaneZ->SetSlicePosition(m_marker_tobe_set[2]);
 
+	m_ActorCollection = m_CurrentRenderer->GetActors();
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
 	{
 		//move actor here
@@ -424,6 +429,7 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 }
 int  vtkTracking3D::SetTransform(int index, vtkMatrix4x4* ma)
 {
+	m_ActorCollection = m_CurrentRenderer->GetActors();
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
 	{
 		//move actor here
@@ -440,6 +446,7 @@ Description:
 */
 int  vtkTracking3D::SetPosition(int index, double* coor)
 {
+	m_ActorCollection = m_CurrentRenderer->GetActors();
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
 	{
 		//move actor here
@@ -451,6 +458,7 @@ int  vtkTracking3D::SetPosition(int index, double* coor)
 }
 int  vtkTracking3D::SetPosition(int index, double x, double y, double z)
 {
+	m_ActorCollection = m_CurrentRenderer->GetActors();
 	if (m_ActorCollection->GetNumberOfItems() > 0 && m_ActorCollection->GetNumberOfItems() > index)
 	{
 		//move actor here
@@ -500,12 +508,10 @@ Input:
 int vtkTracking3D::RemoveObject(int index)
 {
 	m_CurrentRenderer->RemoveActor(GetActorPointer(m_ActorCollection,index));
-	m_ActorCollection->RemoveItem(index);
 	return 0;
 }
 int vtkTracking3D::RemoveObject(vtkActor* obj)
 {
-	m_ActorCollection->RemoveItem(obj);
 	m_CurrentRenderer->RemoveActor(obj);
 	return 0;
 }
@@ -514,7 +520,6 @@ int vtkTracking3D::PopObject()
 	int total = m_CurrentRenderer->GetActors()->GetNumberOfItems();
 	int index = total - 1;
 	m_CurrentRenderer->RemoveActor(GetActorPointer(m_ActorCollection, index));
-	m_ActorCollection->RemoveItem(index);
 	return 0;
 }
 
@@ -529,7 +534,6 @@ Note:
 */
 int vtkTracking3D::ReplaceObject(int index, vtkSmartPointer< vtkActor > obj)
 {
-	m_ActorCollection->ReplaceItem(index, obj);
 	m_CurrentRenderer->GetViewProps()->ReplaceItem(index,obj);
 	return 0;
 }

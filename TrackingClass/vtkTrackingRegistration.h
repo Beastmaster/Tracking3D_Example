@@ -26,6 +26,8 @@ Description:
 #include <vtkIterativeClosestPointTransform.h>
 #include <vtkLandmarkTransform.h>
 
+#include <vtkKdTree.h>
+
 #include <stdio.h>
 #include <string.h>
 
@@ -74,6 +76,7 @@ protected:
 	vtkSmartPointer<vtkPoints> target_Points;
 	std::vector<double*> m_target_Points;
 	vtkSmartPointer<vtkMatrix4x4> transform_matrix;
+	
 };
 
 
@@ -97,6 +100,7 @@ private:
 protected:
 	int max_steps;
 	vtkSmartPointer<vtkMatrix4x4> m_pre_matrix;
+	vtkSmartPointer<vtkMatrix4x4> m_post_matrix;
 	vtkSmartPointer<vtkIterativeClosestPointTransform> m_icp;
 
 	int Pre_process();

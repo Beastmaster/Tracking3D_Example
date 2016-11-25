@@ -10,8 +10,8 @@ find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 
 #this block is controversial
-find_package(GDCM REQUIRED)
-include(${GDCM_USE_FILE})
+#find_package(GDCM REQUIRED)
+#include(${GDCM_USE_FILE})
 
 
 set( HEAD
@@ -28,5 +28,5 @@ test.cpp
 
 add_library(PivotCalibration ${SRC} ${HEAD})
 target_link_libraries(PivotCalibration ${VTK_LIBRARIES})
-target_link_libraries(PivotCalibration ITKReview  ${ITK_LIBRARIES})
+target_link_libraries(PivotCalibration ${ITK_LIBRARIES})
 

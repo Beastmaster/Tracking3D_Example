@@ -74,6 +74,7 @@ public:
 	int GetNextMarker();
 	int DelLastMarker();
 	void ClearMarkers();
+	int GetNumberOfMarkers();
 	std::vector<double*> GetMarkerList();
 
 

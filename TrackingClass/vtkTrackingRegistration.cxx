@@ -188,7 +188,7 @@ vtkTrackingICPRegistration::vtkTrackingICPRegistration()
 {
 	m_icp = vtkSmartPointer<vtkIterativeClosestPointTransform>::New();
 	m_pre_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
-	max_steps = 50;
+	max_steps = 1000;
 }
 vtkTrackingICPRegistration::~vtkTrackingICPRegistration()
 {}
@@ -196,7 +196,35 @@ vtkTrackingICPRegistration::~vtkTrackingICPRegistration()
 
 void vtkTrackingICPRegistration::EstimatingRegistrationError()
 {
+	// transform source points
+	auto source_poly = vtkSmartPointer<vtkPolyData>::New();
+	source_poly->SetPoints(src_Points);
+	auto source_vertex = vtkSmartPointer<vtkVertexGlyphFilter>::New();
+#if VTK_MAJOR_VERSION <= 5
+	source_vertex->SetInput(source_poly);
+#else
+	source_vertex->SetInputData(source_poly);
+#endif
+	source_vertex->Update();
+	auto src_transformFilter = vtkSmartPointer<vtkTransformFilter>::New();
+	auto src_transform = vtkSmartPointer<vtkTransform>::New();
+	src_transform->SetMatrix(m_post_matrix);
+	src_transformFilter->SetTransform(src_transform);
+	src_transformFilter->SetInputData(source_vertex->GetOutput());
+	src_transformFilter->Update();
+	auto tranformed_src_poly = src_transformFilter->GetOutput();
+
 	m_Error = 0.0;
+	// build a kDTree from target_points
+	auto kDTree = vtkSmartPointer<vtkKdTree>::New();
+	kDTree->BuildLocatorFromPoints(target_Points);
+	for (int i = 0; i < tranformed_src_poly->GetNumberOfPoints(); i++)
+	{
+		double closestDist = 0.0;
+		kDTree->FindClosestPoint(tranformed_src_poly->GetPoint(i), closestDist);
+		m_Error += closestDist;
+	}
+	m_Error /= tranformed_src_poly->GetNumberOfPoints();
 }
 
 void vtkTrackingICPRegistration::GenerateTransform()
@@ -204,11 +232,11 @@ void vtkTrackingICPRegistration::GenerateTransform()
 	auto source_poly = vtkSmartPointer<vtkPolyData>::New();
 	auto target_poly = vtkSmartPointer<vtkPolyData>::New();
 
-	if (src_Points->GetNumberOfPoints()<1)
+	if (src_Points->GetNumberOfPoints() < 1)
 	{
 		return;
 	}
-	if (target_Points->GetNumberOfPoints()<1)
+	if (target_Points->GetNumberOfPoints() < 1)
 	{
 		return;
 	}
@@ -238,20 +266,33 @@ void vtkTrackingICPRegistration::GenerateTransform()
 
 	m_icp->SetSource(source_vertex->GetOutput());
 	m_icp->SetTarget(target_vertex->GetOutput());
-	m_icp->SetMeanDistanceModeToRMS();
 	m_icp->GetLandmarkTransform()->SetModeToRigidBody();
-	m_icp->CheckMeanDistanceOn();
-	m_icp->StartByMatchingCentroidsOn();
+	//m_icp->CheckMeanDistanceOn();  ####################### This line must be disabled!!!!!!!!! #############
 	m_icp->SetMaximumNumberOfIterations(max_steps);
-	m_icp->SetMaximumMeanDistance(0.0000001);
-	m_icp->SetMaximumNumberOfLandmarks(src_Points->GetNumberOfPoints());
-	m_icp->GetLandmarkTransform()->SetModeToRigidBody();
 	m_icp->Modified();
 	m_icp->Update();
 
-	auto mat_post= m_icp->GetMatrix();
+	m_post_matrix = m_icp->GetMatrix();
 	transform_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
-	vtkMatrix4x4::Multiply4x4(mat_post,m_pre_matrix,transform_matrix);
+	vtkMatrix4x4::Multiply4x4(m_post_matrix, m_pre_matrix, transform_matrix);
+
+	std::cout << "mat2:" << std::endl;
+	for (int i = 0; i < 4; i++)
+	{
+		for (size_t j = 0; j < 4; j++)
+		{
+			std::cout << m_post_matrix->GetElement(i, j);
+		}
+		std::cout << std::endl;
+	}
+	for (int i = 0; i < 4; i++)
+	{	
+		for (size_t j = 0; j < 4; j++)
+		{
+			std::cout << transform_matrix->GetElement(i, j);
+		}
+		std::cout << std::endl;
+	}
 
 	EstimatingRegistrationError(); //this line compute the registration error
 }
@@ -275,24 +316,6 @@ int vtkTrackingICPRegistration::Pre_process()
 	trans_Filter->Update();
 	src_Points = trans_Filter->GetOutput()->GetPoints();
 
-	// step2: extract a bound
-	double* bound = src_Points->GetBounds();
-	auto temp_points = vtkSmartPointer<vtkPoints>::New();
-	for (int id = 0; id <= target_Points->GetNumberOfPoints(); id++)
-	{
-		auto pt = target_Points->GetPoint(id);
-		if ((pt[0] > bound[0] - 10) &&
-			(pt[0] > bound[1] + 10) &&
-			(pt[1] > bound[2] - 10) &&
-			(pt[1] > bound[3] + 10) &&
-			(pt[2] > bound[4] - 10) &&
-			(pt[2] > bound[5] + 10))
-		{
-			//temp_points->InsertNextPoint(pt);
-		}
-		temp_points->InsertNextPoint(pt);
-	}
-	target_Points = temp_points;
 	return 0;
 }
 

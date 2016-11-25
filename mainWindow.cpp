@@ -79,7 +79,7 @@ void MainWindow::sys_Init()
 
 	m_ImageFileName = "";
 	m_AtlasFileName = "";
-	m_ToolModelFileName = "E:/test/tool_model/toolz.stl";
+	m_ToolModelFileName = "toolz.stl";
 	m_StripValue = 100;
 
 	//init qvtkwidget 
@@ -165,7 +165,6 @@ void MainWindow::on_ResliceAction(double x, double y, double z)
 
 	int pt_ID = 0;
 	pt_ID = m_Image->FindPoint(x, y, z);
-	std::cout << "Point ID is: " << pt_ID << std::endl;
 
 	int extent[6];
 	m_Image->GetExtent(extent);
@@ -182,7 +181,6 @@ void MainWindow::on_ResliceActionMarker(double  x, double y, double z)
 {
 	int pt_ID = 0;
 	pt_ID = m_Image->FindPoint(x, y, z);
-	std::cout << "Point ID is: " << pt_ID << std::endl;
 
 	int extent[6];
 	m_Image->GetExtent(extent);
@@ -195,20 +193,7 @@ void MainWindow::on_ResliceActionMarker(double  x, double y, double z)
 	m_SliceY = floor(pt_ID % (x_e*y_e) / x_e);
 	m_SliceX = pt_ID%x_e;
 
-
-	m_3d_View->PopObject();
-	auto ball = vtkSmartPointer<vtkSphereSource>::New();
-	ball->SetRadius(5.0);
-	ball->SetPhiResolution(50);
-	ball->SetThetaResolution(50);
-	ball->Update();
-	auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-	mapper->SetInputData(ball->GetOutput());
-	auto ball_actor = vtkSmartPointer<vtkActor>::New();
-	ball_actor->SetMapper(mapper);
-	ball_actor->GetProperty()->SetColor(1.0, 0.0, 0.0);
-	ball_actor->SetPosition(x, y, z);
-	m_3d_View->AddObject(ball_actor);
+	m_3d_View->GetActorPointer(1)->SetPosition(x,y,z);
 	m_3d_View->RefreshView();
 }
 
@@ -405,10 +390,7 @@ void MainWindow::on_Sel_MarkersDone()
 	// m_3d_View->GetMarkerList()
 
 	// disable pick
-	for (int i = 0; i < m_3d_View->GetNumberOfActors() - 1; i++)
-	{
-		m_3d_View->PopObject();
-	}
+	m_3d_View->PopObject();
 	m_3d_View->DisablePick();
 	m_3d_View->RefreshView();
 }
@@ -420,6 +402,7 @@ void MainWindow::on_Cap_Btn()
 {
 	// marker capture get marker;
 	m_Marker_Capture->GetNextMarker();
+	ui->log_Label->setText("Capturing " + QString::number(m_Marker_Capture->GetNumberOfMarkers()) + " th point..");
 }
 
 
@@ -435,9 +418,9 @@ void MainWindow::on_CapDone_Btn()
 	if (m_3d_View->GetMarkerList().size() == 0)
 	{
 		double a1[] = { 176.286, 195.733, 90.0183 };
-		double a2[] = { 75.7988, 192.343, 88.1086 };
-		double a3[] = { 124.12, 139.966, 167.357 };
-		double a4[] = { 122.669, 40.1707, 116.375 };
+		double a2[] = { 83.6962, 197.693, 92.5363 };
+		double a3[] = { 125.957, 136.392, 167.287 };
+		double a4[] = { 64.2963, 142.04, 133.597 };
 
 		temp_dst.push_back(a1);
 		temp_dst.push_back(a2);
@@ -486,11 +469,8 @@ void MainWindow::on_CapDone_Btn()
 		m_3d_View->SetRegisterTransform(res2);
 		//m_3d_View->SetLandMarks(temp_src,temp_dst);
 	}
-	else
-	{
-		m_Marker_Capture->ClearMarkers();
-		m_3d_View->ClearMarkers();
-	}
+	m_Marker_Capture->ClearMarkers();
+	m_3d_View->ClearMarkers();
 }
 
 void MainWindow::on_StartTracking()
@@ -502,10 +482,13 @@ void MainWindow::on_StartTracking()
 		sphere->Update();
 		m_Tool = sphere->GetOutput();
 	}
-	auto reader = vtkSmartPointer<vtkSTLReader>::New();
-	reader->SetFileName(m_ToolModelFileName.c_str());
-	reader->Update();
-	m_Tool = reader->GetOutput();
+	else
+	{
+		auto reader = vtkSmartPointer<vtkSTLReader>::New();
+		reader->SetFileName(m_ToolModelFileName.c_str());
+		reader->Update();
+		m_Tool = reader->GetOutput();
+	}
 
 	//connect tracking object
 	m_3d_View->AddPolySource(m_Tool);
@@ -661,16 +644,33 @@ void MainWindow::on_StartCapture()
 {
 	std::cout << "Continue capture... Triggered" << std::endl;
 
+	if (ui->sel_Tracker_Combo->currentIndex() == 0)
+	{
+		if (m_TrackerATC3DG->GetTrackingStatus() != 0)
+		{
+			std::cout << "Tracker not working" << std::endl;
+			return;
+		}
+	}
+	if (ui->sel_Tracker_Combo->currentIndex() == 1)
+	{
+		if (m_TrackerPolaris->GetTrackingStatus() != 0)
+		{
+			std::cout << "Tracker not working" << std::endl;
+			return;
+		}
+	}
+
 	m_captureTimer = new QTimer;
 	m_captureTimer->start(100);    // 100 millisecon interval
 
 	//connect
+	m_Marker_Capture->ClearMarkers();
 	connect(m_captureTimer, SIGNAL(timeout()), this, SLOT(On_Capture_squence()));
 }
 void MainWindow::On_DoneCapture()
 {
-	std::cout << "Continue capture done... Triggered" << std::endl;
-
+	ui->log_Label->setText("Continue capture done...");
 	//stop timer
 	m_captureTimer->stop();
 	disconnect(m_captureTimer, SIGNAL(timeout()), this, SLOT(On_Capture_squence()));
@@ -682,13 +682,12 @@ void MainWindow::On_DoneCapture()
 }
 void MainWindow::On_Capture_squence()
 {
-	std::cout << "Continue capture timer... Triggered" << std::endl;
 	m_Marker_Capture->GetNextMarker();
+	ui->log_Label->setText("Capturing " + QString::number(m_Marker_Capture->GetNumberOfMarkers()) + " th point..");
 }
 void MainWindow::On_FineRegister()
 {
 	std::cout << "Register... Triggered" << std::endl;
-	return;
 
 	auto reg = vtkSmartPointer<vtkTrackingICPRegistration>::New();
 	reg->SetTargetPoints(m_ImageModel->GetPoints());
@@ -704,16 +703,16 @@ void MainWindow::On_FineRegister()
 			std::cout << res2->GetElement(i, j) << ",";
 		std::cout << std::endl;
 	}
+	std::cout << "Registration error is: " << reg->EstimateRegistrationError() << std::endl;
+
 	// a messagebox for user to accecpt or discard the error
 	QMessageBox msgBox;
 	msgBox.setWindowTitle("Register Box");
 	QString msg = "Accept the registration error:\n   ";
 	msg = msg + QString::number(reg->EstimateRegistrationError());
-	msgBox.setInformativeText(msg);
-	msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Discard);
-	msgBox.setDefaultButton(QMessageBox::Yes);
-	int ret = msgBox.exec();
-	if (ret == QMessageBox::Yes)
+	msgBox.setInformativeText(msg);msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Discard);msgBox.setDefaultButton(QMessageBox::Yes);
+	
+	if (msgBox.exec()== QMessageBox::Yes)
 	{
 		m_3d_View->SetRegisterTransform(res2);
 		//m_3d_View->SetLandMarks(temp_src,temp_dst);

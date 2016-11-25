@@ -60,7 +60,6 @@ int vtkTrackingMarkCapture::GetNextMarker()
 		return 1;
 	}
 
-	std::cout << "Selecting " << m_ToolMarkers.size() + 1 << " th marker" << std::endl;
 	QIN_Transform_Type* tool_trans = m_Tracker->GetTransform(m_ToolIndex);
 	if (tool_trans == NULL)
 	{
@@ -125,6 +124,19 @@ void vtkTrackingMarkCapture::ClearMarkers()
 }
 
 /*
+Get Number of markers holding on the vector
+Return 0 if number of tool and reference are not equal
+*/
+int vtkTrackingMarkCapture::GetNumberOfMarkers()
+{
+	if (m_ToolMarkers.size() == m_ReferMarkers.size())
+		return m_ToolMarkers.size();
+	else
+		return 0;
+}
+
+
+/*
 Description:
 Return a list of markers, by type std::vector
 */
@@ -163,6 +175,11 @@ std::vector<double*> vtkTrackingMarkCapture::GetMarkerList()
 		coor[1] = temp->GetPosition()[1];
 		coor[2] = temp->GetPosition()[2];
 		ret.push_back(coor);
+	}
+	std::cout << "Marker list:" << std::endl;
+	for (size_t i = 0; i < ret.size(); i++)
+	{
+		std::cout << ret[i][0] << "," << ret[i][1] << "," << ret[i][2] << std::endl;
 	}
 	return ret;
 }

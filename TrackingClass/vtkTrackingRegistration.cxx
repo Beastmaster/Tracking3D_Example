@@ -47,9 +47,6 @@ void vtkTrackingRegistrationBase::SetSourcePoints(std::vector<double*> xx2)
 	for (auto it = xx2.begin(); it != xx2.end(); ++it)
 	{
 		src_Points->InsertNextPoint((*it));
-		//double* temp = new double[3];
-		//memcpy(temp,*it,3*sizeof(double));
-		//m_src_Points.push_back(temp);
 	}
 	m_src_Points = xx2;
 }
@@ -275,24 +272,6 @@ void vtkTrackingICPRegistration::GenerateTransform()
 	m_post_matrix = m_icp->GetMatrix();
 	transform_matrix = vtkSmartPointer<vtkMatrix4x4>::New();
 	vtkMatrix4x4::Multiply4x4(m_post_matrix, m_pre_matrix, transform_matrix);
-
-	std::cout << "mat2:" << std::endl;
-	for (int i = 0; i < 4; i++)
-	{
-		for (size_t j = 0; j < 4; j++)
-		{
-			std::cout << m_post_matrix->GetElement(i, j);
-		}
-		std::cout << std::endl;
-	}
-	for (int i = 0; i < 4; i++)
-	{	
-		for (size_t j = 0; j < 4; j++)
-		{
-			std::cout << transform_matrix->GetElement(i, j);
-		}
-		std::cout << std::endl;
-	}
 
 	EstimatingRegistrationError(); //this line compute the registration error
 }

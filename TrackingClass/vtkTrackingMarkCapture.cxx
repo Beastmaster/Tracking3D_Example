@@ -80,6 +80,7 @@ int vtkTrackingMarkCapture::GetNextMarker()
 	QIN_Transform_Type* tem_refer = new QIN_Transform_Type;
 	memcpy(tem_refer, refer_trans, sizeof(QIN_Transform_Type));
 	m_ReferMarkers.push_back(tem_refer);
+	m_Tracker->Beep(1);
 	emit qs_transform_valid(1);
 	return 0;
 }
@@ -175,11 +176,6 @@ std::vector<double*> vtkTrackingMarkCapture::GetMarkerList()
 		coor[1] = temp->GetPosition()[1];
 		coor[2] = temp->GetPosition()[2];
 		ret.push_back(coor);
-	}
-	std::cout << "Marker list:" << std::endl;
-	for (size_t i = 0; i < ret.size(); i++)
-	{
-		std::cout << ret[i][0] << "," << ret[i][1] << "," << ret[i][2] << std::endl;
 	}
 	return ret;
 }

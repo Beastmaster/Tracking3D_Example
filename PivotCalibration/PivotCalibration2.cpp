@@ -512,4 +512,16 @@ void PivotCalibration2::TransformToMatrix(QIN_Transform_Type* trans_in, vtkMatri
 }
 
 
+void PivotCalibration2::MatrixToVTKMatrix(QIN_Matrix_Type trans_in, vtkMatrix4x4* outmatrix)
+{
+	int length = 4;
+	for (size_t i = 0; i < length; i++)
+	{
+		for (size_t j = 0; j < length; j++)
+		{
+			outmatrix->SetElement(i, j, trans_in[i][j]);
+		}
+	}
+}
+
 

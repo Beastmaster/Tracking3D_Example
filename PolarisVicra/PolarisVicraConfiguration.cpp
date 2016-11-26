@@ -484,6 +484,7 @@ Return:
 */
 int PloarisVicraConfiguration::GetTransform(int index, double** output)
 {
+	nGetSystemTransformData();
 	float temp[3][3] = {0};
 	//convert to identity
 	for (size_t i = 0; i < 4; i++)
@@ -541,7 +542,9 @@ int PloarisVicraConfiguration::GetTransform(int index, double** output)
 		}
 		else
 		{
+#if EN_INFO_POLARIS
 			std::cout << "Tool " << index << " Within volume" << std::endl;
+#endif
 		}
 
 		CvtQuatToRotationMatrix(&(m_dtHandleInformation[index2].Xfrms.rotation),temp);
@@ -563,6 +566,14 @@ int PloarisVicraConfiguration::GetTransform(int index, double** output)
 	{
 		return 6; 
 	}
+}
+
+/*
+Make the traker beep
+*/
+void PloarisVicraConfiguration::Beep(int nn)
+{
+	nBeepSystem(nn);
 }
 
 

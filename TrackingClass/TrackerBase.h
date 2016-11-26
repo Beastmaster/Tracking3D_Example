@@ -99,6 +99,11 @@ public:
 	virtual int GetTransformValidation(int)=0 ;
 
 	/*
+	*/
+	virtual void Beep(int) {};
+
+
+	/*
 	Description:
 		Get transform from device
 	Parameters:

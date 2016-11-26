@@ -156,6 +156,7 @@ public:
 	int  SetRegisterTransform(vtkMatrix4x4*);
 	int  SetToolIndex(int);
 	int  SetReferenceIndex(int);
+	int  AddEnabledChannels(int);
 
 	// Get Functions
 	int GetNumberOfActors();
@@ -169,6 +170,7 @@ public:
 	vtkSmartPointer<vtkTransform> GetRegisterTransform();
 	vtkSmartPointer<vtkMatrix4x4> GetRegisterTransformMatrix();
 	QIN_Transform_Type* GetTransform(int);
+	int GetTransformMatrix(int , QIN_Matrix_Type);
 	void GetResliceIndex(int*);
 	void EnablePick();
 	void DisablePick();
@@ -223,6 +225,7 @@ protected:
 	// Reference frame transform
 	int							  m_ToolId;
 	int							  m_RefID;
+	std::vector<int >			  m_Channels;
 	vtkSmartPointer<vtkTransform> m_RefTransform;
 	vtkSmartPointer<vtkMatrix4x4> m_RefTransformMatrix;
 

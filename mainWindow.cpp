@@ -104,6 +104,8 @@ void MainWindow::sys_Init()
 	m_TrackerATC3DG = new ATC3DGConfiguration;
 	m_TrackerPolaris = new PloarisVicraConfiguration;
 	m_3d_View->SetTracker(m_TrackerATC3DG); // default tracker is ATC3DG device
+	m_3d_View->AddEnabledChannels(0);
+	m_3d_View->AddEnabledChannels(1);
 
 	m_Marker_Capture = vtkSmartPointer< vtkTrackingMarkCapture>::New();
 	m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
@@ -632,10 +634,11 @@ void MainWindow::on_Change_Tracking_Status(int status)
 {
 	if (status == 1)
 	{
-		ui->label_status->setText(("<font color='red'>Tracking</font>")); 
+		ui->label_status->setText(("<font color='red'>Tracking</font>"));
 	}
 	else
 	{
+		m_3d_View->m_tracker->Beep(1);
 		ui->label_status->setText("Lost!!");
 	}
 }
@@ -695,15 +698,6 @@ void MainWindow::On_FineRegister()
 	reg->SetPreMultipliedMatrix(m_3d_View->GetRegisterTransformMatrix());
 	reg->GenerateTransform();
 	auto res2 = reg->GetTransformMatrix();
-	std::cout << "Result" << std::endl;
-	std::cout << "Error is: " << reg->EstimateRegistrationError() << std::endl;
-	for (int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 4; j++)
-			std::cout << res2->GetElement(i, j) << ",";
-		std::cout << std::endl;
-	}
-	std::cout << "Registration error is: " << reg->EstimateRegistrationError() << std::endl;
 
 	// a messagebox for user to accecpt or discard the error
 	QMessageBox msgBox;

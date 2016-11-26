@@ -139,21 +139,20 @@ public slots:
 	}
 	void on_CheckingTimer()
 	{
-		for (auto it = 0; it < 2; it++)
-		{
-			//QIN_Transform_Type trans;
-			QIN_Transform_Type* temp;
-			//memset(&trans, 0, sizeof(QIN_Transform_Type));
-			temp = this->GetTransform(it);
-			if (temp == NULL)
+		NEW2DARR(double, matrix);
+		for (auto it = m_Channels.cbegin(); it != m_Channels.cend(); ++it)
+		{	
+			int temp = this->GetTransformMatrix(*it,matrix);
+			if (temp != 0)
 			{
 				std::cout << "error:  !!!  valid" << std::endl;
 				emit qs_transform_valid(0);
+				DEL2DARR(double, matrix);
 				return;
 			}
 		}
+		DEL2DARR(double, matrix);
 		emit qs_transform_valid(1);
-
 	}
 
 signals:

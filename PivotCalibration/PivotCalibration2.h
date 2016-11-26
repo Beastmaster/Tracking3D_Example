@@ -79,6 +79,7 @@ public:
 	*/
 	static void TransformToMatrix(QIN_Transform_Type* trans_in, QIN_Matrix_Type trans_out);
 	static void TransformToMatrix(QIN_Transform_Type*, vtkMatrix4x4* matrix);
+	static void PivotCalibration2::MatrixToVTKMatrix(QIN_Matrix_Type trans_in, vtkMatrix4x4* outmatrix);
 
 protected:
 	PivotCalibration2();

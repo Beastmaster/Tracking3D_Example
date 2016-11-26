@@ -165,35 +165,16 @@ void MainWindow::on_ResliceAction(double x, double y, double z)
 	if (m_Image == NULL)
 		return;
 
-	int pt_ID = 0;
-	pt_ID = m_Image->FindPoint(x, y, z);
-
-	int extent[6];
-	m_Image->GetExtent(extent);
-
-	int x_e = extent[1] - extent[0] + 1;
-	int y_e = extent[3] - extent[2] + 1;
-	int z_e = extent[5] - extent[4] + 1;
-
-	m_SliceZ = floor(pt_ID / (x_e*y_e));
-	m_SliceY = floor(pt_ID % (x_e*y_e) / x_e);
-	m_SliceX = pt_ID%x_e;
+	double* spacing = m_Image->GetSpacing();
+	double* origin = m_Image->GetOrigin();
+	
+	m_SliceX = floor((x - origin[0]) / spacing[0]);
+	m_SliceY = floor((y - origin[1]) / spacing[1]);
+	m_SliceZ = floor((z - origin[2]) / spacing[2]);
 }
 void MainWindow::on_ResliceActionMarker(double  x, double y, double z)
 {
-	int pt_ID = 0;
-	pt_ID = m_Image->FindPoint(x, y, z);
-
-	int extent[6];
-	m_Image->GetExtent(extent);
-
-	int x_e = extent[1] - extent[0] + 1;
-	int y_e = extent[3] - extent[2] + 1;
-	int z_e = extent[5] - extent[4] + 1;
-
-	m_SliceZ = floor(pt_ID / (x_e*y_e));
-	m_SliceY = floor(pt_ID % (x_e*y_e) / x_e);
-	m_SliceX = pt_ID%x_e;
+	on_ResliceAction(x, y, z);
 
 	m_3d_View->GetActorPointer(1)->SetPosition(x,y,z);
 	m_3d_View->RefreshView();
@@ -201,14 +182,6 @@ void MainWindow::on_ResliceActionMarker(double  x, double y, double z)
 
 void MainWindow::on_ResliceAction(int x, int y, int z)
 {
-	//m_SliceX = m_3d_View->m_SliceX;
-	//m_SliceY = m_3d_View->m_SliceY;
-	//m_SliceZ = m_3d_View->m_SliceZ;
-
-	//std::cout << "x coor:" << m_SliceX << std::endl;
-	//std::cout << "y coor:" << m_SliceY << std::endl;
-	//std::cout << "z coor:" << m_SliceZ << std::endl;
-
 	ui->axial_slider->setSliderPosition(m_SliceZ);
 	ui->sagittal_slider->setSliderPosition(m_SliceX);
 	ui->coronal_slider->setSliderPosition(m_SliceY);
@@ -559,29 +532,23 @@ void MainWindow::on_ActionLoadTarget()
 void MainWindow::on_Sagittal_Slider(int po)
 {
 	m_SliceX = po;
-	//m_PlaneX->SetSliceIndex(m_SliceX);
 	m_3d_View->m_PlaneX->SetSliceIndex(po);
-
-	ui->threeDWidget->GetRenderWindow()->Render();
 	m_Sagittal_View->SetSlice(po);
+	m_3d_View->RefreshView();
 }
 void MainWindow::on_Axial_Slider(int po)
 {
 	m_SliceZ = po;
-	//m_PlaneZ->SetSliceIndex(m_SliceZ);
 	m_3d_View->m_PlaneZ->SetSliceIndex(po);
-
-	ui->threeDWidget->GetRenderWindow()->Render();
 	m_Axial_View->SetSlice(po);
+	m_3d_View->RefreshView();
 }
 void MainWindow::on_Coronal_Slider(int po)
 {
 	m_SliceY = po;
-	//m_PlaneY->SetSliceIndex(m_SliceY);
 	m_3d_View->m_PlaneY->SetSliceIndex(po);
-
-	ui->threeDWidget->GetRenderWindow()->Render();
 	m_Coronal_View->SetSlice(po);
+	m_3d_View->RefreshView();
 }
 
 void MainWindow::on_Opacity_Slider(int value)
@@ -598,20 +565,12 @@ void MainWindow::on_EnablePlane(int state)
 		m_3d_View->m_PlaneX->On();
 		m_3d_View->m_PlaneY->On();
 		m_3d_View->m_PlaneZ->On();
-
-		//m_PlaneX->On();
-		//m_PlaneY->On();
-		//m_PlaneZ->On();
 	}
 	else
 	{
 		m_3d_View->m_PlaneX->Off();
 		m_3d_View->m_PlaneY->Off();
 		m_3d_View->m_PlaneZ->Off();
-
-		//m_PlaneX->Off();
-		//m_PlaneY->Off();
-		//m_PlaneZ->Off();
 	}
 
 }

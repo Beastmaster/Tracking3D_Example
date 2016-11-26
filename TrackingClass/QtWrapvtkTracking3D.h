@@ -108,7 +108,6 @@ public slots:
 
 	void on_emit_callback(vtkObject*)
 	{
-		std::cout << "emitting click callback" << std::endl;
 		emit on_timer_signal_index(this->m_SliceX, this->m_SliceY, this->m_SliceZ);
 		emit on_timer_signal_coor(m_marker_tobe_set[0], m_marker_tobe_set[1], m_marker_tobe_set[2]);
 	};

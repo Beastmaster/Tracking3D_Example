@@ -14,7 +14,7 @@ Description:
 vtkStandardNewMacro(vtkTracking3D); //New() function
 vtkTracking3D::vtkTracking3D()
 {
-	m_interval = 100; //ms
+	m_interval = 10; //ms
 	m_CurrentRenderer = vtkSmartPointer<vtkRenderer>::New();
 	m_CurrentRenderer->SetBackground(1,1,1);
 	m_RendererCollection = vtkSmartPointer<vtkRendererCollection>::New();
@@ -409,7 +409,7 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 		//move actor here
 		GetActorPointer(m_ActorCollection, index)->SetUserTransform(m_FinTransform);
 		//this emit a signal to connect qt signal, to reslice 2D views
-		this->InvokeEvent(QIN_S_VTK_EVENT, this);
+		//this->InvokeEvent(QIN_S_VTK_EVENT, this);
 		return 0;
 	}
 	else
@@ -455,7 +455,7 @@ int  vtkTracking3D::SetTransform(int index, vtkMatrix4x4* ma)
 		//move actor here
 		GetActorPointer(m_ActorCollection, index)->SetUserMatrix(ma);
 		this->m_RenderWindow->Render();
-		this->InvokeEvent(QIN_S_VTK_EVENT, this);
+		//this->InvokeEvent(QIN_S_VTK_EVENT, this);
 		return 0;
 	}
 	else
@@ -979,31 +979,21 @@ Input:
 */
 void vtkTracking3D::Find3DIndex(vtkImageData* img, double* coordinate, int* out)
 {
-	int pt_ID = 0;
-	pt_ID = img->FindPoint(coordinate[0], coordinate[1], coordinate[2]);
-	//std::cout << "Point ID is: " << pt_ID << std::endl;
-	int extent[6];
-	img->GetExtent(extent);
-	int x_e = extent[1] - extent[0] + 1;
-	int y_e = extent[3] - extent[2] + 1;
-	int z_e = extent[5] - extent[4] + 1;
-	out[2] = floor(pt_ID / (x_e*y_e));
-	out[1] = floor(pt_ID % (x_e*y_e) / x_e);
-	out[0] = pt_ID%x_e;
+	double* spacing = img->GetSpacing();
+	double* origin = img->GetOrigin();
+
+	out[0] = floor((coordinate[0] - origin[0]) / spacing[0]);
+	out[1] = floor((coordinate[1] - origin[1]) / spacing[1]);
+	out[2] = floor((coordinate[2] - origin[2]) / spacing[2]);
 }
 void vtkTracking3D::Find3DIndex(vtkImageData* img, double x, double y, double z, int * out)
 {
-	int pt_ID = 0;
-	pt_ID = img->FindPoint(x, y, z);
-	//std::cout << "Point ID is: " << pt_ID << std::endl;
-	int extent[6];
-	img->GetExtent(extent);
-	int x_e = extent[1] - extent[0] + 1;
-	int y_e = extent[3] - extent[2] + 1;
-	int z_e = extent[5] - extent[4] + 1;
-	out[2] = floor(pt_ID / (x_e*y_e));
-	out[1] = floor(pt_ID % (x_e*y_e) / x_e);
-	out[0] = pt_ID%x_e;
+	double* spacing = img->GetSpacing();
+	double* origin = img->GetOrigin();
+
+	out[0] = floor((x - origin[0]) / spacing[0]);
+	out[1] = floor((y - origin[1]) / spacing[1]);
+	out[2] = floor((z - origin[2]) / spacing[2]);
 }
 
 void vtkTracking3D::Find3DIndex(double x, double y, double z, int * out)
@@ -1014,19 +1004,15 @@ void vtkTracking3D::Find3DIndex(double* in, int * out)
 {
 	Find3DIndex(m_Image,in,out);
 }
-
+/*
+This function change the slice ID
+*/
 void vtkTracking3D::Find3DIndex(double x,double y,double z)
 {
-	int pt_ID = 0;
-	pt_ID = m_Image->FindPoint(x, y, z);
-	//std::cout << "Point ID is: " << pt_ID << std::endl;
-	int extent[6];
-	m_Image->GetExtent(extent);
-	int x_e = extent[1] - extent[0] + 1;
-	int y_e = extent[3] - extent[2] + 1;
-	int z_e = extent[5] - extent[4] + 1;
-	m_SliceX = floor(pt_ID / (x_e*y_e));
-	m_SliceY = floor(pt_ID % (x_e*y_e) / x_e);
-	m_SliceZ = pt_ID%x_e;
-	std::cout << "xxxxxxxxxxxxxxxxxxxxxxxx" << std::endl;
+	double* spacing = m_Image->GetSpacing();
+	double* origin = m_Image->GetOrigin();
+
+	m_SliceX = floor((x - origin[0]) / spacing[0]);
+	m_SliceY = floor((y - origin[1]) / spacing[1]);
+	m_SliceZ = floor((z - origin[2]) / spacing[2]);
 }

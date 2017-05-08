@@ -75,7 +75,7 @@ public:
 	virtual int  ConfigureTracker();
 	virtual int  GetToolValidation(int);
 	virtual int  GetTransformValidation(int);
-	virtual QIN_Transform_Type* GetTransform(int index);
+	virtual QIN_Transform_Type* GetTransform(int index);  // deprecated
 	virtual int GetTransform(int, double**);
 	virtual void Beep(int);
 	
@@ -98,6 +98,7 @@ public:
 	void ResetHardare(int);
 	void SetWireless(int);
 	void AddSROMFile(std::string);
+	void SetSROMFileX(std::string fullpath, int idx);
 	int  SetConfigureFile(std::string);
 
 private:

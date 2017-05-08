@@ -27,6 +27,8 @@ include_directories(TrackingClass)
 add_subdirectory(PivotCalibration)
 include_directories(PivotCalibration)
 
+add_subdirectory(PolarisVicra_test)
+
 
 set( UI_FILES
 mainWindow.ui

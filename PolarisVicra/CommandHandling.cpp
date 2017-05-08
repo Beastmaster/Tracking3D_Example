@@ -118,7 +118,7 @@ CCommandHandling::CCommandHandling()
 
 	m_nRefHandle = -1;
 
-	m_nTimeout = 3;
+	m_nTimeout = 1;
 } /* CCommandHandling()
 
 /*****************************************************************
@@ -2183,6 +2183,11 @@ int CCommandHandling::nGetResponse()
 
 	do
 	{
+		/*Check global timeout*/
+		time(&currenttime);
+		if (difftime(currenttime, starttime) >= 5)
+			return FALSE;
+
 		/* Check COM port */
 		if( pCOMPort == NULL )
 		{
@@ -2233,10 +2238,11 @@ int CCommandHandling::nGetResponse()
 					nSendMessage( m_szCommand, FALSE ); /* Command already has CRC */
 
 					 /* Reset the start time. */
-					time( &starttime );
+					//time( &starttime );
 				}
 				else
 				{
+					return 0;
 					/*
 					 * If a COM port timeout is noted again, the communication
 					 * error seems not recoverable and we will stop sending
@@ -2257,31 +2263,31 @@ int CCommandHandling::nGetResponse()
 					 * if the user chooses to retry sending the command
 					 * handle that here.
 					 */
-					if ( nRet != ERROR_TIMEOUT_CONT )
-					{
-						if ( strlen(m_szCommand) > 0 )
-						{
-							nRetry = 1;
-							memset( m_szLastReply, 0, sizeof(m_szLastReply) );
+					//if ( nRet != ERROR_TIMEOUT_CONT )
+					//{
+					//	if ( strlen(m_szCommand) > 0 )
+					//	{
+					//		nRetry = 1;
+					//		memset( m_szLastReply, 0, sizeof(m_szLastReply) );
 
-							/*
-							 * Do not clear the m_szCommand at this point, since
-							 * we are re-sending the same command.
-							 */
-							nSendMessage( m_szCommand, FALSE ); /* Command already has CRC */
+					//		/*
+					//		 * Do not clear the m_szCommand at this point, since
+					//		 * we are re-sending the same command.
+					//		 */
+					//		nSendMessage( m_szCommand, FALSE ); /* Command already has CRC */
 
-							 /* Reset the start time. */
-							time( &starttime );
-						}
-						else
-						{
-							pCOMPort->SerialBreak();
-						} /* else */
-					}
-					else
-					{
-						return FALSE;
-					}/* else */
+					//		 /* Reset the start time. */
+					//		time( &starttime );
+					//	}
+					//	else
+					//	{
+					//		pCOMPort->SerialBreak();
+					//	} /* else */
+					//}
+					//else
+					//{
+					//	return FALSE;
+					//}/* else */
 				}/* else */
 			}/* if */
 		} /* if */

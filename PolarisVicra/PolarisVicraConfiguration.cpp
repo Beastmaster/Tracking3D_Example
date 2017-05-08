@@ -171,7 +171,6 @@ int  PloarisVicraConfiguration::ConfigureTracker()
 		m_bWireless,
 		m_bResetHardware;
 
-
 	/*
 	* read the COM port parameters from the ini file
 	*/
@@ -211,6 +210,7 @@ int  PloarisVicraConfiguration::ConfigureTracker()
 	* set the System COM Port parameters, then the computers COM Port parameters.
 	* if that is successful, initialize the system
 	*/
+
 	if (this->nSetSystemComParms(nBaudRate, nDataBits, nParity, nStopBits, nHardware))
 	{
 		if (this->nSetCompCommParms(nBaudRate, nDataBits, nParity, nStopBits, nHardware))
@@ -373,6 +373,8 @@ Return:
 	Else return a pointer to a 0 transform
 	(for ease of use)
 	If index out of range
+Note:
+	This funciton is deprecated....
 */
 QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 {
@@ -447,7 +449,7 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 		m_Transform_Map[index2]->translation.y = m_dtHandleInformation[index2].Xfrms.translation.y;
 		m_Transform_Map[index2]->translation.z = m_dtHandleInformation[index2].Xfrms.translation.z;
 		m_Transform_Map[index2]->rotation.q0 = m_dtHandleInformation[index2].Xfrms.rotation.q0;
-		m_Transform_Map[index2]->rotation.qx = m_dtHandleInformation[index2].Xfrms.rotation.	qx;
+		m_Transform_Map[index2]->rotation.qx = m_dtHandleInformation[index2].Xfrms.rotation.qx;
 		m_Transform_Map[index2]->rotation.qy = m_dtHandleInformation[index2].Xfrms.rotation.qy;
 		m_Transform_Map[index2]->rotation.qz = m_dtHandleInformation[index2].Xfrms.rotation.qz;
 		m_Transform_Map[index2]->fError = m_dtHandleInformation[index2].Xfrms.fError;
@@ -472,6 +474,15 @@ QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
 	}
 }
 /*
+Description:
+	This function output 4x4 matrix to a allocated 4x4 double array.
+	A marco to allocate and relase 4x4 matrix is NEW2DARR and DEL2DARR
+	>> NEW2DARR(double, mat)   // allocate memory
+	>> // Do something on mat
+	>> DEL2DARR(double, mat)   // release memory
+Input:
+	index: tool index, start from 0
+	output: an allocated 4x4 double array
 
 Return:
 	0: Success
@@ -493,22 +504,20 @@ int PloarisVicraConfiguration::GetTransform(int index, double** output)
 	}
 
 	nGetSystemTransformData();
-	if (m_Transform == NULL)
-	{
-		m_Transform = new QIN_Transform_Type;
-		m_Transform->q0 = 1;
-	}
+
 	if (!m_bIsTracking)  // not tracking
 	{
-		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
-		m_Transform->q0 = 1;
+#if EN_INFO_POLARIS
+		std::cout << "Tracker is no tracking ! " << std::endl;
+#endif
 		return 1;
 	}
 	//check is the index in the portID list
 	if (m_PortID.size() <= index)
 	{
-		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
-		m_Transform->q0 = 1;
+#if EN_INFO_POLARIS
+		std::cout << "index: " << index << " outof portID range" << std::endl;
+#endif
 		return 2;
 	}
 
@@ -516,8 +525,6 @@ int PloarisVicraConfiguration::GetTransform(int index, double** output)
 	auto it = std::find(m_PortID.begin(), m_PortID.end(), index2);
 	if (it != m_PortID.end())
 	{
-		memset(m_Transform, 0, sizeof(QIN_Transform_Type));
-		m_Transform->q0 = 1;
 		// check transform validation
 		if (this->m_dtHandleInformation[index2].Xfrms.ulFlags != TRANSFORM_VALID)
 		{
@@ -762,6 +769,34 @@ void PloarisVicraConfiguration::AddSROMFile(std::string fullpath)
 	WriteINIParm("POLARIS SROM Image Files", pszROMVariable , pszROMFileName);
 }
 
+
+/*
+Description:
+	input a SROM file and write the result to configuration file(*.ini)
+	This function just append a SROM file
+Input:
+	idx: start from 0, it's the index of tool
+*/
+void PloarisVicraConfiguration::SetSROMFileX(std::string fullpath,int idx)
+{
+	char pszROMFileName[MAX_PATH];
+	char pszROMVariable[MAX_PATH];
+	int pszPortID;
+	int max = 0;
+	//find existance of
+	for (auto temp = m_PortID.begin(); temp != m_PortID.end(); ++temp)
+	{
+		max = (max > (*temp)) ? max : (*temp);
+	}
+	pszPortID = idx + 1;
+	memset(pszROMVariable, 0, sizeof(pszROMVariable));
+	sprintf(pszROMVariable, "Wireless Tool %02d", pszPortID);
+
+	memset(pszROMFileName, 0, sizeof(pszROMFileName));
+	strcpy(pszROMFileName, fullpath.c_str());
+
+	WriteINIParm("POLARIS SROM Image Files", pszROMVariable, pszROMFileName);
+}
 
 /*
 Description: 

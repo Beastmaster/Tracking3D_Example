@@ -18,6 +18,7 @@ int sys_init()
 	LOG("\n\n================   Testing sys_init   ===============");
 	auto polaris = new PloarisVicraConfiguration();
 	//=== set configuration filename
+	// you'd better copy this file and make modifications
 	auto ini_file = "D:/Project/Tracking3D_Example/build/TrackerPolarisVicra.ini";
 	polaris->SetConfigureFile(ini_file);
 	//=== configure communication port, or modify the .ini file

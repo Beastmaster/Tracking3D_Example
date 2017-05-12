@@ -1,47 +1,63 @@
-
-
-##Requirement
-
+# Navigation example project
+----
+## Requirements
 - Qt5
 - VTK6
 - ITK4
 
+----
+## Modules
+### 1. MainWindow
+This is full example illustrating how the project work. 
 
-##Main files
-- TrackerBase.h
+**Functions** 
 
-	This file define a base class for tracker device
-	and transform structure. If you have some new 
-	device, please inhert this class and implement
-	the virtual funciton. Other tracking class will 
-	call virtual functions in this class.
+   - Load a 3d image (.nii format)
+   - Orthogonal View
+   - MarchingCubes to create a 3D model
+   - Configure 2 kinds of tracking devices
+   - Landmark Registration
+   - ICP registration
 
-- vtkTracking3D.h/.cxx
+### 2. Calibration Tool(Submodule of MainWindow)
 
-	This function implement the main function of tracking 
-	view. Most functions have very detail description.
+### 3. PivotCalibration
 
-- QtWrapvtkTracking3D.h
+### 4. VisualizationUtil
+Custom visualization module
 
-	This class wrap the vtkTracking3D class to qt. This class
-	emit a reslice index when timer in vtkTracking3D invoke a 
-	callback.
+### 5. PolarisVicra
+PolarisVicra API
 
-
-- vtkTrackingMarkCapture.h/.hxx
-
-	This class is used for capturing marker in view and position
-	returned from tracker device.
-
-- vtkTrackingRegistration
-	This class is used for registering the view coordinate and
-	tracking device coordinate. It returns a transform.
-	There are 2 method implemented in this file:
-	1. ICP Registration method
-	2. LandMarkRegistration method.
-	It is recommanded to use LandmarkRegistration method.
+### 6. ATC3DG
+ATC3DG: trackStar API
 
 
+### 7. vtkTrackerUtil
+vtkTrackerUtil is a base module:
+
+- **utilities**:
+
+Quaternion, 2D array, vtkMatrix4x4 conversions.
+
+- **Configuration Parser**
+
+- **MarkCapture**:
+
+Real world position capture
+
+- **Registration**:
+
+Landmark registration; ICP registration
+
+
+----
+## Usage
+
+- Use cmake to configure the project
+- Modules for tracking are nested so you should take them as a whole.
+- All the *_test folders are examples for testing. They can be deleted.
+- IP_check is also useless
 
 
 

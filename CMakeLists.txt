@@ -21,14 +21,18 @@ include_directories(ATC3DG)
 add_subdirectory(PolarisVicra)
 include_directories(PolarisVicra)
 
-add_subdirectory(TrackingClass)
-include_directories(TrackingClass)
+add_subdirectory(vtkTrackerUtil)
+include_directories(vtkTrackerUtil)
+
+add_subdirectory(VisualizationUtil)
+include_directories(VisualizationUtil)
+
 
 add_subdirectory(PivotCalibration)
 include_directories(PivotCalibration)
 
 add_subdirectory(PolarisVicra_test)
-
+add_subdirectory(vtkTrackerUtil_test)
 
 set( UI_FILES
 mainWindow.ui
@@ -64,5 +68,6 @@ target_link_libraries(${PRJ} ${VTK_LIBRARIES})
 target_link_libraries(${PRJ} ${ITK_LIBRARIES})
 target_link_libraries(${PRJ} Polaris_Vicra_lib)
 target_link_libraries(${PRJ} ATC3DG_lib)
-target_link_libraries(${PRJ} vtkTracking3D)
+target_link_libraries(${PRJ} vtkTrackerUtil)
 target_link_libraries(${PRJ} PivotCalibration)
+target_link_libraries(${PRJ} visualizationUtil)

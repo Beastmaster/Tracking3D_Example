@@ -6,6 +6,9 @@ Example for Polaris Virca API
 **/
 
 
+#ifndef  __APE_MODULE__
+#define  __APE_MODULE__
+
 #include "PolarisVicraConfiguration.h"
 
 
@@ -21,6 +24,8 @@ int activate_sensor();
 int get_matrix();
 
 int make_tracker_beep();
+
+#endif //  __APE_MODULE__
 
 
 

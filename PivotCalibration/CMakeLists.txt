@@ -23,7 +23,6 @@ PivotCalibration2.h
 SET( SRC
 PivotCalibration.cpp
 PivotCalibration2.cpp
-test.cpp
 )
 
 add_library(PivotCalibration ${SRC} ${HEAD})

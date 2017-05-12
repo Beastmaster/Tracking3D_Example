@@ -30,7 +30,7 @@ Attention:
 #include "INIFileRW.h"
 #include "resource.h"
 
-#include "../TrackingClass/TrackerBase.h"
+#include "../vtkTrackerUtil/TrackerBase.h"
 
 #include <string>
 #include <iostream>
@@ -75,8 +75,8 @@ public:
 	virtual int  ConfigureTracker();
 	virtual int  GetToolValidation(int);
 	virtual int  GetTransformValidation(int);
-	virtual QIN_Transform_Type* GetTransform(int index);  // deprecated
-	virtual int GetTransform(int, double**);
+	//virtual QIN_Transform_Type* GetTransform(int index);  // deprecated
+	virtual int  GetTransform(int, double**);
 	virtual void Beep(int);
 	
 	// manual GET functions for system parameters

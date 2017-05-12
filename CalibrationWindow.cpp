@@ -146,28 +146,24 @@ void CalibrationWindow::On_Capture()
 {
 	// Capture and convert to vtkMatrix4X4
 	auto matrix = vtkSmartPointer<vtkMatrix4x4>::New();
-
-	m_Tool_Transform = m_Tracking3D->GetTransform(0);
+	auto ecode = m_Tracking3D->GetTransformMatrix(0,matrix);
 	
-	if (m_Tool_Transform == NULL)
+	if (ecode != 0)
 	{
 		std::cout << "On_Capture() called:   m_Tool_Transform is NULL!" << std::endl;
 		return;
 	}
 	QString pos;
-	pos.append(QString::number(m_Tool_Transform->x));
+	pos.append(QString::number(matrix->GetElement(0, 3)));
 	pos.append(",");
-	pos.append(QString::number(m_Tool_Transform->y));
+	pos.append(QString::number(matrix->GetElement(0, 3)));
 	pos.append(",");
-	pos.append(QString::number(m_Tool_Transform->z));
+	pos.append(QString::number(matrix->GetElement(0, 3)));
 	pos.append(";");
 	m_calib_log.append(pos);
-
-	m_Tool_Transform->PrintSelf();
 	
-	if (m_Tool_Transform->x!=0.0)
+	if (ecode ==0)
 	{
-		PivotCalibration2::TransformToMatrix(m_Tool_Transform, matrix);
 		//=== Pivot Calibration method1, from PLUS_Lib ===//
 		m_CalibrationHandle1->InsertNextCalibrationPoint(matrix);
 		//=== Pivot Calibration method2, from IGSTK ===//
@@ -181,20 +177,6 @@ Record position when moving
 */
 void CalibrationWindow::On_Record()
 {
-	auto temp = m_Tracking3D->GetRegisteredTransform();
-
-	m_Actor->SetUserTransform(temp);
-	m_View->Render();
-
-	QString pos;
-	pos.append(QString::number(temp->GetPosition()[0]));
-	pos.append(",");
-	pos.append(QString::number(temp->GetPosition()[1]));
-	pos.append(",");
-	pos.append(QString::number(temp->GetPosition()[2]));
-	pos.append(";");
-	m_pos_log.append(pos);
-
 }
 
 void CalibrationWindow::On_Calculate1()
@@ -381,22 +363,8 @@ Move actors with vtkTracking3D
 */
 void CalibrationWindow::On_Timer_Tracking3D()
 {
-	auto xx = vtkSmartPointer<vtkMatrix4x4>::New();
-	xx = m_Tracking3D->GetRegisteredTransformMatrix();
-	
-	for (size_t i = 0; i < 4; i++)
-	{
-		for (size_t j = 0; j < 4; j++)
-		{
-			std::cout<<xx->GetElement(i,j)<<",";
-		}
-		std::cout << std::endl;
-	}
 
-	//auto temp = m_Tracking3D->GetRegisteredTransform();
 	auto temp = vtkSmartPointer<vtkTransform>::New();
-	temp->SetMatrix(xx);
-
 	m_Actor->SetUserTransform(temp);
 	m_View->Render();
 }

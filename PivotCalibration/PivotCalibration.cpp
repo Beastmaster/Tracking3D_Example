@@ -148,7 +148,7 @@ int PivotCalibration::GetPivotPointPosition(double* pivotPoint_Marker, double* p
 
   this->OutlierIndices.clear();
   unsigned int processFromRowIndex=0;
-  for (int i=0; i<notOutliersIndices.size(); i++)
+  for (unsigned int i=0; i<notOutliersIndices.size(); i++)
   {
     unsigned int nextNotOutlierRowIndex=notOutliersIndices[i];
     if (nextNotOutlierRowIndex>processFromRowIndex)

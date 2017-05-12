@@ -105,12 +105,12 @@ void MainWindow::sys_Init()
 	m_TrackerPolaris = new PloarisVicraConfiguration;
 	m_3d_View->SetTracker(m_TrackerATC3DG); // default tracker is ATC3DG device
 	m_3d_View->AddEnabledChannels(0);
-	m_3d_View->AddEnabledChannels(1);
+	//m_3d_View->AddEnabledChannels(1);
 
 	m_Marker_Capture = vtkSmartPointer< vtkTrackingMarkCapture>::New();
-	m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
-	m_Marker_Capture->SetToolIndex(0);
-	m_Marker_Capture->SetReferIndex(1);
+	m_Marker_Capture->SetTrackerUtil(m_3d_View->m_trackerUtil);
+	m_Marker_Capture->SetRefID(m_3d_View->GetRefID());
+	m_Marker_Capture->SetToolID(m_3d_View->GetToolID());
 
 	//apply calibration matrix
 	m_ToolTipCalibration_Matrix = vtkSmartPointer<vtkMatrix4x4>::New();
@@ -140,7 +140,7 @@ void MainWindow::sys_Init()
 		}
 		std::cout << std::endl;
 	}
-	m_Marker_Capture->SetCalibrationMatrix(m_ToolTipCalibration_Matrix);
+
 	m_3d_View->SetToolTipCalibrationMatrix(m_ToolTipCalibration_Matrix);
 
 }
@@ -285,14 +285,14 @@ void MainWindow::on_Sel_Tracker(int value)
 {
 	if (value == 1)
 	{
-		m_3d_View->m_tracker = m_TrackerPolaris;
-		m_Marker_Capture->SetTracker(m_3d_View->m_tracker);
+		m_3d_View->m_trackerUtil->SetTrackerType( m_TrackerPolaris );
+		m_Marker_Capture->SetTrackerUtil(m_3d_View->m_trackerUtil);
 	}
 }
 
 void MainWindow::on_Config_Tracker()
 {
-	if (m_3d_View->m_tracker->ConfigureTracker() != 0)
+	if (m_3d_View->m_trackerUtil->ConfigureTracker() != 0)
 	{
 		std::cout << "Tracker configuration fail" << std::endl;
 		QMessageBox msgBox;
@@ -300,7 +300,7 @@ void MainWindow::on_Config_Tracker()
 		msgBox.exec();
 		return;
 	}
-	if (m_3d_View->m_tracker->StartTracking() != 0)
+	if (m_3d_View->m_trackerUtil->StartTracking() != 0)
 	{
 		std::cout << "Start Tracker fail" << std::endl;
 		QMessageBox msgBox;
@@ -487,7 +487,7 @@ void MainWindow::on_StartTracking()
 void MainWindow::on_StopTracking()
 {
 	m_3d_View->StopTrackingQt();
-	m_3d_View->m_tracker->StopTracking();
+	m_3d_View->m_trackerUtil->StopTracking();
 }
 
 /*
@@ -597,7 +597,7 @@ void MainWindow::on_Change_Tracking_Status(int status)
 	}
 	else
 	{
-		m_3d_View->m_tracker->Beep(1);
+		m_3d_View->m_trackerUtil->Beep(1);
 		ui->label_status->setText("Lost!!");
 	}
 }
@@ -654,7 +654,9 @@ void MainWindow::On_FineRegister()
 	auto reg = vtkSmartPointer<vtkTrackingICPRegistration>::New();
 	reg->SetTargetPoints(m_ImageModel->GetPoints());
 	reg->SetSourcePoints(m_Marker_Capture->GetMarkerList());
-	reg->SetPreMultipliedMatrix(m_3d_View->GetRegisterTransformMatrix());
+	auto mat = m_3d_View->m_trackerUtil->GetRegistrationMat();
+
+	reg->SetPreMultipliedMatrix(mat);
 	reg->GenerateTransform();
 	auto res2 = reg->GetTransformMatrix();
 

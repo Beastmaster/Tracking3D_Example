@@ -13,7 +13,7 @@ set( HEAD
 	Conversions.h
 	INIFileRW.h
 	resource.h
-	../TrackingClass/TrackerBase.h
+	../vtkTrackerUtil/TrackerBase.h
 )
 
 

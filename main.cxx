@@ -139,7 +139,7 @@ void TestTrackingDevice()
 	track->ConnectObjectTracker(4, 0);
 	Sleep(20);
 
-	track->m_tracker->StartTracking();
+	track->m_trackerUtil->StartTracking();
 	track->StartTracking();
 
 	Sleep(20);
@@ -147,7 +147,7 @@ void TestTrackingDevice()
 	track->GetRenderWindow()->Render();
 	interactorx->Start();
 
-	track->m_tracker->StopTracking();
+	track->m_trackerUtil->StopTracking();
 }
 
 void TestMousePick()
@@ -232,8 +232,8 @@ void TestMousePick()
 
 	auto mark = vtkSmartPointer< vtkTrackingMarkCapture>::New();
 	
-	mark->SetTracker(tracker);
-	mark->SetToolIndex(0);
+	//mark->SetTracker(tracker);
+	//mark->SetToolIndex(0);
 	//mark->SetReferIndex(2);
 
 	//tracker->ConfigureTracker();
@@ -352,8 +352,8 @@ void TestTrackingMarkFunction()
 	
 	auto mark = vtkSmartPointer< vtkTrackingMarkCapture >::New();
 	
-	mark->SetTracker(track);
-	mark->SetToolIndex(0);
+	//mark->SetTracker(track);
+	//mark->SetToolIndex(0);
 
 	track->ConfigureTracker();
 	track->StartTracking();

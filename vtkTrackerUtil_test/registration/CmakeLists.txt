@@ -1,0 +1,53 @@
+
+cmake_minimum_required(VERSION 2.8)
+
+
+SET(PRJ registration_lib)
+project(${PRJ})
+
+find_package(VTK REQUIRED)
+include(${VTK_USE_FILE})
+
+find_package(ITK REQUIRED)
+include(${ITK_USE_FILE})
+
+find_package(Qt5Widgets REQUIRED)
+
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+
+include_directories(../../PolarisVicra)
+
+#add_subdirectory(../../TrackingClass)
+include_directories(../../TrackingClass)
+
+#add_subdirectory(../../PivotCalibration)
+include_directories(../../PivotCalibration)
+
+
+set(
+SRC
+AbstractFilter.cxx
+ICPRegistrationFilter.cxx
+LandmarkRegistrationFilter.cxx
+)
+
+set(
+HEAD
+ICPRegistrationFilter.h
+LandmarkRegistrationFilter.h
+)
+
+set( QT_HEAD
+AbstractFilter.h
+)
+qt5_wrap_cpp(MOCSrcs ${QT_HEAD})
+
+add_library(${PRJ} ${SRC} ${HEAD}  ${QT_HEAD} ${MOCSrcs})
+
+target_link_libraries(${PRJ} ${VTK_LIBRARIES})
+target_link_libraries(${PRJ} ${ITK_LIBRARIES})
+target_link_libraries(${PRJ} Polaris_Vicra_lib)
+target_link_libraries(${PRJ} ATC3DG_lib)
+target_link_libraries(${PRJ} vtkTracking3D)
+target_link_libraries(${PRJ} PivotCalibration)

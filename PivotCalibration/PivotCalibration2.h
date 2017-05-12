@@ -25,7 +25,7 @@ This file refer to IGSTK
 #include "vtkMath.h"
 
 #include "TrackerBase.h"
-
+#include "util.h"
 /*
 IGSTK Method
 */
@@ -68,8 +68,8 @@ public:
 	vtkGetMacro(ErrorText, std::string);
 
 
-	static void QuaternionToMatrix(vtkMatrix4x4*, double*);
-	static void MatrixToQuaternion(vtkMatrix4x4*, double*);
+	//static void QuaternionToMatrix(vtkMatrix4x4*, double*);
+	//static void MatrixToQuaternion(vtkMatrix4x4*, double*);
 
 	/*
 	Description:
@@ -77,9 +77,9 @@ public:
 	Parameters:
 	index count from 0
 	*/
-	static void TransformToMatrix(QIN_Transform_Type* trans_in, QIN_Matrix_Type trans_out);
-	static void TransformToMatrix(QIN_Transform_Type*, vtkMatrix4x4* matrix);
-	static void PivotCalibration2::MatrixToVTKMatrix(QIN_Matrix_Type trans_in, vtkMatrix4x4* outmatrix);
+	//static void TransformToMatrix(QIN_Transform_Type* trans_in, QIN_Matrix_Type trans_out);
+	//static void TransformToMatrix(QIN_Transform_Type*, vtkMatrix4x4* matrix);
+	//static void PivotCalibration2::MatrixToVTKMatrix(QIN_Matrix_Type trans_in, vtkMatrix4x4* outmatrix);
 
 protected:
 	PivotCalibration2();

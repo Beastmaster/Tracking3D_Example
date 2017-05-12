@@ -364,117 +364,6 @@ int PloarisVicraConfiguration::GetTrackingStatus()
 
 /*
 Description:
-	Get Transform from tracker sensor
-	If cannot get transform, you will get a transform full of 0 value
-Input:
-	index: the index of the tool count from 0. By order in ini file parameters
-Return:
-	If the transform is valid, return a pointer
-	Else return a pointer to a 0 transform
-	(for ease of use)
-	If index out of range
-Note:
-	This funciton is deprecated....
-*/
-QIN_Transform_Type* PloarisVicraConfiguration::GetTransform(int index)
-{
-	nGetSystemTransformData();
-	
-	if (m_Transform == NULL)
-	{
-		m_Transform = new QIN_Transform_Type;
-		m_Transform->q0 = 1;
-	}
-	if (!m_bIsTracking)  // not tracking
-	{
-		//memset(m_Transform, 0, sizeof(QIN_Transform_Type));
-		//m_Transform->q0 = 1;
-		delete m_Transform;
-		m_Transform = NULL;
-		return m_Transform;
-	}
-
-	//check is the index in the portID list
-	if ( m_PortID.size()<=index )
-	{
-		//memset(m_Transform, 0, sizeof(QIN_Transform_Type));
-		//m_Transform->q0 = 1;
-		delete m_Transform;
-		m_Transform = NULL;
-		return m_Transform;
-	}
-
-	int index2 = m_PortID[index];
-	auto it = std::find(m_PortID.begin(), m_PortID.end(), index2);
-	if (it != m_PortID.end())
-	{
-		//memset(m_Transform, 0, sizeof(QIN_Transform_Type));
-		//m_Transform->q0 = 1;
-		// check transform validation
-		if (this->m_dtHandleInformation[index2].Xfrms.ulFlags != TRANSFORM_VALID )
-		{
-#if EN_INFO_POLARIS
-			std::cout << "Transform "<< index <<" Invalid!" << std::endl;
-#endif
-			delete m_Transform;
-			m_Transform = NULL;
-			return m_Transform;
-		}
-		if (this->m_dtHandleInformation[index2].HandleInfo.bPartiallyOutOfVolume)
-		{
-#if EN_INFO_POLARIS ==1
-			std::cout << "Tool " << index << " Partially out of volume" << std::endl;
-#endif
-			delete m_Transform;
-			m_Transform = NULL;
-			return m_Transform;
-		}
-		else if (this->m_dtHandleInformation[index2].HandleInfo.bOutOfVolume)
-		{
-#if EN_INFO_POLARIS
-			std::cout << "Tool " << index << " Out of volume" << std::endl;
-#endif
-			delete m_Transform;
-			m_Transform = NULL;
-			return m_Transform;
-		}
-		else
-		{
-#if EN_INFO_POLARIS
-			std::cout << "Tool " << index << " Within volume" << std::endl;
-#endif
-		}
-		
-		m_Transform_Map[index2]->translation.x = m_dtHandleInformation[index2].Xfrms.translation.x;
-		m_Transform_Map[index2]->translation.y = m_dtHandleInformation[index2].Xfrms.translation.y;
-		m_Transform_Map[index2]->translation.z = m_dtHandleInformation[index2].Xfrms.translation.z;
-		m_Transform_Map[index2]->rotation.q0 = m_dtHandleInformation[index2].Xfrms.rotation.q0;
-		m_Transform_Map[index2]->rotation.qx = m_dtHandleInformation[index2].Xfrms.rotation.qx;
-		m_Transform_Map[index2]->rotation.qy = m_dtHandleInformation[index2].Xfrms.rotation.qy;
-		m_Transform_Map[index2]->rotation.qz = m_dtHandleInformation[index2].Xfrms.rotation.qz;
-		m_Transform_Map[index2]->fError = m_dtHandleInformation[index2].Xfrms.fError;
-
-		m_Transform->x  = m_Transform_Map[index2]->translation.x;
-		m_Transform->y  = m_Transform_Map[index2]->translation.y;
-		m_Transform->z  = m_Transform_Map[index2]->translation.z;
-		m_Transform->q0 = m_Transform_Map[index2]->rotation.q0;
-		m_Transform->qx = m_Transform_Map[index2]->rotation.qx;
-		m_Transform->qy = m_Transform_Map[index2]->rotation.qy;
-		m_Transform->qz = m_Transform_Map[index2]->rotation.qz;
-		m_Transform->error = m_Transform_Map[index2]->fError;
-		return m_Transform;
-	}
-	else
-	{
-		//memset(m_Transform, 0, sizeof(QIN_Transform_Type));
-		//m_Transform->q0 = 1;
-		delete m_Transform;
-		m_Transform = NULL;
-		return m_Transform;
-	}
-}
-/*
-Description:
 	This function output 4x4 matrix to a allocated 4x4 double array.
 	A marco to allocate and relase 4x4 matrix is NEW2DARR and DEL2DARR
 	>> NEW2DARR(double, mat)   // allocate memory
@@ -500,6 +389,10 @@ int PloarisVicraConfiguration::GetTransform(int index, double** output)
 	//convert to identity
 	for (size_t i = 0; i < 4; i++)
 	{
+		for (size_t j = 0; j < 4; j++)
+		{
+			output[i][j] = 0;
+		}
 		output[i][i] = 1;
 	}
 

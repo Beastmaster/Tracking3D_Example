@@ -75,7 +75,7 @@ public:
 	void on_Valid_Marker();
 	void on_Sel_MarkersDone();
 	void on_Cap_Btn();
-	void on_CapDone_Btn();
+	void on_CapDone_Btn(); //finished
 	void on_StartTracking();
 	void on_StopTracking();
 	void on_ActionCalibrate();

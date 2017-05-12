@@ -7,7 +7,7 @@ set(
 HEAD
 ATC3DG.h
 ATC3DGConfiguration.h
-../TrackingClass/TrackerBase.h
+../vtkTrackerUtil/TrackerBase.h
 )
 
 set(

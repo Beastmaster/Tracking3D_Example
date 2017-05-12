@@ -13,13 +13,15 @@ Note:
 
 
 #include "ATC3DG.h"
-#include "../TrackingClass/TrackerBase.h"
+#include "../vtkTrackerUtil/TrackerBase.h"
 #include <string>
 #include <iostream>
 #include <map>
+#include <stdio.h>
 
 #define EN_INFO_ATC 1		// enable information output
 
+#define ATC3DG_LOG(X) std::cout<<"ATC Tracker err info:\t\t"<<X<<std::endl;
 
 class ATC3DGConfiguration : public TrackerBase
 {
@@ -43,7 +45,7 @@ public:
 	virtual int ConfigureTracker();
 	virtual int GetToolValidation(int);
 	virtual int GetTransformValidation(int);
-	virtual QIN_Transform_Type* GetTransform(int index);
+	//virtual QIN_Transform_Type* GetTransform(int index);
 	virtual int GetTransform(int,double**);
 
 

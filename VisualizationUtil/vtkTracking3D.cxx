@@ -53,7 +53,7 @@ vtkTracking3D::vtkTracking3D()
 	m_ToolTipCalibrationMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 
 	//m_tracker = new TrackerType;
-	m_tracker = NULL;
+	m_trackerUtil = vtkSmartPointer<vtkTrackerUtil>::New();
 
 	m_PlaneX = vtkSmartPointer<vtkImagePlaneWidget>::New();
 	m_PlaneY = vtkSmartPointer<vtkImagePlaneWidget>::New();
@@ -137,11 +137,7 @@ int vtkTracking3D::ConnectObjectTracker(int obj_index, int tool_index)
 		std::cout << "actor index out of range" << std::endl;
 		return_value =  1;
 	}
-	if (m_tracker->GetToolValidation(tool_index) != 0)
-	{
-		std::cout << "tool index out of range" << std::endl;
-		return_value =  2;
-	}
+
 	m_Obj_Tool_Map[obj_index] = tool_index;
 	return return_value;
 }
@@ -361,6 +357,8 @@ int vtkTracking3D::SetColor(int index, double* rgb)
 }
 
 /*
+This function is deprecated !
+
 Description:
 	Private function
 	Apply certain transform to moving actor
@@ -374,7 +372,7 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 		return 2;
 
 	// convert trans to vtkTransform and vtkMatrix first
-	PivotCalibration2::TransformToMatrix(trans,m_RawTransformMatrix);
+	TransformToMatrix(trans,m_RawTransformMatrix);
 	m_RawTransform->Identity();
 	m_RawTransform->SetMatrix(m_RawTransformMatrix);
 	
@@ -419,29 +417,8 @@ int vtkTracking3D::SetTransform(int index, QIN_Transform_Type* trans)
 int  vtkTracking3D::SetTransform(int index, vtkMatrix4x4* ma)
 {
 	// convert trans to vtkTransform and vtkMatrix first
-	m_RawTransformMatrix->DeepCopy(ma);
-	m_RawTransform->Identity();
-	m_RawTransform->SetMatrix(m_RawTransformMatrix);
-
-
-#pragma region Core_ALGORITHM
-	auto invert_refer = vtkSmartPointer<vtkMatrix4x4>::New();
-	invert_refer->Identity();
-	vtkMatrix4x4::Invert(m_RefTransformMatrix, invert_refer);
-
-	auto refer_raw = vtkSmartPointer<vtkMatrix4x4>::New();
-	vtkMatrix4x4::Multiply4x4(invert_refer, m_RawTransformMatrix, refer_raw);
-
-	auto calibrate_raw = vtkSmartPointer<vtkMatrix4x4>::New();
-	vtkMatrix4x4::Multiply4x4(refer_raw, m_ToolTipCalibrationMatrix, calibrate_raw);
-	//vtkMatrix4x4::Multiply4x4(m_RawTransformMatrix, m_ToolTipCalibrationMatrix, calibrate_raw); // disable reference test
-
-	//m_FinTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
-	vtkMatrix4x4::Multiply4x4(m_RegisterTransformMatrix, calibrate_raw, m_FinTransformMatrix);
-
-	m_FinTransform->SetMatrix(m_FinTransformMatrix);
-	//m_FinTransformMatrix = m_RegisterTransform->GetMatrix();
-#pragma endregion Core_ALGORITHM
+	m_FinTransform->Identity();
+	m_FinTransform->SetMatrix(ma);
 
 	// put out
 	m_marker_tobe_set[0] = m_FinTransform->GetPosition()[0];
@@ -504,6 +481,7 @@ int vtkTracking3D::SetRegisterTransform(vtkMatrix4x4* in)
 	m_RegisterTransformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 	m_RegisterTransformMatrix->DeepCopy(in);
 
+	m_trackerUtil->SetRegistrationMat(in);
 	//m_Transform->SetMatrix(in);
 	//m_Transform->PreMultiply();
 	return 0;
@@ -627,52 +605,11 @@ void vtkTracking3D::SetInteractorStyle( vtkInteractorStyle* style)
 	m_Interactor->SetInteractorStyle(style);
 }
 
-/*
-Description:
-	Get output of registration transform (vtkTransform)
-	Final transform after registration and calibration process
-*/
-vtkSmartPointer<vtkMatrix4x4> vtkTracking3D::GetRegisteredTransformMatrix()
-{
-	this->SetTransform(100, GetTransform(0));  // refresh, get the latest position and orientation matrix
-	return m_FinTransformMatrix;
-}
-vtkSmartPointer<vtkTransform> vtkTracking3D:: GetRegisteredTransform()
-{
-	this->SetTransform(100, GetTransform(0)); // refresh
-	return m_FinTransform;
-}
 
-/*
-Get out the transform you set in..
-*/
-vtkSmartPointer<vtkTransform> vtkTracking3D::GetRegisterTransform()
+int vtkTracking3D::GetTransformMatrix(int id , vtkMatrix4x4* ma)
 {
-	return m_RegisterTransform;
-}
-vtkSmartPointer<vtkMatrix4x4> vtkTracking3D::GetRegisterTransformMatrix()
-{
-	return m_RegisterTransformMatrix;
-}
-
-QIN_Transform_Type* vtkTracking3D::GetTransform(int id)
-{
-	QIN_Transform_Type* temp = m_tracker->GetTransform(m_RefID);
-	if (temp == NULL)
-	{
-		temp = new QIN_Transform_Type;
-		memset(temp, 0, sizeof(QIN_Transform_Type));
-	}
-	
-	PivotCalibration2::TransformToMatrix(temp, m_RefTransformMatrix);
-	m_RefTransform->Identity();
-	m_RefTransform->SetMatrix(m_RefTransformMatrix);
-	
-	return this->m_tracker->GetTransform(id);
-}
-int vtkTracking3D::GetTransformMatrix(int id , QIN_Matrix_Type ma)
-{
-	return m_tracker->GetTransform(id, ma);
+	auto errcode = m_trackerUtil->GetTransformMatrix(id, m_RefID, ma);
+	return errcode;
 }
 
 /*
@@ -684,7 +621,7 @@ Note:
 */
 void vtkTracking3D::SetTracker(TrackerType* in) 
 { 
-	m_tracker = in; 
+	m_trackerUtil->SetTrackerType(in); 
 };
 
 /*
@@ -694,6 +631,7 @@ Description:
 void vtkTracking3D::SetToolTipCalibrationMatrix(vtkMatrix4x4* matrix)
 {
 	m_ToolTipCalibrationMatrix->DeepCopy( matrix );
+	m_trackerUtil->SetCalibrationMat(matrix);
 }
 
 
@@ -845,18 +783,15 @@ void TimerCallbackFunction(
 	
 	for (auto it = tracking->m_Obj_Tool_Map.begin(); it != tracking->m_Obj_Tool_Map.end(); ++it)
 	{
-		NEW2DARR(double, temp);
+		auto temp = vtkSmartPointer<vtkMatrix4x4>::New();
 		if (tracking->GetTransformMatrix(it->second,temp) == 0)
 		{
-			auto mat_temp = vtkSmartPointer<vtkMatrix4x4>::New();
-			PivotCalibration2::MatrixToVTKMatrix(temp,mat_temp);
-			tracking->SetTransform(it->first, mat_temp);
+			tracking->SetTransform(it->first,temp);
 		}
 		else
 		{
 			std::cout << "transform invalid" << std::endl;
 		}
-		DEL2DARR(double, temp);
 	}
 	tracking->InvokeEvent(QIN_S_VTK_EVENT, tracking);
 	tracking->GetRenderWindow()->Render();
@@ -887,14 +822,15 @@ void TimerCallbackFunction2(
 
 	for (auto it = tracking->m_Obj_Tool_Map.begin(); it != tracking->m_Obj_Tool_Map.end(); ++it)
 	{
-		//QIN_Transform_Type trans;
-		QIN_Transform_Type* temp;
-		//memset(&trans, 0, sizeof(QIN_Transform_Type));
-		temp = tracking->m_tracker->GetTransform(it->second);
-		if (temp != NULL)
+		
+		auto mat = vtkSmartPointer<vtkMatrix4x4>::New();
+		int ecode = tracking->GetTransformMatrix(it->second,mat);
+		auto trans = vtkSmartPointer<vtkTransform>::New();
+		trans->SetMatrix(mat);
+		if (ecode == 0)
 		{
 			// construct transform
-			double* coor = tracking->GetRegisteredTransform()->TransformPoint(temp->x, temp->y, temp->z);
+			double* coor = trans->GetPosition();
 			//double* temp = m_LandMarkTransform->TransformVector(trans->x, trans->y, trans->z);
 
 			// put out

@@ -24,7 +24,7 @@ This is full example illustrating how the project work.
 ### 3. PivotCalibration
 
 ### 4. VisualizationUtil
-Custom visualization module
+Custom visualization module. This module is for private. Free to delete.
 
 ### 5. PolarisVicra
 PolarisVicra API

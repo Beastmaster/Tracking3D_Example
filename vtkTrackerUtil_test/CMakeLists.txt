@@ -21,21 +21,22 @@ include_directories(registration)
 
 
 set( UI_FILES
+vtkTrackerUtil_test_Win.ui
 )
 
 set( QT_HEAD
+vtkTrackerUtil_test_Win.h
 )
 
 
 set(
 SRC
-main.cxx
-trackingclass_test.cxx
+vtkTrackerUtil_test.cxx
+vtkTrackerUtil_test_Win.cpp
 )
 
 set(
 HEAD
-trackingclass_test.h
 )
 
 

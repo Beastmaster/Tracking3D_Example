@@ -14,6 +14,18 @@ MainWindow::MainWindow(QWidget *parent) :
 QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
+
+#pragma region MarchingCubes
+
+#pragma endregion MarchingCubes
+
+#pragma region Main_Configuration_TrackerUtil
+	m_trackerUtil = vtkSmartPointer<vtkTrackerUtil>::New();
+	m_trackerUtil->SetTrackerType(&m_tracker);
+	m_trackerUtil->SetCalibrationMat(m_ToolCalibrationMat);
+#pragma endregion Main_Configuration_TrackerUtil
+
+
 }
 
 MainWindow:: ~MainWindow()

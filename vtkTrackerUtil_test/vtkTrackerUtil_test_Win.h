@@ -31,9 +31,9 @@ Date: 2016/1/10
 #include <QMessageBox>
 
 
-
-
-
+#include "util.h"
+#include "PolarisVicraConfiguration.h"
+#include "vtkTrackerUtil.h"
 
 
 
@@ -49,9 +49,11 @@ public:
 	explicit MainWindow(QWidget *parent = 0);
 	~MainWindow();
 
-
-
-
+	PloarisVicraConfiguration m_tracker;
+	vtkSmartPointer<vtkTrackerUtil> m_trackerUtil;
+	int m_RefID;
+	int m_ToolID;
+	vtkSmartPointer<vtkMatrix4x4> m_ToolCalibrationMat;
 
 
 
@@ -63,6 +65,8 @@ private:
 
 
 
-
-
 #endif
+
+
+
+

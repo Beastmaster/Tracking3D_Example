@@ -35,14 +35,14 @@ public:
 	int StopTracking();
 	void Beep(int);
 
-	void SetTrackerType(TrackerBase*);
+	void SetTrackerType(TrackerBase*);   ///
 	void SetReferenceMat(vtkMatrix4x4*);
-	void SetCalibrationMat(vtkMatrix4x4*);
-	void SetRegistrationMat(vtkMatrix4x4*);
+	void SetCalibrationMat(vtkMatrix4x4*);///
+	void SetRegistrationMat(vtkMatrix4x4*);///
 
 	int GetRawTransformMatrix(int,double**);
 	int GetRawTransformMatrix(int,vtkMatrix4x4* );
-	int GetTransformMatrix(int toolID, int refID, vtkMatrix4x4* );
+	int GetTransformMatrix(int toolID, int refID, vtkMatrix4x4* ); ///
 	vtkSmartPointer<vtkMatrix4x4> GetRegistrationMat();
 	TrackerBase* GetTracker();
 	

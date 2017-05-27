@@ -36,8 +36,7 @@ public:
 	void Beep(int);
 
 	void SetTrackerType(TrackerBase*);   ///
-	void SetReferenceMat(vtkMatrix4x4*);
-	void SetCalibrationMat(vtkMatrix4x4*);///
+	void SetCalibrationMat(int id, vtkMatrix4x4*);///
 	void SetRegistrationMat(vtkMatrix4x4*);///
 
 	int GetRawTransformMatrix(int,double**);
@@ -45,7 +44,7 @@ public:
 	int GetTransformMatrix(int toolID, int refID, vtkMatrix4x4* ); ///
 	vtkSmartPointer<vtkMatrix4x4> GetRegistrationMat();
 	TrackerBase* GetTracker();
-	
+	void SetReferenceMat(vtkMatrix4x4*);
 
 protected:
 	vtkTrackerUtil();
@@ -62,7 +61,8 @@ private:
 	// Registration Transform and matrix
 	vtkSmartPointer<vtkMatrix4x4> m_RegistrationMatrix;
 	// Tooltip to tool calibration matrix
-	vtkSmartPointer<vtkMatrix4x4> m_CalibrationMatrix;
+	std::vector<vtkSmartPointer<vtkMatrix4x4> > m_CalibrationMatrix_Vec;
+
 	// Recommand to dynamic set reference 
 	vtkSmartPointer<vtkMatrix4x4> m_ReferenceMatrix;
 };

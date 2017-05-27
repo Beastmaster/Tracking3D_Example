@@ -631,7 +631,7 @@ Description:
 void vtkTracking3D::SetToolTipCalibrationMatrix(vtkMatrix4x4* matrix)
 {
 	m_ToolTipCalibrationMatrix->DeepCopy( matrix );
-	m_trackerUtil->SetCalibrationMat(matrix);
+	m_trackerUtil->SetCalibrationMat(0,matrix);
 }
 
 

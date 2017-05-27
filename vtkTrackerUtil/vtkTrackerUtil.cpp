@@ -20,8 +20,12 @@ vtkTrackerUtil::vtkTrackerUtil()
 	m_RegistrationMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 	m_RegistrationMatrix->Identity();
 	// Tooltip to tool calibration matrix
-	m_CalibrationMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
-	m_CalibrationMatrix->Identity();
+	for (size_t i = 0; i < 10; i++)
+	{
+		auto calibMat = vtkSmartPointer<vtkMatrix4x4>::New();
+		calibMat->Identity();
+		m_CalibrationMatrix_Vec.push_back(calibMat);
+	}
 	//
 	m_ReferenceMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 	m_ReferenceMatrix->Identity();
@@ -95,7 +99,7 @@ int vtkTrackerUtil::GetTransformMatrix(int toolID, int refID,vtkMatrix4x4* out)
 	ecode2 = m_Tracker->GetTransform(refID, mat);
 	MatrixToVTKMatrix(mat, m_ReferenceMatrix);
 
-	out->DeepCopy(this->CoordinateConversion(raw_mat,m_ReferenceMatrix,m_CalibrationMatrix,m_RegistrationMatrix));
+	out->DeepCopy(this->CoordinateConversion(raw_mat,m_ReferenceMatrix,m_CalibrationMatrix_Vec[toolID],m_RegistrationMatrix));
 	DEL2DARR(double,mat);
 
 	return 10 * ecode1 + ecode2;
@@ -122,9 +126,10 @@ void vtkTrackerUtil::SetReferenceMat(vtkMatrix4x4 * in)
 	m_ReferenceMatrix->DeepCopy(in);
 }
 
-void vtkTrackerUtil::SetCalibrationMat(vtkMatrix4x4 * in)
+void vtkTrackerUtil::SetCalibrationMat(int id, vtkMatrix4x4 * in)
 {
-	m_CalibrationMatrix->DeepCopy(in);
+	m_CalibrationMatrix_Vec[id]->DeepCopy(in);
+	m_CalibrationMatrix_Vec[id]->Modified();
 }
 
 void vtkTrackerUtil::SetRegistrationMat(vtkMatrix4x4 * in)

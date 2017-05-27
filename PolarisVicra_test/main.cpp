@@ -15,18 +15,18 @@ Description:
 
 int main()
 {	
-	//sys_init();
-	//PAUSE;
-	//start_tracking();
-	//PAUSE;
-	//stop_tracking();
-	//PAUSE;
-	//disconnect_sys();
-	//PAUSE;
-	//error_check();
-	//PAUSE;
-	//activate_sensor();
-	//PAUSE;
+	sys_init();
+	PAUSE;
+	start_tracking();
+	PAUSE;
+	stop_tracking();
+	PAUSE;
+	disconnect_sys();
+	PAUSE;
+	error_check();
+	PAUSE;
+	activate_sensor();
+	PAUSE;
 
 	get_matrix();
 	PAUSE;

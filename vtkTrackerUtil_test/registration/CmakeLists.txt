@@ -18,8 +18,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 include_directories(../../PolarisVicra)
 
-#add_subdirectory(../../TrackingClass)
-include_directories(../../TrackingClass)
+#add_subdirectory(../../vtkTrackerUtil)
+include_directories(../../vtkTrackerUtil)
 
 #add_subdirectory(../../PivotCalibration)
 include_directories(../../PivotCalibration)

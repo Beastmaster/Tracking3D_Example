@@ -22,7 +22,7 @@ QMainWindow(parent), ui(new Ui::MainWindow)
 #pragma region Main_Configuration_TrackerUtil
 	m_trackerUtil = vtkSmartPointer<vtkTrackerUtil>::New();
 	m_trackerUtil->SetTrackerType(&m_tracker);
-	m_trackerUtil->SetCalibrationMat(m_ToolCalibrationMat);
+	m_trackerUtil->SetCalibrationMat(0,m_ToolCalibrationMat);
 #pragma endregion Main_Configuration_TrackerUtil
 
 
